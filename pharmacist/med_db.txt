@@ -1,0 +1,21 @@
+-- item_name, quantity, price in RM
+Amoxicillin, 20, 50.00
+Paracetamol, 100, 10.00
+Ibuprofen, 75, 18.50
+Metformin, 40, 35.00
+Amlodipine, 30, 45.00
+Omeprazole, 60, 25.00
+Cetirizine, 90, 12.00
+Azithromycin, 25, 70.00
+Salbutamol, 50, 55.00
+Atorvastatin, 35, 65.00
+Ciprofloxacin, 28, 80.00
+Doxycycline, 34, 60.00
+Losartan, 45, 48.00
+Glimepiride, 22, 40.00
+Prednisolone, 18, 55.00
+Ranitidine, 50, 20.00
+Montelukast, 27, 52.00
+Clopidogrel, 16, 90.00
+Furosemide, 33, 30.00
+Levofloxacin, 24, 85.00

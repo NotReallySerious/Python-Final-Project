@@ -64,7 +64,7 @@ def main():
     )
 
     run(f'git commit -m "{commit_msg}"')
-    run("git push")
+    run("git push -u origin main")
 
     print("\n✅ Commit pushed successfully")
     print(f"📝 Commit message: {commit_msg}")
