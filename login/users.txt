@@ -1,0 +1,2 @@
+username,email,password,role
+David,david@aphdoctor.com,56905faf6abc4e9eb73e9804c55c617aad4afe142f09426ddf40bba762a17478,Doctor

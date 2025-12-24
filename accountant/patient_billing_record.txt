@@ -1,0 +1,6 @@
+'John Doe', 'Amoxiline', 2, 20.00
+'John Doe', 'Paracetamol', 2, 20.00
+'John Doe', 'Cough Syrup', 2, 15.50
+'Jane Doe', 'Xanax', 10, 100.50
+'Jane Doe', 'Headache pills', 8, 24.00
+ 
