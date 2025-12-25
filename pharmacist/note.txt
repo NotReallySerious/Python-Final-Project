@@ -1,1 +1,4 @@
-The format for the items written in the med_db is
+The format for the items written in the med_db is 
+
+med_name, quantity_in_stock, price in RM
+
