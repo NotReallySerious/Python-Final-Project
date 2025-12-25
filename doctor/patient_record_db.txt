@@ -1,0 +1,8 @@
+'Chris Croissant', 23, 'Seasonal Flu', 'Paracetamol;Vitamin C', '10;20', 'Get plenty of rest;Drink warm fluids'
+'Amanda Blake', 31, 'Migraine', 'Ibuprofen;Sumatriptan', '15;6', 'Avoid bright lights;Maintain regular sleep schedule'
+'Michael Turner', 45, 'Hypertension', 'Amlodipine;Losartan', '30;30', 'Reduce salt intake;Exercise regularly;Monitor blood pressure daily'
+'Sofia Martinez', 28, 'Gastritis', 'Omeprazole;Antacid', '14;20', 'Avoid spicy food;Eat smaller meals'
+'Daniel Kim', 36, 'Type 2 Diabetes', 'Metformin', '60', 'Monitor blood sugar levels;Maintain balanced diet;Regular physical activity'
+'Laura Peterson', 52, 'Osteoarthritis', 'Paracetamol;Glucosamine', '20;30', 'Apply warm compress;Avoid excessive joint strain'
+'Ravi Sharma', 41, 'Bronchitis', 'Azithromycin;Cough Syrup', '5;1', 'Avoid smoking;Increase fluid intake;Complete antibiotic course'
+'Aisha Noor', 26, 'Iron Deficiency Anemia', 'Iron Supplement;Folic Acid', '30;30', 'Consume iron-rich foods;Avoid tea after meals'

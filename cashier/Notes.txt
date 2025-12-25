@@ -1,0 +1,3 @@
+the format for the patient_register is 
+
+datetime, name, age, address, Doctor assigned
