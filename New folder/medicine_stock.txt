@@ -1,0 +1,3 @@
+100001,Paracetamol,45,2.50,High
+100002,Amoxicillin,37,5,Low
+100003,Ibuprofen,0,5,Low
