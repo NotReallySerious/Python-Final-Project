@@ -1,25 +1,25 @@
-'Alex Smith', 'Ibuprofen', 3, 18.50
-'Alex Smith', 'Paracetamol', 5, 10.00
-'Alex Smith', 'Omeprazole', 2, 25.00
-'Emily Smith', 'Metformin', 4, 35.00
-'Emily Smith', 'Amlodipine', 2, 45.00
-'Michael Brown', 'Cetirizine', 6, 12.00
-'Michael Brown', 'Salbutamol', 1, 55.00
-'Michael Brown', 'Ranitidine', 3, 20.00
-'Sarah Brown', 'Atorvastatin', 2, 65.00
-'Sarah Brown', 'Losartan', 2, 48.00
-'Daniel White', 'Amoxicillin', 2, 50.00
-'Daniel White', 'Azithromycin', 1, 70.00
-'Daniel White', 'Prednisolone', 1, 55.00
-'Laura White', 'Clopidogrel', 1, 90.00
-'Laura White', 'Furosemide', 2, 30.00
-'Kevin Lee', 'Montelukast', 2, 52.00
-'Kevin Lee', 'Cetirizine', 4, 12.00
-'Kevin Lee', 'Omeprazole', 1, 25.00
-'Michelle Lee', 'Glimepiride', 1, 40.00
-'Michelle Lee', 'Metformin', 2, 35.00
-'Robert King', 'Ciprofloxacin', 1, 80.00
-'Robert King', 'Levofloxacin', 1, 85.00
-'Robert King', 'Doxycycline', 2, 60.00
-'Anna King', 'Paracetamol', 10, 10.00
-'Anna King', 'Ibuprofen', 5, 18.50
+'Alex_Smith', 'Ibuprofen', 3, 18.50
+'Alex_Smith', 'Paracetamol', 5, 10.00
+'Alex_Smith', 'Omeprazole', 2, 25.00
+'Emily_Smith', 'Metformin', 4, 35.00
+'Emily_Smith', 'Amlodipine', 2, 45.00
+'Michael_Brown', 'Cetirizine', 6, 12.00
+'Michael_Brown', 'Salbutamol', 1, 55.00
+'Michael_Brown', 'Ranitidine', 3, 20.00
+'Sarah_Brown', 'Atorvastatin', 2, 65.00
+'Sarah_Brown', 'Losartan', 2, 48.00
+'Daniel_White', 'Amoxicillin', 2, 50.00
+'Daniel_White', 'Azithromycin', 1, 70.00
+'Daniel_White', 'Prednisolone', 1, 55.00
+'Laura_White', 'Clopidogrel', 1, 90.00
+'Laura_White', 'Furosemide', 2, 30.00
+'Kevin_Lee', 'Montelukast', 2, 52.00
+'Kevin_Lee', 'Cetirizine', 4, 12.00
+'Kevin_Lee', 'Omeprazole', 1, 25.00
+'Michelle_Lee', 'Glimepiride', 1, 40.00
+'Michelle_Lee', 'Metformin', 2, 35.00
+'Robert_King', 'Ciprofloxacin', 1, 80.00
+'Robert_King', 'Levofloxacin', 1, 85.00
+'Robert_King', 'Doxycycline', 2, 60.00
+'Anna_King', 'Paracetamol', 10, 10.00
+'Anna_King', 'Ibuprofen', 5, 18.50

@@ -9,7 +9,7 @@ def add():
         qy = (input("Enter the Quantity in stock:"))
         p = (input("Enter the Price:"))
         d = input("Enter the Demand Status(Low/Moderate/High):")
-        with open("medicine_stock.txt", "a", newline="") as file:
+        with open("pharmacist/medicine_stock.txt", "a", newline="") as file:
             writer = csv.writer(file)
             writer.writerow([b, n, qy, p, d])
     print("Medicines Added Succesfully")
@@ -22,7 +22,7 @@ def update():
     p = (input("Enter the Price:"))
     d = input("Enter the Demand Status:")
     rows = []
-    with open("medicine_stock.txt", "r") as file:
+    with open("pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         for row in reader:
             if len(row) < 6:
@@ -32,7 +32,7 @@ def update():
                 row[3] = str(p)
                 row[4] = str(d)
             rows.append(row)
-    with open("medicine_stock.txt", "w", newline="") as file:
+    with open("pharmacist/medicine_stock.txt", "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
     print("Medicine Updated Succesfully")
@@ -41,7 +41,7 @@ def update():
 def remove():
     b = input("Enter the Barcode:")
     rows =[]
-    with open("medicine_stock.txt", "r") as file:
+    with open("pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         for row in reader:
             if len(row) < 6:
@@ -50,7 +50,7 @@ def remove():
                 continue
             else :
                 rows.append(row)
-    with open("medicine_stock.txt", "w", newline="") as file:
+    with open("pharmacist/medicine_stock.txt", "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
     print("Medicine Removed Succesfully")
@@ -58,7 +58,7 @@ def remove():
 
 
 def view():
-    with open("medicine_stock.txt", "r") as file:
+    with open("pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
         for row in reader:
@@ -70,7 +70,7 @@ def view():
 def view_spe():
     b = input("Enter the Barcode:")
     w = 0
-    with open("medicine_stock.txt", "r") as file:
+    with open("pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
         for row in reader:
@@ -85,7 +85,7 @@ def view_spe():
     
 
 def view_low():
-     with open("medicine_stock.txt", "r") as file:
+     with open("pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}")
         for row in reader:
@@ -100,7 +100,7 @@ def prepare(i):
     total = 0
     prows = []
 
-    with open("medicine_stock.txt", "r") as file:
+    with open("pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         rows = [row for row in reader]
 
@@ -126,7 +126,7 @@ def prepare(i):
         if not found:
             print("Barcode not found.")
 
-    with open("medicine_stock.txt", "w", newline="") as file:
+    with open("pharmacist/medicine_stock.txt", "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
 
@@ -152,7 +152,7 @@ def prepare_patient_medicine():
     print("\n\n") 
     
 def report():
-    with open("medicine_stock.txt", "r") as file:
+    with open("pharmacist/pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}{'Demand':<10}")
         for row in reader:
@@ -160,7 +160,7 @@ def report():
         print("\n\n")
 
 def banner():
-    with open("medicine_stock.txt", "r") as file:
+    with open("pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         out_of_stock = [row for row in reader if len(row) >= 3 and row[2].isdigit() and int(row[2]) == 0]
 

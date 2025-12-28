@@ -1,6 +1,8 @@
 import base64
 import codecs
 import hashlib
+import datetime as dt
+from pharmacist.pharmacist import pharmasist
 
 def encrypt_password(password):
     #change password into bytes before encoding
@@ -27,13 +29,13 @@ def register():
         else:
             break
     
-    email_domain = ['aphdoctor.com','aphaccount.com','aphreceptionist.com','aphpharmacist.com','aphhadmin.com']
+    email_domain = ['aphdoctor.aph.com','aphaccountant.aph.com','aphreceptionist.aph.com','aphpharmacist.aph.com','aphhadmin.aph.com']
     try:
         domain = user_email.split('@')[1]
         if domain == email_domain[0]:
             role = 'Doctor'
         elif domain == email_domain[1]:
-            role = 'account personnel'
+            role = 'accountant'
         elif domain == email_domain[2]:
             role = 'receptionist'
         elif domain == email_domain[3]:
@@ -98,27 +100,59 @@ def register():
     print(f'username: {username}, email: {user_email}, Password: {encrypted_pass} Role: {role}')
 
     try:
-        with open('users.txt', 'a') as f:
-            f.write(f'{username},{user_email},{encrypted_pass},{role}')
+        with open('login/user_db.txt', 'w') as f:
+            f.write(f'"{username}","{user_email}","{password}","{role}"')
             print('User registered successfully')
     except FileNotFoundError as e:
-        print(f'Error: {e}')            
+        print(f'Error: {e}')   
+    try:
+        with open('login/user_db_encrypted.txt','w') as fe:
+            fe.write(f'"{username}","{user_email}","{encrypt_password(password)}","{role}"')   
+    except FileNotFoundError as e:
+        print(f'Error: {e}')  
 
 def login():
-    while True:
+    wrong_attempt_count = 3
+
+    while wrong_attempt_count != 0:
         email = input('Enter your email: ').strip()
         password = input('Enter your password: ').strip()
         enc_password = encrypt_password(password)
         valid_user  = False
-        with open('users.txt','r') as f:
+
+        with open('login/user_db.txt','r') as f:
             lines = f.readlines()
             
             for line in lines:
-                file_email = line[1]
-                file_password = line[2]
+                fields = line.strip().split(',')
+                username = fields[0].strip('"')
+                file_email = fields[1].strip('"')
+                file_password = fields[2].strip('"')
+                user_role = fields[3].strip('"')
                 if file_email == email and file_password == enc_password:
                     valid_user = True
-                    user_role = line[3]
                     break
+
             if valid_user == True:
-                print(f'Hello, {line[0]}, you are logged in as {user_role}, welcome to APU Hospital')
+                with open('login/clocked_in.txt','a') as cl:
+                    cl.write(f"{dt.datetime.now()}: {user_role}, {username}\n")
+                print(f'Hello {user_role}, {username}\n')
+
+                if user_role == 'Doctor':
+                    print(f'Hello Doctor {username}')
+
+
+                elif user_role == 'accountant':
+                    print(f'Hello accountant {username}')
+                    
+
+                elif user_role == 'pharmacist':
+                    print(f'Hello pharmacist {username}')
+                    pharmasist()
+            else:
+                wrong_attempt_count -= 1
+                print(f'credentials invalid. you have {wrong_attempt_count} attempt left')
+                
+    print('Hacker detected, go away')
+            
+login()
