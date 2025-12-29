@@ -1,0 +1,10 @@
+Asia Pacific Hospital receipt
+================================
+Receipt Id: 1
+Name : alex smith
+Time created: 2025-12-29 20:51:46.258664
+================================
+Ibuprofen x 3 = 55.50
+Paracetamol x 5 = 50.00
+Omeprazole x 2 = 50.00
+Total Amount: 155.50

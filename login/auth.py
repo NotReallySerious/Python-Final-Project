@@ -3,6 +3,7 @@ import codecs
 import hashlib
 import datetime as dt
 from pharmacist.pharmacist import pharmasist
+from accountant.account__assistant import accountant_main, delete_receipt, user_total_details, get_receipt_list
 
 def encrypt_password(password):
     #change password into bytes before encoding
@@ -144,7 +145,7 @@ def login():
 
                 elif user_role == 'accountant':
                     print(f'Hello accountant {username}')
-                    
+                    accountant_main()
 
                 elif user_role == 'pharmacist':
                     print(f'Hello pharmacist {username}')
