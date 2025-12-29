@@ -49,7 +49,7 @@ def register():
         print('invalid email format.')
     
     
-    username = input("Enter your username: ").strip()
+    username = input("Enter your username: ").strip().replace(' ','_')
 
     while True: 
         password = input("Enter your password: ").strip()
@@ -101,14 +101,14 @@ def register():
     print(f'username: {username}, email: {user_email}, Password: {encrypted_pass} Role: {role}')
 
     try:
-        with open('login/user_db.txt', 'w') as f:
-            f.write(f'"{username}","{user_email}","{password}","{role}"')
+        with open('login/user_db.txt', 'a') as f:
+            f.write(f'{username},{user_email},{password},{role}\n')
             print('User registered successfully')
     except FileNotFoundError as e:
         print(f'Error: {e}')   
     try:
-        with open('login/user_db_encrypted.txt','w') as fe:
-            fe.write(f'"{username}","{user_email}","{encrypt_password(password)}","{role}"')   
+        with open('login/user_db_encrypted.txt','a') as fe:
+            fe.write(f'{username},{user_email},{encrypt_password(password)},{role}\n')   
     except FileNotFoundError as e:
         print(f'Error: {e}')  
 
@@ -121,7 +121,7 @@ def login():
         enc_password = encrypt_password(password)
         valid_user  = False
 
-        with open('login/user_db.txt','r') as f:
+        with open('login/user_db_encrypted.txt','r') as f:
             lines = f.readlines()
             
             for line in lines:
@@ -141,19 +141,47 @@ def login():
 
                 if user_role == 'Doctor':
                     print(f'Hello Doctor {username}')
-
+                    return
 
                 elif user_role == 'accountant':
                     print(f'Hello accountant {username}')
                     accountant_main()
+                    return
 
                 elif user_role == 'pharmacist':
                     print(f'Hello pharmacist {username}')
                     pharmasist()
+                    return
+            
+                elif user_role == 'receptionist':
+                    print(f"Hello {username}, ready to count some money?")
+                    return
+                
+                elif user_role == 'administrator':
+                    print(f"Hello Admin. lets go manage some stuffs today")
+                    return
+                
+                else:
+                    print('No role for you. do you even work here?')
+                    break
+                
             else:
                 wrong_attempt_count -= 1
                 print(f'credentials invalid. you have {wrong_attempt_count} attempt left')
                 
     print('Hacker detected, go away')
             
-login()
+def main():
+    while True:
+        print('Asia Pacific Hospital HealthPlus patient management')
+        print('1. Register')
+        print('2. Login')
+        print('3. Exit')
+        choice = int(input('Enter your option: '))
+        match choice:
+            case 1:
+                register()
+            case 2:
+                login()
+
+main()

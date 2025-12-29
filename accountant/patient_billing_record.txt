@@ -23,3 +23,5 @@
 'Robert_King', 'Doxycycline', 2, 60.00
 'Anna_King', 'Paracetamol', 10, 10.00
 'Anna_King', 'Ibuprofen', 5, 18.50
+'Charlie_Kirk', 'Amoxicillin', 1, 50.00
+

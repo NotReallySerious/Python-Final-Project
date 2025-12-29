@@ -1,1 +1,2 @@
-"davidchristp123!_","david@aphaccountant.aph.com","54e954e710f94468b979c2f45f81b7bb8fc748fb723c8021711a1efed5da3a8f","accountant"
+Charlie_Kirk,Charlie@aphdoctor.aph.com,WeAreCharlieKirk123!_,Doctor
+Spongebob_Squarepants,Spongebob@aphaccountant.aph.com,BikiniBottom24!_,accountant
