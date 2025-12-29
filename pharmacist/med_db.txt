@@ -1,21 +1,20 @@
--- item_name, quantity, price in RM
-Amoxicillin, 20, 50.00
-Paracetamol, 100, 10.00
-Ibuprofen, 75, 18.50
-Metformin, 40, 35.00
-Amlodipine, 30, 45.00
-Omeprazole, 60, 25.00
-Cetirizine, 90, 12.00
-Azithromycin, 25, 70.00
-Salbutamol, 50, 55.00
-Atorvastatin, 35, 65.00
-Ciprofloxacin, 28, 80.00
-Doxycycline, 34, 60.00
-Losartan, 45, 48.00
-Glimepiride, 22, 40.00
-Prednisolone, 18, 55.00
-Ranitidine, 50, 20.00
-Montelukast, 27, 52.00
-Clopidogrel, 16, 90.00
-Furosemide, 33, 30.00
-Levofloxacin, 24, 85.00
+10001, Amoxicillin, 2, 50.00
+10002, Paracetamol, 10, 10.00
+10003, Ibuprofen,10, 18.50
+10004, Metformin, 4, 35.00
+10005, Amlodipine,5, 45.00
+10006, Omeprazole, 6, 25.00
+10007, Cetirizine, 9, 12.00
+10008, Azithromycin, 2, 70.00
+10009, Salbutamol, 5, 55.00
+10010, Atorvastatin, 3, 65.00
+10011, Ciprofloxacin, 2, 80.00
+10012, Doxycycline, 3, 60.00
+10013, Losartan, 4, 48.00
+10014, Glimepiride, 2, 40.00
+10015, Prednisolone, 1, 55.00
+10016, Ranitidine, 5, 20.00
+10017, Montelukast, 2, 52.00
+10018, Clopidogrel, 1, 90.00
+10019, Furosemide, 3, 30.00
+10020, Levofloxacin, 2, 85.00

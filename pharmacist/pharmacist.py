@@ -9,7 +9,7 @@ def add():
         qy = (input("Enter the Quantity in stock:"))
         p = (input("Enter the Price:"))
         d = input("Enter the Demand Status(Low/Moderate/High):")
-        with open("pharmacist/medicine_stock.txt", "a", newline="") as file:
+        with open("medicine_stock.txt", "a", newline="") as file:
             writer = csv.writer(file)
             writer.writerow([b, n, qy, p, d])
     print("Medicines Added Succesfully")
@@ -22,7 +22,7 @@ def update():
     p = (input("Enter the Price:"))
     d = input("Enter the Demand Status:")
     rows = []
-    with open("pharmacist/medicine_stock.txt", "r") as file:
+    with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         for row in reader:
             if len(row) < 6:
@@ -32,7 +32,7 @@ def update():
                 row[3] = str(p)
                 row[4] = str(d)
             rows.append(row)
-    with open("pharmacist/medicine_stock.txt", "w", newline="") as file:
+    with open("medicine_stock.txt", "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
     print("Medicine Updated Succesfully")
@@ -41,7 +41,7 @@ def update():
 def remove():
     b = input("Enter the Barcode:")
     rows =[]
-    with open("pharmacist/medicine_stock.txt", "r") as file:
+    with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         for row in reader:
             if len(row) < 6:
@@ -50,7 +50,7 @@ def remove():
                 continue
             else :
                 rows.append(row)
-    with open("pharmacist/medicine_stock.txt", "w", newline="") as file:
+    with open("medicine_stock.txt", "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
     print("Medicine Removed Succesfully")
@@ -58,7 +58,7 @@ def remove():
 
 
 def view():
-    with open("pharmacist/medicine_stock.txt", "r") as file:
+    with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
         for row in reader:
@@ -70,7 +70,7 @@ def view():
 def view_spe():
     b = input("Enter the Barcode:")
     w = 0
-    with open("pharmacist/medicine_stock.txt", "r") as file:
+    with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
         for row in reader:
@@ -85,7 +85,7 @@ def view_spe():
     
 
 def view_low():
-     with open("pharmacist/medicine_stock.txt", "r") as file:
+     with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}")
         for row in reader:
@@ -100,37 +100,49 @@ def prepare(i):
     total = 0
     prows = []
 
-    with open("pharmacist/medicine_stock.txt", "r") as file:
-        reader = csv.reader(file)
-        rows = [row for row in reader]
+    with open("medicine_stock.txt", "r") as f1, \
+         open("med_db.txt", "r") as f2:
+        reader1 = csv.reader(f1)
+        reader2 = csv.reader(f2)
+        rows1 = [row for row in reader1]
+        rows2 = [row for row in reader2]
 
     for _ in range(i):
         barcode = input("Enter the barcode of the Medicine:")
         qty_needed = int(input("Enter the Quantity of the Medicine:"))
 
         found = False
-        for row in rows:
-            if row[0] == barcode:
+        for idx in range(len(rows1)):
+            if len(rows1[idx]) < 4:
+                continue
+            if rows1[idx][0] == barcode:
                 found = True
-                if len(row) < 1:
-                    continue
-                if int(row[2]) >= qty_needed:
-                    row[2] = str(int(row[2]) - qty_needed)
-                    pr = qty_needed * float(row[3])
+
+                stock_row = rows1[idx]
+                sales_row = rows2[idx]  
+
+                if int(stock_row[2]) >= qty_needed:
+                    stock_row[2] = str(int(stock_row[2]) - qty_needed)
+                    sales_row[2] = str(int(sales_row[2]) + qty_needed)
+                    pr = qty_needed * float(stock_row[3])
                     total += pr
-                    prows.append((row[0], row[1], qty_needed, pr))
+                    prows.append((stock_row[0], stock_row[1], qty_needed, pr))
                 else:
-                    print(f"Not enough stock for {row[1]}")
+                    print(f"Not enough stock for {stock_row[1]}")
                 break
 
         if not found:
             print("Barcode not found.")
-
-    with open("pharmacist/medicine_stock.txt", "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
+            
+    with open("medicine_stock.txt", "w", newline="") as f1, \
+         open("med_db.txt", "w", newline="") as f2:
+        writer1 = csv.writer(f1)
+        writer2 = csv.writer(f2)
+        writer1.writerows(rows1)
+        writer2.writerows(rows2)
 
     print("\n\n")
+
 
         
 
@@ -152,7 +164,7 @@ def prepare_patient_medicine():
     print("\n\n") 
     
 def report():
-    with open("pharmacist/pharmacist/medicine_stock.txt", "r") as file:
+    with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}{'Demand':<10}")
         for row in reader:
@@ -160,7 +172,7 @@ def report():
         print("\n\n")
 
 def banner():
-    with open("pharmacist/medicine_stock.txt", "r") as file:
+    with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         out_of_stock = [row for row in reader if len(row) >= 3 and row[2].isdigit() and int(row[2]) == 0]
 
