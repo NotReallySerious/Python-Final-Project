@@ -11,7 +11,7 @@ def redo_action(prompt):
         else:
             print("Invalid Value. please enter 'yes', or 'no'.")
         
-def user_total_details():
+def get_user_total_details():
     try:
         with open('receipt_id.txt','r') as re:
             last_id = int(re.read())
@@ -55,7 +55,7 @@ def user_total_details():
             if not redo_action('Create Another receipt'):
                 return
             else:
-                user_total_details()
+                get_user_total_details()
                 return
     
     # Display and store them into a different username billing receipts
@@ -248,7 +248,7 @@ def accountant_main():
         choice = input("> ")
         match choice:
             case '1':
-                user_total_details()
+                get_user_total_details()
             case '2':
                 get_receipt_list()
             case '3':

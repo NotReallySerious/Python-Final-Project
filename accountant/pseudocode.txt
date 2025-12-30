@@ -11,7 +11,7 @@ FUNCTION redo_action(prompt)
     ENDWHILE
 ENDFUNCTION
 
-FUNCTION user_total_details()
+FUNCTION get_user_total_details()
 
     // Get the next receipt ID
 

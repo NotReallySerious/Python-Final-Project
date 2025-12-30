@@ -3,7 +3,7 @@ import codecs
 import hashlib
 import datetime as dt
 from pharmacist.pharmacist import pharmasist
-from accountant.account__assistant import accountant_main, delete_receipt, user_total_details, get_receipt_list
+from accountant.account__assistant import accountant_main, delete_receipt, get_user_total_details, get_receipt_list
 
 def encrypt_password(password):
     #change password into bytes before encoding
