@@ -21,6 +21,7 @@ FUNCTION user_total_details()
         CLOSE FILE 
     CATCH FileNotFoundError:
         SET last_id = 0
+    END TRY
     
     SET receipt_id = last_id + 1
     SET receipt_id_str = convert receipt_id to string
@@ -52,19 +53,21 @@ FUNCTION user_total_details()
     SET receipt_path = "accountant/" + target_username (replace the empty space into underscore) + "_receipt.txt"
     TRY:
         OPEN receipt_path for appending
-        WRITE "Asia Pacific Hospital Receipt" 
-        WRITE "============================="
-        WRITE "Receipt Id: " + receipt_id_str
-        WRITE "Name: " + target_username (replace the underscore to space)
-        WRITE "Time Created: " + current_system_time
-        WRITE "============================="
-        FOR EACH amount IN receipt_details
-            WRITE amount 
-        WRITE "Total Amount: " + Total
+            WRITE "Asia Pacific Hospital Receipt" 
+            WRITE "============================="
+            WRITE "Receipt Id: " + receipt_id_str
+            WRITE "Name: " + target_username (replace the underscore to space)
+            WRITE "Time Created: " + current_system_time
+            WRITE "============================="
+            FOR EACH amount IN receipt_details
+                WRITE amount 
+            WRITE "Total Amount: " + Total
         CLOSE receipt_path
 
     CATCH FileExistsError
         DISPLAY "Error Found: " + error
+    
+    ENDTRY
     
     // Check if the receipt has been inserted into the receipt_db
     TRY:
@@ -74,9 +77,11 @@ FUNCTION user_total_details()
         CLOSE receipt_db.txt
     CATCH:
         DISPLAY "Error inserting receipt into the list"
-    
+    ENDTRY
+
     IF redo_action('Create another receipt') IS FALSE:
         EXIT FUNCTION
+    ENDIF
 ENDFUNCTION
 
 FUNCTION get_receipt_list():
@@ -108,6 +113,7 @@ FUNCTION get_receipt_list():
         CATCH:
             DISPLAY 'invalid ID'
             CONTINUE the loop iteration
+        ENDTRY
         
         IF choice EXISTS IN receipt dictionary DO
             GET customer_name FROM receipts USING choice AS KEY INDICATOR
@@ -124,6 +130,7 @@ FUNCTION get_receipt_list():
             CLOSE FILE
         CATCH FileNotFoundError
             DISPLAY 'Error : receipt for {customer_name} cant be found'
+        ENDTRY
         
         // Ask the accountant if they want to see another receipt or not
         IF redo_action('see another receipt') IS FALSE:

@@ -56,6 +56,8 @@ FUNCTION register():
     
     CATCH IndexError:
         DISPLAY 'invalid email format'
+
+    ENDTRY
     
     PROMPT USER FOR USERNAME (trim whitespaces, replace space between characters to '_')
 
@@ -73,7 +75,8 @@ FUNCTION register():
         IF password_length < 12:
             DISPLAY "your password length is {password_length}. you password must have at least 12 characters"
             SET all_valid = False
-        
+        ENDIF
+
         FOR every letter in password DO
             IF letter is uppercase DO
                 INCREMENT uppercase_count by 1
@@ -124,6 +127,7 @@ FUNCTION register():
         OPEN login/user_db.txt FOR APPENDING AS f
             WRITE '{username},{user_email},{password},{role}' + new line to f
             DISPLAY 'User Registered succesfully'
+        CLOSE f
     CATCH FileNotFoundError AS e:
         DISPLAY 'Error: {e}'
     END TRY
@@ -131,6 +135,7 @@ FUNCTION register():
     TRY:
         OPEN login/user_db_encrypted.txt FOR APPENDING AS fe
             WRITE '{username},{user_email},{encrypt_password(password)},{role}' + new line TO fe
+        CLOSE fe
     CATCH FileNotFoundError as e:
         DISPLAY 'Error: {e}'
     END TRY
@@ -167,7 +172,7 @@ FUNCTION login():
                 IF user_role is 'Doctor' THEN
                     DISPLAY 'Hello Doctor {username}'
                     RETURN from FUNCTION
-
+            
                ELSE IF user_role is 'accountant' THEN
                     DISPLAY 'Hello accountant {username}, ready to count some money?'
                     RETURN from FUNCTION
