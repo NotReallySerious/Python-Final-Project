@@ -202,6 +202,65 @@ FUNCTION delete_receipt():
     ENDWHILE
 ENDFUNCTION
 
+FUNCTION daily_summary():
+
+    SET patient_count = 0
+    SET med_sold as dictionary
+    SET total = 0
+    GET today's date with the format '%Y-%m-%d'
+
+    OPEN accountant/patient_billing_record.txt FOR READING AS f
+        SET lines = read all the lines from file
+
+        FOR every line in lines THEN
+
+            IF line is empty THEN
+                CONTINUE iteration
+            ENDIF
+            
+            SET part = split by ';'
+            EXTRACT date from part (trim whitespace, take the first element in part, replace "'" to "")
+            EXTRACT patient_name from part (trim whitespace, take the second element in part, replace "'" to "")
+            EXTRACT item_name from part (trim whitespace, take the third element in part, replace "'" to "")
+            EXTRACT quantity from part (trim whitespace, take the fourth element in part, replace "'" to "", change to integer)
+            EXTRACT price from part (trim whitespace, take the fifth element in part, replace "'" to "", change to float)
+
+            IF Date EQUALS TO date:
+                INCREMENT patient_count by 1
+                med_sold[item_name] = med_sold.get(item_name, 0) + quantity
+                INCREMENT total by (quantity times price)
+            ENDIF
+        ENDFOR
+    CLOSE FILE
+            
+    IF patient_count EQUALS TO 0 THEN
+        DISPLAY 'no transaction found for {date}'
+        EXIT FUNCTION
+    ENDIF
+    
+    SET summary_file_path = "accountant/{Date}_daily_summary.txt"
+
+    OPEN summary_file_path FOR WRITING AS sum 
+        WRITE 'Asia Pacific Hospital Healthplus Sales Summary' + new line to sum
+        WRITE '================================' + new line to sum
+        WRITE 'Date: {Date}' + new line to sum
+        WRITE 'Total patients: {patient_count}' + new line to sum
+        WRITE 'Items sold' + new line to sum
+        FOR each item, and quantity in med_sold dictionary DO
+            WRITE '{item}: {quantity} x {price}' + new line to sum
+        ENDFOR
+        WRITE '=================================' + new line to sum
+        WRITE 'Total Income = RM. {total (round up to 2 floating points)}' + new line to sum
+    CLOSE FILE
+
+    DISPLAY 'Daily Summary for today is saved on {summary_file_path}'
+
+    IF user NOT redo_action('generate another summary') THEN
+        EXIT FUNCTION
+    ENDIF
+ENDFUNCTION
+
+
 FUNCTION accountant_main():
     WHILE TRUE DO
         DISPLAY 'Accountant management dashboard'

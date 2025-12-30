@@ -1,0 +1,27 @@
+Asia Pacific Hospital Healthplus Sales Summary
+============================
+Date: 2025-12-30
+Total Patients: 26
+items sold:
+Amlodipine: 2 x 50.0
+Amoxicillin: 3 x 50.0
+Atorvastatin: 2 x 50.0
+Azithromycin: 1 x 50.0
+Cetirizine: 10 x 50.0
+Ciprofloxacin: 1 x 50.0
+Clopidogrel: 1 x 50.0
+Doxycycline: 2 x 50.0
+Furosemide: 2 x 50.0
+Glimepiride: 1 x 50.0
+Ibuprofen: 8 x 50.0
+Levofloxacin: 1 x 50.0
+Losartan: 2 x 50.0
+Metformin: 6 x 50.0
+Montelukast: 2 x 50.0
+Omeprazole: 3 x 50.0
+Paracetamol: 15 x 50.0
+Prednisolone: 1 x 50.0
+Ranitidine: 3 x 50.0
+Salbutamol: 1 x 50.0
+=================================
+Total Income = 1988.00
