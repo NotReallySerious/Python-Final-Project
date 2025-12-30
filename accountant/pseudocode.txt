@@ -1,0 +1,225 @@
+FUNCTION redo_action(prompt)
+    WHILE True DO
+        prompt user for enter yes or no (choice)
+        IF choice LIKE 'yes' or 'y' DO
+            OUTPUT True
+        ELSE IF choice LIKE 'no' or 'n' DO
+            OUTPUT False
+        ELSE
+            DISPLAY "Invalid Value. please enter 'yes', or 'no'."
+        ENDIF
+    ENDWHILE
+ENDFUNCTION
+
+FUNCTION user_total_details()
+
+    // Get the next receipt ID
+
+    TRY:
+        OPEN 'receipt_id.txt' for read
+        SET last_id = READ INTEGER FROM 'receipt_id.txt'
+        CLOSE FILE 
+    CATCH FileNotFoundError:
+        SET last_id = 0
+    
+    SET receipt_id = last_id + 1
+    SET receipt_id_str = convert receipt_id to string
+
+    // Get the user input
+    prompt user to enter target_username
+    SET target_username = remove whitespace and change all letters to lowercase
+    SET receipt_details = empty list
+    SET total = 0.00
+
+    OPEN 'accountant/patient_billing_record.txt' for reading
+        FOR EACH LINE IN patient_billing_record.txt:
+            SET line = split line by comma 
+            SET username = trim(line[0]) and remove quotes and change all letters to lowercase
+            SET item_name = trim(line[1]) and remove quotes
+            SET Quantity = convert(line[2]) INTO INTEGER
+            SET price = convert(line[3]) INTO FLOAT 
+
+            IF username == target_username THEN 
+                SET found TO TRUE 
+                SET item_total = Quantity x price
+                INCREMENT total by item_total
+                APPEND (item_name + 'x' + Quantity = item_total) TO receipt_details
+            ENDIF
+        ENDFOR
+    CLOSE patient_billing_record.txt
+
+    // Store the Receipt Details to a seperate file
+    SET receipt_path = "accountant/" + target_username (replace the empty space into underscore) + "_receipt.txt"
+    TRY:
+        OPEN receipt_path for appending
+        WRITE "Asia Pacific Hospital Receipt" 
+        WRITE "============================="
+        WRITE "Receipt Id: " + receipt_id_str
+        WRITE "Name: " + target_username (replace the underscore to space)
+        WRITE "Time Created: " + current_system_time
+        WRITE "============================="
+        FOR EACH amount IN receipt_details
+            WRITE amount 
+        WRITE "Total Amount: " + Total
+        CLOSE receipt_path
+
+    CATCH FileExistsError
+        DISPLAY "Error Found: " + error
+    
+    // Check if the receipt has been inserted into the receipt_db
+    TRY:
+        OPEN receipt_db.txt for appending
+            WRITE receipt_id_str + ':' + target_username
+            DISPLAY target_username + " 's receipt has been created"
+        CLOSE receipt_db.txt
+    CATCH:
+        DISPLAY "Error inserting receipt into the list"
+    
+    IF redo_action('Create another receipt') IS FALSE:
+        EXIT FUNCTION
+ENDFUNCTION
+
+FUNCTION get_receipt_list():
+    SET receipts = empty dictionary 
+    SET current_id = 1
+    OPEN receipt_db.txt FOR READING:
+        READ EVERY LINE IN receipt_db.txt
+
+        FOR EACH value IN lines:
+
+            SET data = SPLIT LINE BY ':'
+            SET customer_name = trim whitespace from data[1]
+
+            DISPLAY current_id + '.' + customer_name
+
+            INCREMENT current_id BY 1
+        
+        ENDFOR
+
+    WHILE True DO
+        SET choice = PROMPT USER TO ENTER ID TO VIEW THE RECEIPT DETAILS (ENTER 00 TO EXIT)
+
+        IF choice EQUALS TO '00' DO
+            BREAK LOOP
+        ENDIF
+
+        TRY:
+            SET choice = CONVERT choice INTO INTEGER
+        CATCH:
+            DISPLAY 'invalid ID'
+            CONTINUE the loop iteration
+        
+        IF choice EXISTS IN receipt dictionary DO
+            GET customer_name FROM receipts USING choice AS KEY INDICATOR
+            CONSTRUCT receipt_file PATH AS "accountant/{customer_name_lowercase_with_underscores}_receipt.txt"
+        ELSE
+            DISPLAY 'Invalid ID'
+            READ AND DISPLAY ENTIRE CONTENT IN THE receipt_db.txt
+        ENDIF
+
+        TRY:
+            OPEN receipt_file FOR READING AS file
+                DISPLAY 'Receipt for {customer_name}'
+                READ AND DISPLAY THE ENTIRE receipt_file CONTENT
+            CLOSE FILE
+        CATCH FileNotFoundError
+            DISPLAY 'Error : receipt for {customer_name} cant be found'
+        
+        // Ask the accountant if they want to see another receipt or not
+        IF redo_action('see another receipt') IS FALSE:
+            EXIT FUNCTION
+        ENDIF
+    ENDWHILE
+ENDFUNCTION
+
+FUNCTION delete_receipt():
+    SET receipts as empty dictionary
+    set current_id = 1
+    OPEN accountant/receipt_db.txt FOR READING AS rl
+        READ ALL LINES FROM rl INTO LINES 
+
+        FOR EACH line IN lines DO
+            EXTRACT customer_name from line (split by ':', take the second part, trim whitespace)
+            STORE customer_name in receipts dictionary with key current_id 
+            DISPLAY "{current_id}. {customer_name}"
+
+            INCREMENT current_id by 1
+    CLOSE rl
+
+    DISPLAY 'Enter the receipt ID to Delete (00 to exit)'
+    WHILE True DO 
+        PROMPT USER TO ENTER RECEIPT ID (choice)
+
+        IF choice EQUALS TO '00' THEN
+            EXIT loop
+        ENDIF
+
+        IF lines IS EMPTY THEN
+            DISPLAY 'No Receipts to delete'
+            RETURN FROM FUNCTION
+        ENDIF
+
+        TRY
+            CONVERT choice INTO INTEGER
+        CATCH conversion error
+            DISPLAY 'Invalid ID'
+            CONTINUE to the next iteration
+        ENDTRY
+
+        IF choice EXISTS IN receipts dictionary THEN 
+            GET customer_name from receipts using choice as key
+            CONSTRUCT receipt_file path as "accountant/{customer_name_lowercase_with_underscores}_receipt.txt"
+        ELSE
+            DISPLAY 'Invalid ID'
+            CONTINUE iteration
+        ENDIF
+
+        IF receipt_file EXISTS THEN
+            DELETE receipt_file 
+            DISPLAY "{customer_name}'s receipt has been deleted"
+        ELSE
+            DISPLAY "receipt for {customer_name} not found"
+        ENDIF
+        
+        // REMOVE ENTRY 
+        DELETE lines[choice - 1]
+
+        // UPDATE THE DATABASE FILE 
+        OPEN FILE 'accountant/receipt_db.txt' for WRITING AS rl
+            WRITE ALL LINES TO rl
+        CLOSE FILE
+
+        // ASK IF THE ACCOUNTANT WANTS TO DELETE RECEIPT AGAIN
+        IF redo_action('delete another receipt') IS FALSE
+            EXIT FUNCTION
+    ENDWHILE
+ENDFUNCTION
+
+FUNCTION accountant_main():
+    WHILE TRUE DO
+        DISPLAY 'Accountant management dashboard'
+        DISPLAY '1. Create Billing Dashboard'
+        DISPLAY '2. View all receipts'
+        DISPLAY '3. Delete Receipt(s)'
+        DISPLAY '4. Log Out'
+
+        PROMPT USER TO ENTER CHOICE (choice)
+        CASE OF choice
+            '1': CALL user_total_details()
+            '2': CALL get_receipt_list()
+            '3': CALL delete_receipt()
+            '4': OPEN login/logged_out.txt FOR APPENDING AS l
+                    GET current timestamp 
+                    WRITE '[{datetime.datetime.now()}] accountant logged out'
+                    DISPLAY 'Bye. See you tomorrow. Have a great day'
+                    EXIT loop
+                 CLOSE FILE
+        END CASE
+    ENDWHILE 
+ENDFUNCTION
+            
+    
+    
+
+
+

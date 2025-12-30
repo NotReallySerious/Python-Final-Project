@@ -102,13 +102,13 @@ def register():
 
     try:
         with open('login/user_db.txt', 'a') as f:
-            f.write(f'{username},{user_email},{password},{role}\n')
+            f.write(f'{username};{user_email};{password};{role}\n')
             print('User registered successfully')
     except FileNotFoundError as e:
         print(f'Error: {e}')   
     try:
         with open('login/user_db_encrypted.txt','a') as fe:
-            fe.write(f'{username},{user_email},{encrypt_password(password)},{role}\n')   
+            fe.write(f'{username};{user_email};{encrypt_password(password)};{role}\n')   
     except FileNotFoundError as e:
         print(f'Error: {e}')  
 
@@ -125,7 +125,7 @@ def login():
             lines = f.readlines()
             
             for line in lines:
-                fields = line.strip().split(',')
+                fields = line.strip().split(';')
                 username = fields[0].strip('"')
                 file_email = fields[1].strip('"')
                 file_password = fields[2].strip('"')
@@ -144,7 +144,7 @@ def login():
                     return
 
                 elif user_role == 'accountant':
-                    print(f'Hello accountant {username}')
+                    print(f'Hello accountant {username}, ready to count some money?')
                     accountant_main()
                     return
 
@@ -154,7 +154,7 @@ def login():
                     return
             
                 elif user_role == 'receptionist':
-                    print(f"Hello {username}, ready to count some money?")
+                    print(f"Catchingg... Hello {username}")
                     return
                 
                 elif user_role == 'administrator':
@@ -167,7 +167,7 @@ def login():
                 
             else:
                 wrong_attempt_count -= 1
-                print(f'credentials invalid. you have {wrong_attempt_count} attempt left')
+                print(f'credentials invalid. you have {wrong_attempt_count} attempt(S) left')
                 
     print('Hacker detected, go away')
             

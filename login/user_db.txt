@@ -1,2 +1,2 @@
-Charlie_Kirk,Charlie@aphdoctor.aph.com,WeAreCharlieKirk123!_,Doctor
-Spongebob_Squarepants,Spongebob@aphaccountant.aph.com,BikiniBottom24!_,accountant
+Charlie_Kirk;Charlie@aphdoctor.aph.com;WeAreCharlieKirk123!_;Doctor
+Spongebob_Squarepants;Spongebob@aphaccountant.aph.com;BikiniBottom24!_;accountant

@@ -1,0 +1,220 @@
+// IMPORT PYTHON LIBRARIES
+IMPORT base64
+IMPORT codecs
+IMPORT hashlib
+IMPORT datetime as dt
+from pharmacist.pharmacist import pharmasist
+from accountant.account__assistant import accountant_main, delete_receipt, user_total_details, get_receipt_list
+
+FUNCTION encrypt_password(password):
+
+    // change the password string into base64
+
+    SET password_bytes = CONVERT password string to utf-8
+    SET base64_encoded = ENCODE password_bytes into base64 using base64 algorithm
+    SET base64_string = DECODE base64_encoded into utf-8
+
+    // encode the base64 string to rot-13
+    SET ROT_13_encode = ENCODE base64_string to ROT-13
+
+    // encode the ROT-13 String to SHA256
+    SET hash_bytes = CONVERT ROT_13_encode string into utf-8 string
+    SET sha256_string = HASH hash_bytes into SHA256 HASH STRING 
+    SET final_hex_representation = CONVERT sha256_string into HEX STRING
+    DISPLAY final_hex_representation
+
+ENDFUNCTION
+
+FUNCTION register():
+    WHILE True DO
+        PROMPT USER TO ENTER THEIR EMAIL ADDRESS (user_email)
+
+        IF user_email NOT CONTAIN '@' THEN
+            DISPLAY 'Invalid Email'
+        ELSE
+            BREAK LOOP
+        ENDIF
+    ENDWHILE
+
+    SET email_domain to python list ['aphdoctor.aph.com','aphaccountant.aph.com','aphreceptionist.aph.com','aphpharmacist.aph.com','aphhadmin.aph.com']
+    TRY:
+        SET domain = split by '@', take the first index of user_email
+    
+        IF domain == email_domain[0]
+            SET role = 'Doctor'
+        ELSE IF domain == email_domain[1]
+            SET role = 'accountant'
+        ELSE IF domain == email_domain[2]
+            SET role = 'receptionist'
+        ELSE IF domain == email_domain[3]
+            SET role = 'pharmacist'
+        ELSE IF domain == email_domain[4]
+            SET role = 'administrator'
+        ELSE
+            SET role = 'patient'
+        ENDIF
+    
+    CATCH IndexError:
+        DISPLAY 'invalid email format'
+    
+    PROMPT USER FOR USERNAME (trim whitespaces, replace space between characters to '_')
+
+    WHILE True DO
+        PROMPT USER FOR PASSWORD (password) (trim whitespaces)
+        
+        SET password_length = length of password
+        SET uppercase_count = 0
+        SET lowercase_count = 0
+        SET num_count = 0 
+        SET special_characters TO PYTHON LIST ['[','!','@','#','$','%','^','&','*','(',')','.','?','"',':','{','}','|','<','>',']']
+        SET special_count = 0
+        SET all_valid = True
+
+        IF password_length < 12:
+            DISPLAY "your password length is {password_length}. you password must have at least 12 characters"
+            SET all_valid = False
+        
+        FOR every letter in password DO
+            IF letter is uppercase DO
+                INCREMENT uppercase_count by 1
+            ELSE IF letter is lowercase DO
+                INCREMENT lowercase_count by 1
+            ENDIF
+            IF letter is numeric DO
+                INCREMENT num_count by 1
+            ENDIF
+        ENDFOR
+        
+        IF uppercase_count < 1 DO 
+            DISPLAY 'your password must have at least 1 uppercase letter'
+            SET all_valid = False
+        ENDIF
+
+        IF lowercase_count < 1 DO
+            DISPLAY 'Your password must have at least 1 lowercase character'
+            SET all_valid = False
+        ENDIF
+
+        FOR every letter in password
+            IF letter is a special character DO
+                INCREMENT special_count by 1
+            ENDIF
+        ENDFOR
+
+        IF special_count < 1 DO
+            DISPLAY 'Your password must have at least 1 special characters'
+            SET all_valid = False
+        ENDIF
+
+        IF num_count < 1 DO
+            DISPLAY 'Your password must have at least 1 digit number'
+            SET all_valid = False
+        ENDIF
+
+        IF all_valid IS True DO 
+            DISPLAY 'Password all match'
+            SET encrypted_pass = encrypt_password(password) 
+            EXIT LOOP
+        ENDIF
+    ENDWHILE
+    
+    DISPLAY 'username: {username}, email: {user_email}, Password: {encrypted_pass} Role: {role}'
+
+    TRY:
+        OPEN login/user_db.txt FOR APPENDING AS f
+            WRITE '{username},{user_email},{password},{role}' + new line to f
+            DISPLAY 'User Registered succesfully'
+    CATCH FileNotFoundError AS e:
+        DISPLAY 'Error: {e}'
+    END TRY
+    
+    TRY:
+        OPEN login/user_db_encrypted.txt FOR APPENDING AS fe
+            WRITE '{username},{user_email},{encrypt_password(password)},{role}' + new line TO fe
+    CATCH FileNotFoundError as e:
+        DISPLAY 'Error: {e}'
+    END TRY
+END FUNCTION
+
+FUNCTION login():
+    SET wrong_attempt_count = 3
+
+    WHILE wrong_attempt_count NOT 0 DO 
+
+        PROMPT USER TO ENTER THEIR EMAIL ADDRESS (email) (trim whitespaces)
+        PROMPT USER TO ENTER THEIR PASSWORD (password) (trim whitespaces)
+        SET enc_password = encrypt_password(password)
+        SET valid_user = False
+
+        OPEN login/user_db_encrypted.txt FOR READING as f
+            SET lines = read all lines from f
+
+            FOR EVERY line IN lines DO
+                SET fields = trim whitepsaces, and split by comma
+                EXTRACT username FROM fields[0] (remove quotes)
+                EXTRACT file_email FROM fields[1] (remove quotes)
+                EXTRACT file_password FROM fields[2] (remove quotes)
+                EXTRACT user_role FROM fields[3] (remove quotes)
+            ENDFOR
+
+            IF valid_user IS True THEN
+                OPEN login/clocked_in.txt FOR APPENDING as cl
+                    GET current timestamp
+                    WRITE '{current timestamp}: {user_role}, {username}' + add new line TO cl
+                CLOSE FILE
+                DISPLAY 'Hello {user_role}, {username}' + add new line
+
+                IF user_role is 'Doctor' THEN
+                    DISPLAY 'Hello Doctor {username}'
+                    RETURN from FUNCTION
+
+               ELSE IF user_role is 'accountant' THEN
+                    DISPLAY 'Hello accountant {username}, ready to count some money?'
+                    RETURN from FUNCTION
+
+                ELSE IF user_role is 'pharmacist' THEN
+                    DISPLAY 'Hello pharmacist {username}'
+                    RETURN from FUNCTION
+
+                ELSE IF user_role is 'receptionist' THEN
+                    DISPLAY 'Catchingg... Hello {username}'
+                    RETURN from FUNCTION
+
+                ELSE IF user_role is 'Administrator' THEN
+                    DISPLAY 'Hello Admin. lets go manage some stuffs today'
+                    RETURN from FUNCTION
+                
+                ELSE
+                    DISPLAY 'No role for you. do you even work here?'
+                    BREAK 
+                ENDIF
+            ELSE
+                DECREMENT wrong_attempt_count by 1
+                DISPLAY 'credentials invalid. you have {wrong_attempt_count} attempt(S) left'
+            ENDIF
+        CLOSE FILE
+    DISPLAY 'hacker detected, go away'
+END FUNCTION
+
+FUNCTION main():
+    WHILE True DO
+        DISPLAY 'Asia Pacific Hospital HealthPlus patient management'
+        DISPLAY '1. Register'
+        DISPLAY '2. Login'
+        DISPLAY '3. Exit'
+        PROMPT USER TO ENTER THEIR OPTION AND CONVERT TO INTEGER (choice)
+        CASE OF choice 
+            1: JUMP TO FUNCTION register()
+            2: JUMP TO FUNCTION login()
+            3: BREAK 
+        ENDCASE
+    ENDWHILE
+ENDFUNCTION
+
+
+
+
+    
+
+            
+    

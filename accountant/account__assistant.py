@@ -1,7 +1,7 @@
 import os
 import datetime
 
-def redo(prompt):
+def redo_action(prompt):
     while True:
         choice = input(f'{prompt}? (yes/no): ').strip().lower()
         if choice in ('yes','y'):
@@ -62,7 +62,7 @@ def user_total_details():
     except:
         print("error inserting receipt into the list")
     
-    if not redo('Create another receipt'):
+    if not redo_action('Create another receipt'):
         return
 
 def get_receipt_list():
@@ -106,7 +106,7 @@ def get_receipt_list():
         except FileNotFoundError:
             print(f'Error : receipt for {customer_name} cant be found')
 
-        if not redo('see another receipt'):
+        if not redo_action('see another receipt'):
             return
 
 def delete_receipt():
@@ -160,7 +160,7 @@ def delete_receipt():
         
         print('Receipt deleted successfully')
 
-        if not redo('delete another receipt'):
+        if not redo_action('delete another receipt'):
             return
 
 def accountant_main():
@@ -169,7 +169,7 @@ def accountant_main():
         print("1. Create Billing Receipt")
         print("2. View all receipts")
         print("3. Delete receipt(s)")
-        print("3. Log out")    
+        print("4. Log out")    
         choice = input("> ")
         match choice:
             case '1':
