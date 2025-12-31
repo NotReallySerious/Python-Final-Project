@@ -193,8 +193,25 @@ def delete_receipt():
 def daily_summary():
     patient_count = 0
     med_sold = {}
+    patients = set()
     total = 0
-    Date = datetime.date.today().strftime('%Y-%m-%d')
+    Date = ""
+    VALID_DATE = False
+
+    while not VALID_DATE:
+        Date = input('Enter the date to generate summary (YYYY-MM-DD) or press Enter for today: ').strip()
+
+        if not Date:
+            Date = datetime.date.today().strftime('%Y-%m-%d')
+            print(f"Using today's date: {Date}")
+            VALID_DATE = True  
+        else:
+            try:
+                datetime.datetime.strptime(Date, '%Y-%m-%d')
+                VALID_DATE = True 
+            except ValueError:
+                print("Invalid date format! Please use YYYY-MM-DD (e.g., 2025-12-30)")
+
 
     with open('accountant/patient_billing_record.txt','r') as f:
         lines = f.readlines()
@@ -210,9 +227,11 @@ def daily_summary():
             price = float(part[4].strip())
 
             if Date == date:
-                patient_count += 1
+                patients.add(patient_name)
                 med_sold[item_name] = med_sold.get(item_name, 0) + quantity
                 total += (quantity * price)
+
+        patient_count = len(patients)
     
     if patient_count == 0:
         print(f'no transaction found for {Date}')
@@ -227,10 +246,10 @@ def daily_summary():
         sum.write(f"Total Patients: {patient_count}\n")
         sum.write("items sold:\n")
         for item, quantity in sorted(med_sold.items()):
-            sum.write(f"{item}: {quantity} x {price}\n")
+            sum.write(f"{item}: {quantity} x {price} = {quantity * price}\n")
         
         sum.write("=================================\n")
-        sum.write(f"Total Income = RM. {total:.2f}\n")
+        sum.write(f"Total Income = RM.{total:.2f}\n")
     
     print(f"Daily Summary for today is saved on {summary_file_path}")
 

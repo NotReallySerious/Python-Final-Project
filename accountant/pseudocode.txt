@@ -206,8 +206,30 @@ FUNCTION daily_summary():
 
     SET patient_count = 0
     SET med_sold as dictionary
+    SET patients as empty set
     SET total = 0
-    GET today's date with the format '%Y-%m-%d'
+    SET Date 
+    SET VALID_DATE = False
+
+    // VALIDATE THE DATE INPUTTED
+    
+    While VALID_DATE is False THEN 
+        PROMPT USER FOR ENTER THE DATE IN FORMAT OF YYYY-MM-DD (Date)
+
+        IF Date IS EMPTY THEN
+            Date = GET today's Date
+            DISPLAY 'Use today's Date {date}'
+            SET VALID_DATE = True
+        ELSE
+            TRY
+                VALIDATE THE DATE USING THE FORMAT YYYY-MM-DD
+                SET VALID_DATE = True
+            CATCH ValueError:
+                DISPLAY 'Invalid date format! Please use YYYY-MM-DD (e.g., 2025-12-30)'
+            ENDTRY
+        ENDIF
+    ENDWHILE
+
 
     OPEN accountant/patient_billing_record.txt FOR READING AS f
         SET lines = read all the lines from file
@@ -226,11 +248,12 @@ FUNCTION daily_summary():
             EXTRACT price from part (trim whitespace, take the fifth element in part, replace "'" to "", change to float)
 
             IF Date EQUALS TO date:
-                INCREMENT patient_count by 1
+                ADD patient_name to patients set
                 med_sold[item_name] = med_sold.get(item_name, 0) + quantity
                 INCREMENT total by (quantity times price)
             ENDIF
         ENDFOR
+        SET patient_count = length of patients
     CLOSE FILE
             
     IF patient_count EQUALS TO 0 THEN

@@ -155,7 +155,7 @@ FUNCTION login():
             SET lines = read all lines from f
 
             FOR EVERY line IN lines DO
-                SET fields = trim whitepsaces, and split by comma
+                SET fields = trim whitespaces, and split by comma
                 EXTRACT username FROM fields[0] (remove quotes)
                 EXTRACT file_email FROM fields[1] (remove quotes)
                 EXTRACT file_password FROM fields[2] (remove quotes)
@@ -190,7 +190,7 @@ FUNCTION login():
                     RETURN from FUNCTION
                 
                 ELSE
-                    DISPLAY 'No role for you. do you even work here?'
+                    DISPLAY 'No role for you. Do you even work here?'
                     BREAK 
                 ENDIF
             ELSE
