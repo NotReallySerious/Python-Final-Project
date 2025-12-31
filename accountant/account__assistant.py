@@ -13,7 +13,7 @@ def redo_action(prompt):
         
 def get_user_total_details():
     try:
-        with open('receipt_id.txt','r') as re:
+        with open('accountant/receipt_id.txt','r') as re:
             last_id = int(re.read())
     except FileNotFoundError:
         last_id = 0
