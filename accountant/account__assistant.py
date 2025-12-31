@@ -99,10 +99,10 @@ def get_receipt_list():
         lines = rl.readlines()
         for line in lines:
 
-            customer_name = line.split(':')[1].strip()
+            patient_name = line.split(':')[1].strip()
 
-            receipts[current_id] = customer_name
-            print(f'{current_id}. {customer_name}')
+            receipts[current_id] = patient_name
+            print(f'{current_id}. {patient_name}')
 
             current_id += 1
     
@@ -120,18 +120,18 @@ def get_receipt_list():
             continue
             
         if choice in receipts:
-            customer_name = receipts[choice]
-            receipt_file = f"accountant/{customer_name.lower().replace(' ','_')}_receipt.txt"
+            patient_name = receipts[choice]
+            receipt_file = f"accountant/{patient_name.lower().replace(' ','_')}_receipt.txt"
         else:
             print('invalid ID')
             continue
 
         try:
             with open(receipt_file, 'r') as file:
-                print(f" Receipt for {customer_name}")
+                print(f" Receipt for {patient_name}")
                 print(file.read())
         except FileNotFoundError:
-            print(f'Error : receipt for {customer_name} cant be found')
+            print(f'Error : receipt for {patient_name} cant be found')
 
         if not redo_action('see another receipt'):
             return
@@ -143,10 +143,10 @@ def delete_receipt():
         lines = rl.readlines()
         for line in lines:
 
-            customer_name = line.split(':')[1].strip()
+            patient_name = line.split(':')[1].strip()
 
-            receipts[current_id] = customer_name
-            print(f'{current_id}. {customer_name}')
+            receipts[current_id] = patient_name
+            print(f'{current_id}. {patient_name}')
 
             current_id += 1
     
@@ -168,17 +168,17 @@ def delete_receipt():
             continue
             
         if choice in receipts:
-            customer_name = receipts[choice]
-            receipt_file = f"accountant/{customer_name.lower().replace(' ','_')}_receipt.txt"
+            patient_name = receipts[choice]
+            receipt_file = f"accountant/{patient_name.lower().replace(' ','_')}_receipt.txt"
         else:
             print('invalid ID')
             continue
 
         if os.path.exists(receipt_file):
             os.remove(receipt_file)
-            print(f"{customer_name}'s receipt has been deleted")
+            print(f"{patient_name}'s receipt has been deleted")
         else: 
-            print(f"receipt for {customer_name} not found")
+            print(f"receipt for {patient_name} not found")
 
         del lines[choice - 1]
 
