@@ -21,7 +21,7 @@ def get_user_total_details():
     receipt_id = last_id + 1
     receipt_id_str = str(receipt_id)
 
-    target_username = input('Enter username to be totalled: ').strip()
+    patient_name = input('Enter patient name to be totalled: ').strip()
     receipt_details = []
     found = False
     total = 0.00
@@ -44,14 +44,14 @@ def get_user_total_details():
             except (ValueError, IndexError):
                 continue
 
-            if username == target_username:
+            if username == patient_name:
                 found = True
                 item_total = Quantity * price
                 total += item_total
                 receipt_details.append(f"{item_name} x {Quantity} = {item_total:.2f}")
             
         if not found:
-            print(f'no records found for patient: {target_username}')
+            print(f'no records found for patient: {patient_name}')
             if not redo_action('Create Another receipt'):
                 return
             else:
@@ -59,13 +59,13 @@ def get_user_total_details():
                 return
     
     # Display and store them into a different username billing receipts
-    receipt_path = f"accountant/{target_username.replace(" ","_")}_receipt.txt"
+    receipt_path = f"accountant/{patient_name.replace(" ","_")}_receipt.txt"
     try:
         with open(receipt_path, 'a') as receipt:
             receipt.write("Asia Pacific Hospital receipt\n")
             receipt.write("================================\n")
             receipt.write(f"Receipt Id: {receipt_id_str}\n")
-            receipt.write(f"Name : {target_username.replace('_',' ')}\n")
+            receipt.write(f"Name : {patient_name.replace('_',' ')}\n")
             receipt.write(f"Time created: {Date_Entry}\n")
             receipt.write("================================\n")
             for i in receipt_details:
@@ -79,12 +79,12 @@ def get_user_total_details():
     
     try:
         with open('accountant/receipt_db.txt','a') as rl:
-            rl.write(f"{receipt_id_str}: {target_username}\n")
+            rl.write(f"{receipt_id_str}: {patient_name}\n")
         
         with open('receipt_id.txt', 'w') as re:
             re.write(str(receipt_id))
         
-        print(f"{target_username}'s receipt has been created")
+        print(f"{patient_name}'s receipt has been created")
         
     except Exception as e: 
         print(f"Error inserting receipt into the list: {e}") 
