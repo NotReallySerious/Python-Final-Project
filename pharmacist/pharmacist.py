@@ -85,7 +85,8 @@ def view_spe():
     
 
 def view_low():
-     with open("medicine_stock.txt", "r") as file:
+    data = []
+    with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}")
         for row in reader:
@@ -93,6 +94,12 @@ def view_low():
                 continue
             if int(row[2]) < 5 :
                 print(f"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[4]:<10}")
+                data.append(row)
+                
+        if data != []:
+            with open("med_stock_low.txt", "w", newline="") as lowfile:
+                writer = csv.writer(lowfile)
+                writer.writerows(data)  
         print("\n\n")
 
 def prepare(i):
@@ -174,12 +181,15 @@ def report():
 def banner():
     with open("medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
-        out_of_stock = [row for row in reader if len(row) >= 3 and row[2].isdigit() and int(row[2]) == 0]
+        out_of_stock = [row for row in reader if len(row) >= 3 and int(row[2]) == 0]
 
         if out_of_stock:
             print("The Following Medicines Are Out Of Stock:")
             for row in out_of_stock:
                 print(f"{row[0]:<10}{row[1]:<15}")
+            with open("med_stock_out.txt", "w", newline="") as outfile:
+                writer = csv.writer(outfile)
+                writer.writerows(out_of_stock)
         else:
             print("All medicines are in stock.")
 
@@ -219,6 +229,8 @@ def pharmasist():
             break
         else:
             print("Invalid choice! Please select a number between 1 and 9.")
+
+pharmasist()
 
 
         
