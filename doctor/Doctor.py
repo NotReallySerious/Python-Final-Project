@@ -80,6 +80,7 @@ def record_consultation(doctor_id):
             }
     
     appointment_details = {}
+    all_app = []
     with open('cashier/appointment.txt', 'r') as app:
         lines = app.readlines()
         for line in lines:
@@ -91,6 +92,15 @@ def record_consultation(doctor_id):
             patient_id = values[4]
             doctor_id_in_file = values[5]
             
+            all_app.append({
+                'app_id': app_id,
+                'date': date,
+                'hour': hour,
+                'status': status,
+                'patient_id': patient_id,
+                'doctor_id': doctor_id_in_file
+            })
+
             if doctor_id == doctor_id_in_file:
                 appointment_details[app_id] = {
                     'Date' : date,
@@ -126,12 +136,94 @@ def record_consultation(doctor_id):
         selected_patient = appointment_list[patient_selection]
         patient_id = selected_patient['patient_id']
         patient_name = selected_patient['patient_name'].replace('_', ' ')
-        
+        selected_app_id = selected_patient['appointment_id']
         print(f"\nRecording consultation for: {patient_name} ({patient_id})")
         print("-" * 50)
+        
+        while True:
+            try:
+                age = int(input("Enter patient's age: "))
+                if age < 0:
+                    print("Age cannot be negative. Please try again.")
+                    continue
+                break
+            except ValueError:
+                print("Please enter a valid number for age!")
+        
+        while True:
+                diagnosis = input('Diagnosis: ').strip
+                if not diagnosis:
+                    print("Diagnosis Can't be empty.")
+                    continue
+                break
+        
+        while True:
+            print("Enter medications for your patient (separate with ; for multiple medicines)\n")
+            meds = input("Enter medicine(s): ").strip()
+            if not meds:
+                print("Medications can't be empty.")
+                continue
+            break
 
-        age = int(input("Enter the patient's age: "))
-        diagnosis = input('Diagnosis: ')
+        while True:
+            print("Enter the quantity of the medicine(s),(separate with ; for multiple medicines)\n")
+            qty = input("Enter quantity: ")
+            if not qty:
+                print("Quantity can't be empty or negative. Please enter at least 1")
+                continue
+            break
+    
+        while True:
+            print("Give advice(s) to your patient (separate by ; for multiple advices)\n")
+            advice = input("Enter the advices: ").strip()
+            if not advice:
+                print("Seriously, no advice? give your patient some advice.")
+                continue
+            break
+        while True:
+            med_count = len(meds.split(';'))
+            qty_count = len(qty.split(';'))
+            
+            if med_count != qty_count:
+                print(f"Warning: You entered {med_count} medication(s) but {qty_count} quantity(ies).")
+                confirm = input("Do you want to continue anyway? (yes/no): ").lower()
+                if confirm == 'yes' or confirm == 'y':
+                    break
+                else:
+                    continue
+            break
+
+        record = f"'{patient_id}','{patient_name}',{age},'{diagnosis}','{meds}','{qty}','{advice}'"
+
+        try:
+            with open('doctor/patient_record_db.txt', 'a') as rec:
+                rec.write(record)
+                print("File saved successfully")
+        except Exception:
+            print(f"Error writing the file: {Exception}")
+
+        try:
+            for appointment in all_app:
+                if appointment['app_id'] == selected_app_id:
+                    appointment['status'] = 'Completed'
+            
+            # Write all appointments back to file
+            with open('cashier/appointment.txt', 'w') as app_file:
+                for appointment in all_app:
+                    line = f"{appointment['app_id']},{appointment['date']},{appointment['hour']},{appointment['status']},{appointment['patient_id']},{appointment['doctor_id']}\n"
+                    app_file.write(line)
+            
+            print("Appointment status updated to 'Completed'!")
+        except Exception as e:
+            print(f"Error updating appointment status: {e}")
+        
+        # Sending the medicine prescription to the pharmacist in form of patient_id,token_no,barcode,qty of med
+        token = 1
+        med = {}
+        with open('pharmacist/medicine_stock.txt', 'r') as pres:
+            medicines = pres.readlines()
+
+        
         
 def Doctor_Menu(doctor_id):
 
@@ -145,7 +237,7 @@ def Doctor_Menu(doctor_id):
 
         choice = input("Which one do you want to pick")
         if choice == "1":
-           view_appointments(doctor_id) 
+            view_appointments(doctor_id) 
         elif choice == "2":
             record_consultation(doctor_id)
         elif choice == "3":
