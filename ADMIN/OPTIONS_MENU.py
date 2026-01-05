@@ -1,3 +1,4 @@
+from pharmacist.pharmacist import view
 def menu():
     try:
         i = True
@@ -66,9 +67,9 @@ what is your choice? (enter a number 1-3)"""))
 *****************************
                         what is your choice? (enter number 1-3)"""))
                         if chooseviewreports == "1":
-                            ##function to view
+                            totalpatients()
                         elif chooseviewreports == "2":
-                            ##function to view
+                            totalappointments()
                         elif chooseviewreports == "3":
                             ##function to view
                         elif chooseviewreports == "4":
@@ -86,9 +87,9 @@ what is your choice? (enter a number 1-3)"""))
 ********************************************
 what is your choice? (enter number 1-2)"""))
                         if choosinggenerate == "1":
-                            ##function to view
+                            ##make function to view staff txt file
                         elif choosinggenerate == "2":
-                            ##function to view
+                            view() ##view function from pharmacist
                         elif choosinggenerate == "3":
                             break
                         else:
@@ -224,7 +225,20 @@ def med_remove():
         print("Error: Please enter a valid number for how many medicines to remove.")
     except Exception as e:
         print("Unexpected error:", str(e))
-
+def totalpatients():
+    try:
+        with open("cashier/patient.txt", "r") as r:
+            for line in r:
+                print(line.strip())
+    except FileNotFoundError:
+        print("Error: cashier/patient.txt file not found.")
+def totalappointments():
+    try:
+        with open("cashier/appointments.txt", "r") as r:
+            for line in r:
+                print(line.strip())
+    except FileNotFoundError:
+        print("Error: cashier/appointments.txt file not found.")
 
 
 
