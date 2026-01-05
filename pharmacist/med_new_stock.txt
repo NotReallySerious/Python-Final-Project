@@ -1,2 +1,2 @@
-10021,Hydrochlorothiazide,30,22.00,Medium
+10021,Zinc,30,22.00,Medium
 10022,Warfarin,15,95.00,High
