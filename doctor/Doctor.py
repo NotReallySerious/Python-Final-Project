@@ -1,4 +1,7 @@
-
+def doctor_name(doctor_id):
+    with open('doctor/Doctor.txt', 'r') as f:
+        lines = f.readlines()
+        
 def Doctor_Menu(doctor_id):
     while True:
         print("~~Doctor Menu~~")
@@ -21,27 +24,31 @@ def Doctor_Menu(doctor_id):
             print("Invalid choice. Please choose the number above")
 
 def view_appointments(doctor_id):
-    print("~~ My Appointments ~~")
-    found = False
-
-    try:
-        file = open("cashier/appointments.txt", "r")
-        for line in file:
-            data = line.strip().split("|")
-            if data[2] == doctor_id:
-                print(
-                    "Appointment ID:", data[0],
-                    "| Patient ID:", data[1]
-                )
-                found = True
-        file.close()
-        if not found:
-            print("No appointments found.")
-    except:
-        print("Error: Unable to read appointments file.")\
-
+    records = {}
+    with open('cashier/appointment.txt', 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            values = line.strip().split(',')
+            app_id = values[0]
+            date = values[1]
+            hour = values[2]
+            status = values[3]
+            patient_id = values[4]
+            doctor_id_in_file = values[5]
+        
+            if doctor_id_in_file == doctor_id:
+                records[app_id] = {
+                    'date': date,
+                    'hour': hour,
+                    'status': status,
+                    'patient_id': patient_id,
+                    'doctor_id': doctor_id_in_file
+                }
                 
-view_appointments()
+            if records:
+                
+                
+view_appointments('D01')
         
             
             
