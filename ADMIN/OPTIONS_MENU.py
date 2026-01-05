@@ -1,74 +1,117 @@
 def menu():
-    while True:
-        print('*' * 30)
-        print("Welcome to ADMIN MENU")
-        print('*' * 30)
-        print("Manage Clinic Users")
-        print('1. Add Clinic Users')
-        print('2. Update Clinic Users')
-        print('3. Delete Clinic Users')
-        print("")
-        print("Manage Doctor Records")
-        print('4. Add Doctor Records')
-        print('5. Update Doctor Records')
-        print('6. Delete Doctor Records')
-        print("")
-        print("Reports")
-        print('7. Update Medicine Deletion Records')
-        print('8. Change Password')
-        print('9. Update Profile')
-        print("")
-        print('10. Exit')
-        print('*' * 30)
-        choice = int(input("What is your choice?"))
-        match choice:
-            case 1:
-                Add_Users()
-            case 2:
-                UpdateUsers()
-            case 3:
-                DeleteUsers()
-            case 4:
-                RegisterRecords()
-            case 5:
-                UpdateRecords()
-            case 6:
-                DeleteRecords()
-            case 7:
-                MedicineDeletion()
-            case 8:
-                Password()
-            case 9:
-                Profile()
-            case 10:
-                print("End.")
-                break
-            case _: ## Input validation example
-                print("Invalid choice.")
-                return
-def Add_Users():
     try:
-        num = int(input("Enter how many clinic user(s) to add"))
-        for i in range(num, num+1):
-            name = input(f"Enter the full name of user no.{i}")
-            role = input(f"Enter the clinic role (Admin/Receptionist/Doctor/Pharmacist/Accounts) of user no.{i}")
-            username = input(f"Enter the username of user no.{i}")
-            password = input(f"Enter password of user no.{i}")
-            phone = input(f"Enter the phone of user no.{i}")
-            email = input(f"Enter the email of user no.{i}")
-            userID = input(f"Enter the id of user no.{i}")
-            with open("users.txt", "a") as f:
-                f.write(f"{userID},{name},{username},{password},{phone},{email}\n")
-                print("User(s) added successfully.")
+        i = True
+        while i == True:
+            choosingmain = int(input(f"""
+*******WELCOME TO ADMIN MENU*************
+1. Manage Clinic Users
+2. Manage Doctor Records
+3. View Reports
+4. Generate Clinic Summary Report 
+5. Request Removal of Medicine(s) From Medicine Stock 
+6. Exit
+*****************************************
+What is your choice? (enter number 1-5)"""))
+            match choosingmain:
+                case 1:
+                    while True:
+                        chooseusers= int(input(f"""
+*******MANAGING CLINIC USERS*******
+1. Add Clinic Users 
+2. Update Clinic Users 
+3. Delete Clinic Users
+4. Return to ADMIN MENU
+***********************************
+what is your choice? (enter a number 1-3)"""))
+                        if chooseusers== "1":
+                            ##register()
+                        elif chooseusers == "2":
+                            UpdateUsers()
+                        elif chooseusers == "3":
+                            DeleteUsers()
+                        elif chooseusers == "4":
+                            break
+                        else:
+                            print("Invalid Choice")
+                            continue
+                case 2:
+                    while True:
+                        choosedocrecs= int(input(f"""
+    *******MANAGING DOCTOR RECORDS*******
+    1. Add Doctor Records 
+    2. Update Doctor Records 
+    3. Delete Doctor Records
+    4. Return to ADMIN MENU
+    *************************************
+                        what is your choice? (enter number 1-3)"""))
+                        if choosedocrecs == "1":
+                            ##add function here
+                        elif choosedocrecs== "2":
+                            ##add function
+                        elif choosedocrecs== "3":
+                            ##add function
+                        elif choosedocrecs== "4":
+                            break
+                        else:
+                            print("Invalid Choice")
+                            continue
+                case 3:
+                    while True:
+                        chooseviewreports= int(input(f"""
+*******VIEWING REPORTS*******
+1. View Total Patients Report
+2. View Appointments Report
+3. View Income Report
+4. Return to ADMIN MENU
+*****************************
+                        what is your choice? (enter number 1-3)"""))
+                        if chooseviewreports == "1":
+                            ##function to view
+                        elif chooseviewreports == "2":
+                            ##function to view
+                        elif chooseviewreports == "3":
+                            ##function to view
+                        elif chooseviewreports == "4":
+                            break
+                        else:
+                            print("Invalid Choice")
+                            continue
+                case 4:
+                    while True:
+                        choosinggenerate = int(input(f"""
+*******GENERATE CLINIC SUMMARY REPORT*******
+1. Generate Staff Summary Report
+2. Generate Medicine Summary Report
+3. Return to ADMIN MENU
+********************************************
+what is your choice? (enter number 1-2)"""))
+                        if choosinggenerate == "1":
+                            ##function to view
+                        elif choosinggenerate == "2":
+                            ##function to view
+                        elif choosinggenerate == "3":
+                            break
+                        else:
+                            print("Invalid Choice")
+                            continue
+                case 5:
+                    while True:
+                        med_remove()
+                case 6:
+                    print("End.")
+                    i = False
+                    break
+                case _: ## Input validation example
+                    print("Invalid choice.")
+                    continue
     except ValueError:
         print("Please enter a number.")
-        return
+
 def UpdateUsers():
     user_id = input("Enter the User ID to update: ")
-
     try:
         # Step 1: Read all records
-        with open("users.txt", "r") as file:
+        with open("user_db.txt", "r") as file:
             lines = file.readlines()
 
         updated_lines = []
@@ -115,7 +158,7 @@ def UpdateUsers():
                 updated_lines.append(line)
 
         # Step 6: Rewrite file
-        with open("users.txt", "w") as file:
+        with open("user_db.txt", "w") as file:
             file.writelines(updated_lines)
 
         if found:
@@ -124,7 +167,7 @@ def UpdateUsers():
             print(f"Error: User ID {user_id} not found.")
 
     except FileNotFoundError:
-        print("Error: users.txt file not found.")
+        print("Error: user_db.txt file not found.")
     except Exception as e:
         print("Error while updating user:", str(e))
 def DeleteUsers():
@@ -133,7 +176,7 @@ def DeleteUsers():
 
         try:
             # Step 1: Read all records
-            with open("users.txt", "r") as file:
+            with open("user_db.txt", "r") as file:
                 lines = file.readlines()
 
             updated_lines = []
@@ -152,7 +195,7 @@ def DeleteUsers():
                     updated_lines.append(line)
 
             # Step 3: Rewrite file without the deleted record
-            with open("users.txt", "w") as file:
+            with open("user_db.txt", "w") as file:
                 file.writelines(updated_lines)
 
             if found:
@@ -161,10 +204,28 @@ def DeleteUsers():
                 print(f"Error: User ID {user_id} not found.")
 
         except FileNotFoundError:
-            print("Error: users.txt file not found.")
+            print("Error: user_db.txt file not found.")
         except Exception as e:
             print("Error while deleting user:", str(e))
-
+def med_remove():
+    try:
+        count = int(input("How many medicine do you want to remove? "))
+        for i in range(0,count):
+                while True:
+                    barcode = int(input(f"Enter medicine barcode (less than 6 digits): "))
+                    # Validation: must be digits and length < 6
+                    if len(barcode) < 6:
+                        with open("med_remove.txt", "w") as file:
+                            file.write(barcode + "\n")
+                        print(f"Barcode {barcode} recorded (replaced previous).")
+                        break
+                    else:
+                        print("Invalid barcode. Must be numeric and less than 6 digits. Try again.")
+        print("Final barcode saved to med_remove.txt.")
+    except ValueError:
+        print("Error: Please enter a valid number for how many medicines to remove.")
+    except Exception as e:
+        print("Unexpected error:", str(e))
 
 
 
