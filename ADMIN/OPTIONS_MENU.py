@@ -62,7 +62,7 @@ what is your choice? (enter a number 1-3)"""))
 *******VIEWING REPORTS*******
 1. View Total Patients Report
 2. View Appointments Report
-3. View Income Report
+3. View Daily Income Report
 4. Return to ADMIN MENU
 *****************************
                         what is your choice? (enter number 1-3)"""))
@@ -71,7 +71,7 @@ what is your choice? (enter a number 1-3)"""))
                         elif chooseviewreports == "2":
                             totalappointments()
                         elif chooseviewreports == "3":
-                            ##function to view
+
                         elif chooseviewreports == "4":
                             break
                         else:
