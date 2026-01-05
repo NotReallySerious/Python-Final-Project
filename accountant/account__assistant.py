@@ -256,11 +256,63 @@ def daily_summary():
     if not redo_action('Generate another summary'):
         return
 
-def update_stock_to_pharmacist():
-    qr_code = int(input("Enter Medicine's QR code: "))
-    med_name = 
+def add_new_med_stock():
+    barcode = int(input("Enter Medicine's QR code: "))
+    med_name = input('Enter medicine name: ').replace(' ', '_')
+    quantity = int(input("Enter quantity: "))
+    price = float(input("Enter the price: "))
+    demand = input("Enter demand [low, medium, high]: ").title()
+    if demand not in ['Low', 'Medium', 'High']:
+        print('Wrong demand type.')
+    else:
+        with open('pharmacist/med_new_stock.txt','w') as p:
+            p.write(f"{barcode},{med_name},{quantity},{price},{demand}")
+        with open('pharmacist/medicine_stock.txt', 'a') as m:
+            m.write(f"{barcode},{med_name},{quantity},{price}")
 
+        print('Item has been added to the list')
 
+    if not redo_action("Want to enter another medicine? (yes/no): "):
+        return
+        
+def update_quantity_med():
+    existing_meds = {}
+    with open('pharmacist/med_db.txt', 'r') as p:
+        lines = p.readlines()
+        for line in lines:
+            values = line.strip().split(',')
+            Barcode = values[0]
+            med_name = values[1]
+            quantity = values[2]
+            price = values[3]
+            demand = values[4]
+            existing_meds[Barcode] = {
+                'Name' : med_name,
+                'Quantity' : int(quantity),
+                'Price' : price,  
+                'Demand' : demand
+            }
+    
+    select_item_barcode = str(int(input('Enter the medicine barcode: ')))
+    if select_item_barcode in existing_meds:
+        print(f"Medicine name: {existing_meds[select_item_barcode]['Name']}")
+        print(f"Quantity: {existing_meds[select_item_barcode]['Quantity']}")
+
+        add_quantity = int(input("enter the quantity to be added: "))
+        existing_meds[select_item_barcode]['Quantity'] += add_quantity
+        
+        print(f"New quantity: {existing_meds[select_item_barcode]['Quantity']}")
+        print("Quantity updated successfully!")
+
+        demand = input("Enter demand [low, medium, high]: ").title()
+        if demand not in ['Low', 'Medium', 'High']:
+            print('Wrong demand type.')
+        else:
+            with open('pharmacist/med_update_stock.txt','w') as up:
+                up.write(f"{select_item_barcode},{existing_meds[select_item_barcode]['Name']},{existing_meds[select_item_barcode]['Quantity']},{existing_meds[select_item_barcode]['Price']},{demand}\n")                
+                print("Item quantity updated")
+    if not redo_action('Add another item quantity? (yes/no) '):
+        return
 
 def accountant_main():
     while True:
