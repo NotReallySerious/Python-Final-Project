@@ -1,0 +1,2 @@
+10001,Amoxicillin,20,50.00,High
+10002,Paracetamol,110,10.00,Medium
