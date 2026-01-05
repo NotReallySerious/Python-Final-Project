@@ -1,5 +1,7 @@
 import csv
 
+from datetime import date
+
 def add():
     new_file = "med_new_stock.txt"
     stock_file = "medicine_stock.txt"
@@ -212,6 +214,10 @@ def prepare(p_id,t_id):
                     pr = qty_needed * float(stock_row[3])
                     total += pr
                     prows.append((stock_row[0], stock_row[1], qty_needed, pr))
+                    with open("patient_billing_record.txt", "a", newline="") as f_billing:
+                        writer = csv.writer(f_billing)
+                        today = datetime.now().strftime("%Y-%m-%d")
+                        writer.writerow([today, p_id, barcode, qty_needed, stock_row[3]])  
                 else:
                     print(f"Not enough stock for {stock_row[1]}")
                 break
