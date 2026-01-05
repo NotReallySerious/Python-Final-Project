@@ -1,1 +1,3 @@
-20202,1,10001,2
+P12,Chris Croissant,1,1002;10004,10;20
+
+patient_id, patient_name, token, barcode(different items seperated by ;), qty (different items seperated by ;)
