@@ -19,12 +19,13 @@ def Doctor_Menu(doctor_id):
             break
         else:
             print("Invalid choice. Please choose the number above")
+
 def view_appointments(doctor_id):
     print("~~ My Appointments ~~")
     found = False
 
     try:
-        file = open("appointments.txt", "r")
+        file = open("cashier/appointments.txt", "r")
         for line in file:
             data = line.strip().split("|")
             if data[2] == doctor_id:
@@ -40,7 +41,7 @@ def view_appointments(doctor_id):
         print("Error: Unable to read appointments file.")\
 
                 
- 
+view_appointments()
         
             
             

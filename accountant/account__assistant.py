@@ -256,6 +256,12 @@ def daily_summary():
     if not redo_action('Generate another summary'):
         return
 
+def update_stock_to_pharmacist():
+    qr_code = int(input("Enter Medicine's QR code: "))
+    med_name = 
+
+
+
 def accountant_main():
     while True:
         print('Accountant management dashboard')
