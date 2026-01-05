@@ -1,60 +1,113 @@
 import csv
 
+from datetime import date
 
 def add():
-    i = int(input("How many Medicines do you want to add?"))
-    for t in range(i):
-        b = input("Enter the Barcode:")
-        n = input("Enter the Name:")
-        qy = (input("Enter the Quantity in stock:"))
-        p = (input("Enter the Price:"))
-        d = input("Enter the Demand Status(Low/Moderate/High):")
-        with open("medicine_stock.txt", "a", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow([b, n, qy, p, d])
-    print("Medicines Added Succesfully")
-    print("\n\n")
+    new_file = "med_new_stock.txt"
+    stock_file = "medicine_stock.txt"
+    try:
+        with open("med_new_stock.txt", mode="r", newline="") as f_new:
+            reader = csv.reader(f_new)
+            new_meds = list(reader)
+        if not new_meds:
+            raise ValueError("No medicines found in med_new_stock.txt")
 
-    
+        with open("medicine_stock.txt", mode="r", newline="") as f_stock:
+            reader = csv.reader(f_stock)
+            existing_meds = list(reader)
+        existing_barcodes = {row[0] for row in existing_meds}
+        for med in new_meds:
+            if med[0] in existing_barcodes:
+                raise ValueError("These Medicine's already exists in database.")
+
+
+        with open("medicine_stock.txt", mode="a", newline="") as f_stock:
+            writer = csv.writer(f_stock)
+            writer.writerows(new_meds)
+        print("Medicines from med_new_stock.txt:")
+        print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}")
+        for row in new_meds:
+            print(f"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}")
+        print("Medicines Added Successfully")
+        print("\n\n")
+        
+    except ValueError as ve:
+        print(f"Error: {ve}")
+
+
 def update():
-    b = input("Enter the Barcode:")
-    qy =(input("Enter the Quantity in stock:"))
-    p = (input("Enter the Price:"))
-    d = input("Enter the Demand Status:")
-    rows = []
-    with open("medicine_stock.txt", "r") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if len(row) < 6:
-                continue
-            if row[0] == b:
-                row[2] = str(qy)
-                row[3] = str(p)
-                row[4] = str(d)
-            rows.append(row)
-    with open("medicine_stock.txt", "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
-    print("Medicine Updated Succesfully")
-    print("\n\n")
-    
+    try:
+        with open("med_update_stock.txt", mode="r", newline="") as f_update:
+            reader = csv.reader(f_update)
+            update_meds = list(reader)
+            
+        if not update_meds:
+            raise ValueError("No medicines found in med_update_stock.txt")
+        
+        with open("medicine_stock.txt", mode="r", newline="") as f_stock:
+            reader = csv.reader(f_stock)
+            stock_meds = list(reader)
+
+        stock_dict = {row[0]: row for row in stock_meds}
+
+        for med in update_meds:
+            barcode, name, qty, price, demand = med
+            if barcode in stock_dict:
+                existing = stock_dict[barcode]
+                existing[2] = str(int(existing[2]) + int(qty))
+                existing[3] = price
+                existing[4] = demand
+            else:
+                stock_dict[barcode] = med
+
+        with open("medicine_stock.txt", mode="w", newline="") as f_stock:
+            writer = csv.writer(f_stock)
+            writer.writerows(stock_dict.values())
+            
+        print("Updated Medicines from med_update_stock.txt:")
+        
+        print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}")
+        for row in update_meds:
+            print(f"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}")
+
+        print("Medicines Updated Successfully")
+        print("\n\n")
+
+    except ValueError as ve:
+        print(f"Error: {ve}")
+
 def remove():
-    b = input("Enter the Barcode:")
-    rows =[]
-    with open("medicine_stock.txt", "r") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if len(row) < 6:
-                continue
-            if row[0] == b:
-                continue
-            else :
-                rows.append(row)
-    with open("medicine_stock.txt", "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
-    print("Medicine Removed Succesfully")
-    print("\n\n")
+    try:
+        with open("med_remove.txt", mode="r", newline="") as f_remove:
+            reader = csv.reader(f_remove)
+            remove_meds = list(reader)
+            for row in reader:
+                if row:
+                   med_id = row[0].strip().strip(",")
+                   if med_id:
+                       remove_meds.append(med_id)
+            
+        if not remove_meds:
+            raise ValueError("No medicines found in med_remove.txt")
+        rows = []
+        with open("medicine_stock.txt", "r") as file:
+            reader1 = csv.reader(file)
+            for row in reader1:
+                if len(row) < 3:
+                    continue
+                if row[0].strip() in remove_meds:
+                    continue
+                else :
+                    rows.append(row)
+        with open("medicine_stock.txt", "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerows(rows)
+        print("Medicine Removed Succesfully")
+        print("\n\n")
+        
+    except ValueError as ve:
+        print(f"Error: {ve}")
+        print("\n\n")
 
 
 def view():
@@ -62,7 +115,7 @@ def view():
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
         for row in reader:
-            if len(row) < 6:
+            if len(row) < 3:
                 continue
             print(f"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}")
         print("\n\n")
@@ -74,7 +127,7 @@ def view_spe():
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
         for row in reader:
-            if len(row) < 6:
+            if len(row) < 3:
                 continue
             if row[0] == b :
                 print(f"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}")
@@ -83,26 +136,41 @@ def view_spe():
             print(f'Barcode Not Found in Database')
         print("\n\n")
     
-
 def view_low():
     data = []
-    with open("medicine_stock.txt", "r") as file:
-        reader = csv.reader(file)
-        print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}")
-        for row in reader:
-            if len(row) < 6:
-                continue
-            if int(row[2]) < 5 :
-                print(f"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[4]:<10}")
-                data.append(row)
-                
-        if data != []:
-            with open("med_stock_low.txt", "w", newline="") as lowfile:
-                writer = csv.writer(lowfile)
-                writer.writerows(data)  
+    try:
+        with open("medicine_stock.txt", "r") as file:
+            reader = csv.reader(file)
+            print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}")
+            
+            for row in reader:
+
+                if len(row) < 3:
+                    continue
+
+                try:
+                    quantity = int(row[2])
+                except ValueError:
+                    continue
+
+                if quantity < 5:
+                    print(f"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}")
+                    data.append(row)
+
+        if data:
+            try:
+                with open("med_stock_low.txt", "w", newline="") as lowfile:
+                    writer = csv.writer(lowfile)
+                    writer.writerows(data)
+            except Exception as e:
+                print(f"Error writing to med_stock_low.txt: {e}")
+
         print("\n\n")
 
-def prepare(i):
+    except FileNotFoundError:
+        print("Error: medicine_stock.txt not found.")
+
+def prepare(p_id,t_id):
     global total, prows
     total = 0
     prows = []
@@ -114,32 +182,48 @@ def prepare(i):
         rows1 = [row for row in reader1]
         rows2 = [row for row in reader2]
 
-    for _ in range(i):
-        barcode = input("Enter the barcode of the Medicine:")
-        qty_needed = int(input("Enter the Quantity of the Medicine:"))
+    with open("doctor_prescription.txt", "r") as f3:
+        reader3 = csv.reader(f3)
+        prescriptions = [row for row in reader3]
+        
+    patient_prescriptions = [row for row in prescriptions if row[0] == p_id and row[1] == t_id]
+    if not patient_prescriptions:
+        print(f"No prescriptions found for patient {p_id}")
+        return
+    
+
+    for pres in patient_prescriptions:
+        _, _, barcode, qty_needed = pres
+        qty_needed = int(qty_needed)
 
         found = False
         for idx in range(len(rows1)):
-            if len(rows1[idx]) < 4:
+            if len(rows1[idx]) < 3:  
                 continue
             if rows1[idx][0] == barcode:
                 found = True
-
                 stock_row = rows1[idx]
-                sales_row = rows2[idx]  
+    
+                sales_row = next((row for row in rows2 if row[0] == barcode), None)
 
-                if int(stock_row[2]) >= qty_needed:
+                if sales_row and int(stock_row[2]) >= qty_needed:
+                  
                     stock_row[2] = str(int(stock_row[2]) - qty_needed)
                     sales_row[2] = str(int(sales_row[2]) + qty_needed)
+
                     pr = qty_needed * float(stock_row[3])
                     total += pr
                     prows.append((stock_row[0], stock_row[1], qty_needed, pr))
+                    with open("patient_billing_record.txt", "a", newline="") as f_billing:
+                        writer = csv.writer(f_billing)
+                        today = datetime.now().strftime("%Y-%m-%d")
+                        writer.writerow([today, p_id, barcode, qty_needed, stock_row[3]])  
                 else:
                     print(f"Not enough stock for {stock_row[1]}")
                 break
 
         if not found:
-            print("Barcode not found.")
+            print(f"Barcode {barcode} not found in stock.")
             
     with open("medicine_stock.txt", "w", newline="") as f1, \
          open("med_db.txt", "w", newline="") as f2:
@@ -155,10 +239,9 @@ def prepare(i):
 
 def prepare_patient_medicine():
     global total, prows
-    i = int(input("Enter no. of Medicines Prescribed:"))
-    
+    t_id = input("Enter Token No.")
     p_id = input("Enter Patient ID:")
-    prepare(i)
+    prepare(p_id,t_id)
 
     print("Medicine slip for Patient", p_id)
     print(f"{'|Barcode|':<10}{'|Medicine Name|':<15}{'|Quantity|':<10}{'|Price|':<10}")
@@ -175,6 +258,8 @@ def report():
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}{'Demand':<10}")
         for row in reader:
+            if len(row) < 3:
+                continue
             print(f"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}{row[4]:<10}")
         print("\n\n")
 

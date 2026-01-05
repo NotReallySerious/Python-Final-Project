@@ -36,9 +36,9 @@ def get_user_total_details():
             if len(line) < 5:
                 continue
             try:
-                Date_Entry = line[0].strip().replace("'","")
-                username = line[1].strip().replace("'", "")
-                item_name = line[2].strip().replace("'", "")
+                Date_Entry = line[0].strip().split(',')
+                username = line[1].strip()
+                item_name = line[2].strip()
                 Quantity = int(line[3].strip())
                 price = float(line[4].strip())
             except (ValueError, IndexError):
