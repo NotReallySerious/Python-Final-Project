@@ -171,9 +171,7 @@ def UpdateUsers():
     except Exception as e:
         print("Error while updating user:", str(e))
 def DeleteUsers():
-    def DeleteUsers():
         user_id = input("Enter the User ID to delete: ")
-
         try:
             # Step 1: Read all records
             with open("user_db.txt", "r") as file:
