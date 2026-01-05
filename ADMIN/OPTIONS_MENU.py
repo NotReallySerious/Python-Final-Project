@@ -1,4 +1,6 @@
 from pharmacist.pharmacist import view
+from accountant.account__assistant import daily_summary
+from login.auth import register
 def menu():
     try:
         i = True
@@ -25,11 +27,11 @@ What is your choice? (enter number 1-5)"""))
 ***********************************
 what is your choice? (enter a number 1-3)"""))
                         if chooseusers== "1":
-                            ##register()
+                            register()
                         elif chooseusers == "2":
-                            UpdateUsers()
+                            ##UpdateUsers()
                         elif chooseusers == "3":
-                            DeleteUsers()
+                            ##DeleteUsers()
                         elif chooseusers == "4":
                             break
                         else:
@@ -71,7 +73,7 @@ what is your choice? (enter a number 1-3)"""))
                         elif chooseviewreports == "2":
                             totalappointments()
                         elif chooseviewreports == "3":
-
+                            daily_summary()
                         elif chooseviewreports == "4":
                             break
                         else:
