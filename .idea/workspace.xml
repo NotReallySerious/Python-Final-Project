@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="added options menu for ADMIN - deva" />
+    <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="added options menu for ADMIN - deva">
+      <change beforePath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" beforeDir="false" afterPath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

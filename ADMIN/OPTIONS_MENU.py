@@ -1,6 +1,6 @@
 from pharmacist.pharmacist import view
 from accountant.account__assistant import daily_summary
-from login.auth import register
+from login.auth import register, encrypt_password
 def menu():
     try:
         i = True
@@ -111,68 +111,57 @@ what is your choice? (enter number 1-2)"""))
         print("Please enter a number.")
 
 def UpdateUsers():
-    user_id = input("Enter the User ID to update: ")
-    try:
-        # Step 1: Read all records
-        with open("user_db.txt", "r") as file:
-            lines = file.readlines()
+    def update_user():
+        user_id = input("Enter the username of the user to update: ").strip()
 
-        updated_lines = []
-        found = False
+        try:
+            with open("login/user_db.txt", "r") as file:
+                lines = file.readlines()
 
-        # Step 2: Search for the user
-        for line in lines:
-            fields = line.strip().split("|")
-            existing_id = fields[0]
+            updated_lines = []
+            found = False
 
-            if existing_id == user_id:
-                found = True
-                print("\nCurrent Record:")
-                print(line.strip())
+            for line in lines:
+                fields = line.strip().split(";")
+                existing_username = fields[0]
 
-                # Step 3: Show update menu
-                print("\nWhich fields do you want to update?")
-                print("Options: UserID, Name, Username, Password, Phone, Email")
-                print("Separate multiple choices with commas (e.g., Name,Phone,Email)")
+                if existing_username == user_id:
+                    found = True
+                    print("Current record:", line.strip())
 
-                choices = input("Enter fields to update: ").replace(" ", "").split(",")
+                    print("\nWhich fields do you want to update?")
+                    print("Options: username, email, password, role")
+                    choices = input("Enter fields (comma-separated): ").replace(" ", "").split(",")
 
-                # Step 4: Apply updates for each chosen field
-                for choice in choices:
-                    if choice.lower() == "userid":
-                        fields[0] = input("Enter new User ID: ")
-                    elif choice.lower() == "name":
-                        fields[1] = input("Enter new name: ")
-                    elif choice.lower() == "username":
-                        fields[3] = input("Enter new username: ")
-                    elif choice.lower() == "password":
-                        fields[4] = input("Enter new password: ")
-                    elif choice.lower() == "phone":
-                        fields[5] = input("Enter new phone: ")
-                    elif choice.lower() == "email":
-                        fields[6] = input("Enter new email: ")
-                    else:
-                        print(f"Invalid choice: {choice}. Skipped.")
+                    for choice in choices:
+                        if choice.lower() == "username":
+                            fields[0] = input("Enter new username: ").strip()
+                        elif choice.lower() == "email":
+                            fields[1] = input("Enter new email: ").strip()
+                        elif choice.lower() == "password":
+                            fields[2] = input("Enter new password: ").strip()
+                        elif choice.lower() == "role":
+                            fields[3] = input("Enter new role: ").strip()
+                        else:
+                            print(f"Invalid choice: {choice}")
 
-                # Step 5: Rebuild updated line
-                new_line = "|".join(fields) + "\n"
-                updated_lines.append(new_line)
+                    new_line = ";".join(fields) + "\n"
+                    updated_lines.append(new_line)
+                else:
+                    updated_lines.append(line)
+
+            with open("login/user_db.txt", "w") as file:
+                file.writelines(updated_lines)
+
+            if found:
+                print(f"User {user_id} updated successfully.")
             else:
-                updated_lines.append(line)
+                print(f"Error: User {user_id} not found.")
 
-        # Step 6: Rewrite file
-        with open("user_db.txt", "w") as file:
-            file.writelines(updated_lines)
-
-        if found:
-            print(f"User {user_id} updated successfully.")
-        else:
-            print(f"Error: User ID {user_id} not found.")
-
-    except FileNotFoundError:
-        print("Error: user_db.txt file not found.")
-    except Exception as e:
-        print("Error while updating user:", str(e))
+        except FileNotFoundError:
+            print("Error: user_db.txt file not found.")
+        except Exception as e:
+            print("Error while updating user:", str(e))
 def DeleteUsers():
         user_id = input("Enter the User ID to delete: ")
         try:
@@ -242,5 +231,5 @@ def totalappointments():
     except FileNotFoundError:
         print("Error: cashier/appointments.txt file not found.")
 
-
+menu()
 
