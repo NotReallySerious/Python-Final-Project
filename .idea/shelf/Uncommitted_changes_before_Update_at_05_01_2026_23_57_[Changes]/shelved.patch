@@ -1,0 +1,299 @@
+Index: ADMIN/OPTIONS_MENU.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>def menu():\r\n    while True:\r\n        print('*' * 30)\r\n        print(\"Welcome to ADMIN MENU\")\r\n        print('*' * 30)\r\n        print(\"Manage Clinic Users\")\r\n        print('1. Add Clinic Users')\r\n        print('2. Update Clinic Users')\r\n        print('3. Delete Clinic Users')\r\n        print(\"\")\r\n        print(\"Manage Doctor Records\")\r\n        print('4. Add Doctor Records')\r\n        print('5. Update Doctor Records')\r\n        print('6. Delete Doctor Records')\r\n        print(\"\")\r\n        print(\"Reports\")\r\n        print('7. Update Medicine Deletion Records')\r\n        print('8. Change Password')\r\n        print('9. Update Profile')\r\n        print(\"\")\r\n        print('10. Exit')\r\n        print('*' * 30)\r\n        choice = int(input(\"What is your choice?\"))\r\n        match choice:\r\n            case 1:\r\n                Add_Users()\r\n            case 2:\r\n                UpdateUsers()\r\n            case 3:\r\n                DeleteUsers()\r\n            case 4:\r\n                RegisterRecords()\r\n            case 5:\r\n                UpdateRecords()\r\n            case 6:\r\n                DeleteRecords()\r\n            case 7:\r\n                MedicineDeletion()\r\n            case 8:\r\n                Password()\r\n            case 9:\r\n                Profile()\r\n            case 10:\r\n                print(\"End.\")\r\n                break\r\n            case _: ## Input validation example\r\n                print(\"Invalid choice.\")\r\n                return\r\ndef Add_Users():\r\n    try:\r\n        num = int(input(\"Enter how many clinic user(s) to add\"))\r\n        for i in range(num, num+1):\r\n            name = input(f\"Enter the full name of user no.{i}\")\r\n            role = input(f\"Enter the clinic role (Admin/Receptionist/Doctor/Pharmacist/Accounts) of user no.{i}\")\r\n            username = input(f\"Enter the username of user no.{i}\")\r\n            password = input(f\"Enter password of user no.{i}\")\r\n            phone = input(f\"Enter the phone of user no.{i}\")\r\n            email = input(f\"Enter the email of user no.{i}\")\r\n            userID = input(f\"Enter the id of user no.{i}\")\r\n            with open(\"users.txt\", \"a\") as f:\r\n                f.write(f\"{userID},{name},{username},{password},{phone},{email}\\n\")\r\n                print(\"User(s) added successfully.\")\r\n    except ValueError:\r\n        print(\"Please enter a number.\")\r\n        return\r\ndef UpdateUsers():\r\n    user_id = input(\"Enter the User ID to update: \")\r\n\r\n    try:\r\n        # Step 1: Read all records\r\n        with open(\"users.txt\", \"r\") as file:\r\n            lines = file.readlines()\r\n\r\n        updated_lines = []\r\n        found = False\r\n\r\n        # Step 2: Search for the user\r\n        for line in lines:\r\n            fields = line.strip().split(\"|\")\r\n            existing_id = fields[0]\r\n\r\n            if existing_id == user_id:\r\n                found = True\r\n                print(\"\\nCurrent Record:\")\r\n                print(line.strip())\r\n\r\n                # Step 3: Show update menu\r\n                print(\"\\nWhich fields do you want to update?\")\r\n                print(\"Options: UserID, Name, Username, Password, Phone, Email\")\r\n                print(\"Separate multiple choices with commas (e.g., Name,Phone,Email)\")\r\n\r\n                choices = input(\"Enter fields to update: \").replace(\" \", \"\").split(\",\")\r\n\r\n                # Step 4: Apply updates for each chosen field\r\n                for choice in choices:\r\n                    if choice.lower() == \"userid\":\r\n                        fields[0] = input(\"Enter new User ID: \")\r\n                    elif choice.lower() == \"name\":\r\n                        fields[1] = input(\"Enter new name: \")\r\n                    elif choice.lower() == \"username\":\r\n                        fields[3] = input(\"Enter new username: \")\r\n                    elif choice.lower() == \"password\":\r\n                        fields[4] = input(\"Enter new password: \")\r\n                    elif choice.lower() == \"phone\":\r\n                        fields[5] = input(\"Enter new phone: \")\r\n                    elif choice.lower() == \"email\":\r\n                        fields[6] = input(\"Enter new email: \")\r\n                    else:\r\n                        print(f\"Invalid choice: {choice}. Skipped.\")\r\n\r\n                # Step 5: Rebuild updated line\r\n                new_line = \"|\".join(fields) + \"\\n\"\r\n                updated_lines.append(new_line)\r\n            else:\r\n                updated_lines.append(line)\r\n\r\n        # Step 6: Rewrite file\r\n        with open(\"users.txt\", \"w\") as file:\r\n            file.writelines(updated_lines)\r\n\r\n        if found:\r\n            print(f\"User {user_id} updated successfully.\")\r\n        else:\r\n            print(f\"Error: User ID {user_id} not found.\")\r\n\r\n    except FileNotFoundError:\r\n        print(\"Error: users.txt file not found.\")\r\n    except Exception as e:\r\n        print(\"Error while updating user:\", str(e))\r\ndef DeleteUsers():\r\n    def DeleteUsers():\r\n        user_id = input(\"Enter the User ID to delete: \")\r\n\r\n        try:\r\n            # Step 1: Read all records\r\n            with open(\"users.txt\", \"r\") as file:\r\n                lines = file.readlines()\r\n\r\n            updated_lines = []\r\n            found = False\r\n\r\n            # Step 2: Search for the user\r\n            for line in lines:\r\n                fields = line.strip().split(\"|\")\r\n                existing_id = fields[0]\r\n\r\n                if existing_id == user_id:\r\n                    found = True\r\n                    print(\"Deleting record:\", line.strip())\r\n                    # Skip adding this line to updated_lines (effectively deleting it)\r\n                else:\r\n                    updated_lines.append(line)\r\n\r\n            # Step 3: Rewrite file without the deleted record\r\n            with open(\"users.txt\", \"w\") as file:\r\n                file.writelines(updated_lines)\r\n\r\n            if found:\r\n                print(f\"User {user_id} deleted successfully.\")\r\n            else:\r\n                print(f\"Error: User ID {user_id} not found.\")\r\n\r\n        except FileNotFoundError:\r\n            print(\"Error: users.txt file not found.\")\r\n        except Exception as e:\r\n            print(\"Error while deleting user:\", str(e))\r\n\r\n\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ADMIN/OPTIONS_MENU.py b/ADMIN/OPTIONS_MENU.py
+--- a/ADMIN/OPTIONS_MENU.py	(revision 2fc92c01272c20ae9589f697df8bbb6aa72ee15a)
++++ b/ADMIN/OPTIONS_MENU.py	(date 1767632261749)
+@@ -1,74 +1,117 @@
+ def menu():
+-    while True:
+-        print('*' * 30)
+-        print("Welcome to ADMIN MENU")
+-        print('*' * 30)
+-        print("Manage Clinic Users")
+-        print('1. Add Clinic Users')
+-        print('2. Update Clinic Users')
+-        print('3. Delete Clinic Users')
+-        print("")
+-        print("Manage Doctor Records")
+-        print('4. Add Doctor Records')
+-        print('5. Update Doctor Records')
+-        print('6. Delete Doctor Records')
+-        print("")
+-        print("Reports")
+-        print('7. Update Medicine Deletion Records')
+-        print('8. Change Password')
+-        print('9. Update Profile')
+-        print("")
+-        print('10. Exit')
+-        print('*' * 30)
+-        choice = int(input("What is your choice?"))
+-        match choice:
+-            case 1:
+-                Add_Users()
+-            case 2:
+-                UpdateUsers()
+-            case 3:
+-                DeleteUsers()
+-            case 4:
+-                RegisterRecords()
+-            case 5:
+-                UpdateRecords()
+-            case 6:
+-                DeleteRecords()
+-            case 7:
+-                MedicineDeletion()
+-            case 8:
+-                Password()
+-            case 9:
+-                Profile()
+-            case 10:
+-                print("End.")
+-                break
+-            case _: ## Input validation example
+-                print("Invalid choice.")
+-                return
+-def Add_Users():
+-    try:
+-        num = int(input("Enter how many clinic user(s) to add"))
+-        for i in range(num, num+1):
+-            name = input(f"Enter the full name of user no.{i}")
+-            role = input(f"Enter the clinic role (Admin/Receptionist/Doctor/Pharmacist/Accounts) of user no.{i}")
+-            username = input(f"Enter the username of user no.{i}")
+-            password = input(f"Enter password of user no.{i}")
+-            phone = input(f"Enter the phone of user no.{i}")
+-            email = input(f"Enter the email of user no.{i}")
+-            userID = input(f"Enter the id of user no.{i}")
+-            with open("users.txt", "a") as f:
+-                f.write(f"{userID},{name},{username},{password},{phone},{email}\n")
+-                print("User(s) added successfully.")
++    try:
++        i = True
++        while i == True:
++            choosingmain = int(input(f"""
++*******WELCOME TO ADMIN MENU*************
++1. Manage Clinic Users
++2. Manage Doctor Records
++3. View Reports
++4. Generate Clinic Summary Report 
++5. Delete Medicine 
++6. Exit
++*****************************************
++What is your choice? (enter number 1-5)"""))
++            match choosingmain:
++                case 1:
++                    while True:
++                        chooseusers= int(input(f"""
++*******MANAGING CLINIC USERS*******
++1. Add Clinic Users 
++2. Update Clinic Users 
++3. Delete Clinic Users
++4. Return to ADMIN MENU
++***********************************
++what is your choice? (enter a number 1-3)"""))
++                        if chooseusers== "1":
++                            ##register()
++                        elif chooseusers == "2":
++                            UpdateUsers()
++                        elif chooseusers == "3":
++                            DeleteUsers()
++                        elif chooseusers == "4":
++                            break
++                        else:
++                            print("Invalid Choice")
++                            continue
++                case 2:
++                    while True:
++                        choosedocrecs= int(input(f"""
++    *******MANAGING DOCTOR RECORDS*******
++    1. Add Doctor Records 
++    2. Update Doctor Records 
++    3. Delete Doctor Records
++    4. Return to ADMIN MENU
++    *************************************
++                        what is your choice? (enter number 1-3)"""))
++                        if choosedocrecs == "1":
++                            ##add function here
++                        elif choosedocrecs== "2":
++                            ##add function
++                        elif choosedocrecs== "3":
++                            ##add function
++                        elif choosedocrecs== "4":
++                            break
++                        else:
++                            print("Invalid Choice")
++                            continue
++                case 3:
++                    while True:
++                        chooseviewreports= int(input(f"""
++    *******VIEWING REPORTS*******
++    1. View Total Patients Report
++    2. View Appointments Report
++    3. View Income Report
++    4. Return to ADMIN MENU
++                        *************************************
++                        what is your choice? (enter number 1-3)"""))
++                        if chooseviewreports == "1":
++                            ##function to view
++                        elif chooseviewreports == "2":
++                            ##function to view
++                        elif chooseviewreports == "3":
++                            ##function to view
++                        elif chooseviewreports == "4":
++                            break
++                        else:
++                            print("Invalid Choice")
++                            continue
++                case 4:
++                    while True:
++                        choosinggenerate = int(input(f"""
++    *******GENERATE CLINIC SUMMARY REPORT*******
++    1. Generate Staff Summary Report
++    2. Generate Medicine Summary Report
++    3. Return to ADMIN MENU
++    ********************************************
++    what is your choice? (enter number 1-2)"""))
++                        if choosinggenerate == "1":
++                            ##function to view
++                        elif choosinggenerate == "2":
++                            ##function to view
++                        elif choosinggenerate == "3":
++                            break
++                        else:
++                            print("Invalid Choice")
++                            continue
++                case 5:
++                    while True:
++                        ##deletemedicine()
++                case 6:
++                    print("End.")
++                    i = False
++                    break
++                case _: ## Input validation example
++                    print("Invalid choice.")
++                    continue
+     except ValueError:
+         print("Please enter a number.")
+-        return
++
+ def UpdateUsers():
+     user_id = input("Enter the User ID to update: ")
+-
+     try:
+         # Step 1: Read all records
+-        with open("users.txt", "r") as file:
++        with open("user_db.txt", "r") as file:
+             lines = file.readlines()
+ 
+         updated_lines = []
+@@ -115,7 +158,7 @@
+                 updated_lines.append(line)
+ 
+         # Step 6: Rewrite file
+-        with open("users.txt", "w") as file:
++        with open("user_db.txt", "w") as file:
+             file.writelines(updated_lines)
+ 
+         if found:
+@@ -124,7 +167,7 @@
+             print(f"Error: User ID {user_id} not found.")
+ 
+     except FileNotFoundError:
+-        print("Error: users.txt file not found.")
++        print("Error: user_db.txt file not found.")
+     except Exception as e:
+         print("Error while updating user:", str(e))
+ def DeleteUsers():
+@@ -133,7 +176,7 @@
+ 
+         try:
+             # Step 1: Read all records
+-            with open("users.txt", "r") as file:
++            with open("user_db.txt", "r") as file:
+                 lines = file.readlines()
+ 
+             updated_lines = []
+@@ -152,7 +195,7 @@
+                     updated_lines.append(line)
+ 
+             # Step 3: Rewrite file without the deleted record
+-            with open("users.txt", "w") as file:
++            with open("user_db.txt", "w") as file:
+                 file.writelines(updated_lines)
+ 
+             if found:
+@@ -161,7 +204,7 @@
+                 print(f"Error: User ID {user_id} not found.")
+ 
+         except FileNotFoundError:
+-            print("Error: users.txt file not found.")
++            print("Error: user_db.txt file not found.")
+         except Exception as e:
+             print("Error while deleting user:", str(e))
+ 
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"c2b695e1-43ba-4d5c-8236-dd6214eb6d6c\" name=\"Changes\" comment=\"added options menu for ADMIN - deva\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Python Script\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"PREVIOUS_COMMIT_AUTHORS\">\r\n      <list>\r\n        <option value=\"Deva indra &lt;imperialguard2071@gmail.com&gt;\" />\r\n      </list>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 7\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"37b6iJmTwpO7fTiENDyCkCvxZHH\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"ASKED_SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"ModuleVcsDetector.initialDetectionPerformed\": \"true\",\r\n    \"Python.OPTIONS.executor\": \"Run\",\r\n    \"Python.account__assistant.executor\": \"Run\",\r\n    \"Python.auth.executor\": \"Run\",\r\n    \"Python.sigma.executor\": \"Run\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"RunOnceActivity.git.unshallow\": \"true\",\r\n    \"SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"git-widget-placeholder\": \"main\",\r\n    \"ignore.virus.scanning.warn.message\": \"true\",\r\n    \"last_opened_file_path\": \"C:/Users/imper/Python-Final-Project/ADMIN\",\r\n    \"settings.editor.selected.configurable\": \"com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable\"\r\n  }\r\n}]]></component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\imper\\Python-Final-Project\\ADMIN\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-python-sdk-164cda30dcd9-0af03a5fa574-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.26830.99\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"c2b695e1-43ba-4d5c-8236-dd6214eb6d6c\" name=\"Changes\" comment=\"\" />\r\n      <created>1767159549121</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1767159549121</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"added options menu for ADMIN - deva\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1767597107234</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1767597107234</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"2\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"added options menu for ADMIN - deva\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"added options menu for ADMIN - deva\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 2fc92c01272c20ae9589f697df8bbb6aa72ee15a)
++++ b/.idea/workspace.xml	(date 1767632261748)
+@@ -6,6 +6,7 @@
+   <component name="ChangeListManager">
+     <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="added options menu for ADMIN - deva">
+       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" beforeDir="false" afterPath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+@@ -81,7 +82,23 @@
+       <option name="project" value="LOCAL" />
+       <updated>1767597107234</updated>
+     </task>
+-    <option name="localTasksCounter" value="2" />
++    <task id="LOCAL-00002" summary="added options menu for ADMIN - deva">
++      <option name="closed" value="true" />
++      <created>1767606938132</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1767606938132</updated>
++    </task>
++    <task id="LOCAL-00003" summary="added options menu for ADMIN - deva">
++      <option name="closed" value="true" />
++      <created>1767606942337</created>
++      <option name="number" value="00003" />
++      <option name="presentableId" value="LOCAL-00003" />
++      <option name="project" value="LOCAL" />
++      <updated>1767606942337</updated>
++    </task>
++    <option name="localTasksCounter" value="4" />
+     <servers />
+   </component>
+   <component name="VcsManagerConfiguration">
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.11\" project-jdk-type=\"Python SDK\" />\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 2fc92c01272c20ae9589f697df8bbb6aa72ee15a)
++++ b/.idea/misc.xml	(date 1767632261748)
+@@ -1,4 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="Black">
++    <option name="sdkName" value="Python 3.11" />
++  </component>
+   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file

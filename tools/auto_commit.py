@@ -40,7 +40,7 @@ def main():
         print("Filename required")
         return
 
-    filepath = os.path.join(folder, filename + "/" + ".py")
+    filepath = os.path.join(folder, filename + ".py")
 
     print("\nEnter your Python code")
     print("(CTRL+D on Linux/macOS | CTRL+Z then Enter on Windows)\n")
