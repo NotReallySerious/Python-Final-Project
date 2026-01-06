@@ -170,7 +170,7 @@ def login():
 
                 elif user_role == 'pharmacist':
                     print(f'Hello pharmacist {username}')
-                    pharmasist()
+                    pharmacist()
                     return
             
                 elif user_role == 'receptionist':
