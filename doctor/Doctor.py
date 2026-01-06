@@ -1,5 +1,5 @@
-import accountant
-from accountant.account__assistant import redo_action
+from accountant import account__assistant
+
 
 def get_doctor_name(doctor_id):
     with open('doctor/Doctor.txt', 'r') as f:
@@ -223,7 +223,39 @@ def record_consultation(doctor_id):
         with open('pharmacist/medicine_stock.txt', 'r') as pres:
             medicines = pres.readlines()
 
-        
+def view_consultation_reports(doctor_id):
+    print("\n VIEW CONSULTATION REPORTS ")
+    found = False
+    
+    try:
+        with open('patient_record_db.txt', 'r') as f:
+            lines = f.readlines()
+            
+            for line in lines:
+                values = line.strip().split(',')
+                
+                patient_id = values[0].replace("'", "")
+                patient_name = values[1].replace("'", "").replace("_", " ")
+                age = values[2]
+                diagnosis = values[3].replace("'", "")
+                meds = values[4].replace("'", "")
+                advice = values[6].replace("'", "")
+
+                print("-" * 30)
+                print(f"Patient: {patient_name} ({patient_id})")
+                print(f"Age: {age}")
+                print(f"Diagnosis: {diagnosis}")
+                print(f"Medications: {meds}")
+                print(f"Advice: {advice}")
+                found = True
+                
+        if not found:
+            print("No record found.")
+
+    except FileNotFoundError:
+        print("No record found")
+    
+    
         
 def Doctor_Menu(doctor_id):
 

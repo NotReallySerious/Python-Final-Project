@@ -256,6 +256,76 @@ def daily_summary():
     if not redo_action('Generate another summary'):
         return
 
+def add_new_med_stock():
+    with open('pharmacist/med_stock_low.txt','r') as f:
+        info = f.readlines()
+        for line in info:
+            element = line.strip().split(',')
+            code = element[0]
+            Name = element[1]
+            stock = int(element[2])
+            Price = float(element[3])
+            Demands = element[4]
+            print("Barcode, Name, Stock, Price, Demand")
+            print(f"{code}, {Name}, {stock}, {Price}, {Demands}\n")
+    
+    barcode = int(input("Enter Medicine's QR code: "))
+    med_name = input('Enter medicine name: ').replace(' ', '_')
+    quantity = int(input("Enter quantity: "))
+    price = float(input("Enter the price: "))
+    demand = input("Enter demand [low, medium, high]: ").title()
+    if demand not in ['Low', 'Medium', 'High']:
+        print('Wrong demand type.')
+    else:
+        with open('pharmacist/med_new_stock.txt','w') as p:
+            p.write(f"{barcode},{med_name},{quantity},{price},{demand}")
+        with open('pharmacist/medicine_stock.txt', 'a') as m:
+            m.write(f"{barcode},{med_name},{quantity},{price}")
+
+        print('Item has been added to the list')
+
+    if not redo_action("Want to enter another medicine? (yes/no): "):
+        return
+        
+def update_quantity_med():
+    existing_meds = {}
+    with open('pharmacist/med_db.txt', 'r') as p:
+        lines = p.readlines()
+        for line in lines:
+            values = line.strip().split(',')
+            Barcode = values[0]
+            med_name = values[1]
+            quantity = values[2]
+            price = values[3]
+            demand = values[4]
+            existing_meds[Barcode] = {
+                'Name' : med_name,
+                'Quantity' : int(quantity),
+                'Price' : price,  
+                'Demand' : demand
+            }
+    
+    select_item_barcode = str(int(input('Enter the medicine barcode: ')))
+    if select_item_barcode in existing_meds:
+        print(f"Medicine name: {existing_meds[select_item_barcode]['Name']}")
+        print(f"Quantity: {existing_meds[select_item_barcode]['Quantity']}")
+
+        add_quantity = int(input("enter the quantity to be added: "))
+        existing_meds[select_item_barcode]['Quantity'] += add_quantity
+        
+        print(f"New quantity: {existing_meds[select_item_barcode]['Quantity']}")
+        print("Quantity updated successfully!")
+
+        demand = input("Enter demand [low, medium, high]: ").title()
+        if demand not in ['Low', 'Medium', 'High']:
+            print('Wrong demand type.')
+        else:
+            with open('pharmacist/med_update_stock.txt','w') as up:
+                up.write(f"{select_item_barcode},{existing_meds[select_item_barcode]['Name']},{existing_meds[select_item_barcode]['Quantity']},{existing_meds[select_item_barcode]['Price']},{demand}\n")                
+                print("Item quantity updated")
+    if not redo_action('Add another item quantity? (yes/no) '):
+        return
+
 def accountant_main():
     while True:
         print('Accountant management dashboard')
@@ -263,7 +333,9 @@ def accountant_main():
         print("2. View all receipts")
         print("3. Delete receipt(s)")
         print("4. Daily Summary Generator")
-        print("5. Log out")    
+        print("5. Add new medicine to stock")
+        print("6. Update existing medicine(s) stock")
+        print("7. Log out")    
         choice = input("> ")
         match choice:
             case '1':
@@ -275,6 +347,10 @@ def accountant_main():
             case '4':
                 daily_summary()
             case '5':
+                add_new_med_stock()
+            case '6':
+                update_quantity_med()
+            case '7':
                 with open('login/logged_out.txt','a') as l:
                     l.write(f'[{datetime.datetime.now()}] accountant logged out\n')
                 print('Bye. See you tomorrow. Have a great day')

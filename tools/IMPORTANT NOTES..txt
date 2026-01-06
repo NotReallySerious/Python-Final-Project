@@ -1,0 +1,7 @@
+everytime you run your code, please use 
+
+python -m directory.your_python_file_name_without_py
+
+for example
+
+python -m doctor.Doctor 
