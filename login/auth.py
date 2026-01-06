@@ -175,6 +175,7 @@ def login():
             
                 elif user_role == 'receptionist':
                     print(f"Catchingg... Hello {username}")
+                    receptionist_main()
                     return
                 
                 elif user_role == 'administrator':
