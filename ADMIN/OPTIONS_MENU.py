@@ -91,7 +91,7 @@ what is your choice? (enter a number 1-3)"""))
 ********************************************
 what is your choice? (enter number 1-2)"""))
                         if choosinggenerate == "1":
-                            ##make function to view staff txt file
+                            read_staff()
                         elif choosinggenerate == "2":
                             view() ##view function from pharmacist
                         elif choosinggenerate == "3":
@@ -237,6 +237,25 @@ def totalappointments():
                 print(line.strip())
     except FileNotFoundError:
         print("Error: cashier/appointments.txt file not found.")
+def read_staff():
+    try:
+        with open("staff.txt", "r") as file:
+            lines = file.readlines()
+
+        total_records = len(lines)
+        print(f"Total number of records: {total_records}\n")
+
+        print("--- Staff Records ---")
+        for line in lines:
+            parts = line.strip().split(",")
+            if len(parts) == 4:
+                username, email, password, role = parts
+                print(f"Username: {username}, Email: {email}, Password: {password}, Role: {role}")
+            else:
+                print(f"Invalid record format: {line.strip()}")
+
+    except FileNotFoundError:
+        print("Error: hospital_staff.txt file not found.")
 
 menu()
 
