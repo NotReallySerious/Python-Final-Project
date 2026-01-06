@@ -1,0 +1,1344 @@
+Index: login/auth.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import base64\r\nimport codecs\r\nimport hashlib\r\nimport datetime as dt\r\nfrom pharmacist.pharmacist import pharmasist\r\nfrom accountant.account__assistant import accountant_main, delete_receipt, get_user_total_details, get_receipt_list\r\n\r\ndef encrypt_password(password):\r\n    #change password into bytes before encoding\r\n    password_bytes = password.encode('utf-8')\r\n\r\n    base64_encoded = base64.b64encode(password_bytes)\r\n    base64_string = base64_encoded.decode('utf-8')\r\n\r\n    # changed into rot-13 \r\n    ROT_13_encode = codecs.encode(base64_string, 'rot_13')\r\n    \r\n    # change to SHA256\r\n    hash_bytes = ROT_13_encode.encode('utf-8')\r\n    sha256_string = hashlib.sha256(hash_bytes)\r\n    final_hex_representation = sha256_string.hexdigest()\r\n    return final_hex_representation\r\n\r\ndef register():\r\n    while True:\r\n        user_email = input(\"Enter your valid email: \").strip()\r\n        # Email checking\r\n        if '@' not in user_email:\r\n            print(\"Invalid email\")\r\n        else:\r\n            break\r\n    \r\n    email_domain = ['aphdoctor.aph.com','aphaccountant.aph.com','aphreceptionist.aph.com','aphpharmacist.aph.com','aphhadmin.aph.com']\r\n    try:\r\n        domain = user_email.split('@')[1]\r\n        if domain == email_domain[0]:\r\n            role = 'Doctor'\r\n        elif domain == email_domain[1]:\r\n            role = 'accountant'\r\n        elif domain == email_domain[2]:\r\n            role = 'receptionist'\r\n        elif domain == email_domain[3]:\r\n            role = 'pharmacist'\r\n        elif domain == email_domain[4]:\r\n            role = 'administrator'\r\n        else:\r\n            role = 'patient'\r\n    except IndexError:\r\n        print('invalid email format.')\r\n    \r\n    \r\n    username = input(\"Enter your username: \").strip().replace(' ','_')\r\n\r\n    while True: \r\n        password = input(\"Enter your password: \").strip()\r\n        \r\n        # Password checking\r\n        password_length = len(password)\r\n        uppercase_count = 0\r\n        lowercase_count = 0\r\n        num_count = 0\r\n        special_characters = ['[','!','@','#','$','%','^','&','*','(',')','.','?','\"',':','{','}','|','<','>',']']\r\n        special_count = 0\r\n        all_valid = True\r\n        if password_length < 12:\r\n            print(f\"your password length is {len(password)}. you password must have at least 12 characters\")\r\n            all_valid = False\r\n        \r\n        for letter in password:\r\n            if letter.isupper():\r\n                uppercase_count += 1\r\n            elif letter.islower():\r\n                lowercase_count += 1\r\n            if letter.isnumeric():\r\n                num_count += 1\r\n\r\n        if uppercase_count < 1:\r\n            print(\"Your password must have at least 1 uppercase letter.\")\r\n            all_valid = False\r\n\r\n        if lowercase_count < 1:\r\n            print(\"Your password must have at least 1 lowercase letter\")\r\n            all_valid = False\r\n        \r\n        for letter in password:\r\n            if letter in special_characters:\r\n                special_count += 1\r\n        if special_count < 1:\r\n            print(\"Your password must have at least 1 special characters\")\r\n            all_valid = False\r\n        \r\n        if num_count < 1:\r\n            print('Your password must have at least 1 digit number')\r\n            all_valid = False\r\n        \r\n        if all_valid:\r\n            print(\"Password all match\")\r\n            encrypted_pass = encrypt_password(password)\r\n            break\r\n\r\n    print(f'username: {username}, email: {user_email}, Password: {encrypted_pass} Role: {role}')\r\n\r\n    try:\r\n        with open('login/user_db.txt', 'a') as f:\r\n            f.write(f'{username};{user_email};{password};{role}\\n')\r\n            print('User registered successfully')\r\n    except FileNotFoundError as e:\r\n        print(f'Error: {e}')   \r\n    try:\r\n        with open('login/user_db_encrypted.txt','a') as fe:\r\n            fe.write(f'{username};{user_email};{encrypt_password(password)};{role}\\n')   \r\n    except FileNotFoundError as e:\r\n        print(f'Error: {e}')  \r\n\r\ndef login():\r\n    wrong_attempt_count = 3\r\n\r\n    while wrong_attempt_count != 0:\r\n        email = input('Enter your email: ').strip()\r\n        password = input('Enter your password: ').strip()\r\n        enc_password = encrypt_password(password)\r\n        valid_user  = False\r\n\r\n        with open('login/user_db_encrypted.txt','r') as f:\r\n            lines = f.readlines()\r\n            \r\n            for line in lines:\r\n                fields = line.strip().split(';')\r\n                username = fields[0].strip('\"')\r\n                file_email = fields[1].strip('\"')\r\n                file_password = fields[2].strip('\"')\r\n                user_role = fields[3].strip('\"')\r\n                if file_email == email and file_password == enc_password:\r\n                    valid_user = True\r\n                    break\r\n\r\n            if valid_user == True:\r\n                with open('login/clocked_in.txt','a') as cl:\r\n                    cl.write(f\"{dt.datetime.now()}: {user_role}, {username}\\n\")\r\n                print(f'Hello {user_role}, {username}\\n')\r\n\r\n                if user_role == 'Doctor':\r\n                    print(f'Hello Doctor {username}')\r\n                    return\r\n\r\n                elif user_role == 'accountant':\r\n                    print(f'Hello accountant {username}, ready to count some money?')\r\n                    accountant_main()\r\n                    return\r\n\r\n                elif user_role == 'pharmacist':\r\n                    print(f'Hello pharmacist {username}')\r\n                    pharmasist()\r\n                    return\r\n            \r\n                elif user_role == 'receptionist':\r\n                    print(f\"Catchingg... Hello {username}\")\r\n                    return\r\n                \r\n                elif user_role == 'administrator':\r\n                    print(f\"Hello Admin. lets go manage some stuffs today\")\r\n                    return\r\n                \r\n                else:\r\n                    print('No role for you. do you even work here?')\r\n                    break\r\n                \r\n            else:\r\n                wrong_attempt_count -= 1\r\n                print(f'credentials invalid. you have {wrong_attempt_count} attempt(S) left')\r\n                \r\n    print('Hacker detected, go away')\r\n            \r\ndef main():\r\n    while True:\r\n        print('Asia Pacific Hospital HealthPlus patient management')\r\n        print('1. Register')\r\n        print('2. Login')\r\n        print('3. Exit')\r\n        choice = int(input('Enter your option: '))\r\n        match choice:\r\n            case 1:\r\n                register()\r\n            case 2:\r\n                login()\r\n\r\nmain()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/login/auth.py b/login/auth.py
+--- a/login/auth.py	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/login/auth.py	(date 1767704826956)
+@@ -4,6 +4,8 @@
+ import datetime as dt
+ from pharmacist.pharmacist import pharmasist
+ from accountant.account__assistant import accountant_main, delete_receipt, get_user_total_details, get_receipt_list
++from doctor.Doctor import Doctor_Menu
++from cashier.receptionist import receptionist_main
+ 
+ def encrypt_password(password):
+     #change password into bytes before encoding
+@@ -140,8 +142,26 @@
+                 print(f'Hello {user_role}, {username}\n')
+ 
+                 if user_role == 'Doctor':
+-                    print(f'Hello Doctor {username}')
+-                    return
++                    doctor_found = False
++                    with open('doctor/Doctor.txt','r') as f:
++                        lines = f.readlines()
++                        for line in lines:
++                            value = line.strip().split(',')
++                            doctor_id = value[0].strip()
++                            doctor_name = value[1].strip()
++
++                            username_normalized = username.replace('_', ' ')
++                            
++                            if username_normalized == doctor_name:
++                                Doctor_Menu(doctor_id)
++                                doctor_found = True
++                                break
++                    
++                    if doctor_found:
++                        return
++                    else:
++                        print(f"Doctor {username} not found in Doctor.txt")
++                        return
+ 
+                 elif user_role == 'accountant':
+                     print(f'Hello accountant {username}, ready to count some money?')
+@@ -183,5 +203,9 @@
+                 register()
+             case 2:
+                 login()
++            case 3:
++                print('Thank you for using APH HealthPlus')
++                break
+ 
+-main()
++if __name__ == "__main__":
++    main()
+Index: doctor/Doctor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from accountant import account__assistant\r\n\r\n\r\ndef get_doctor_name(doctor_id):\r\n    with open('doctor/Doctor.txt', 'r') as f:\r\n        lines = f.readlines()\r\n        for line in lines:\r\n            values = line.strip().split(',')\r\n            doctor_id_in_file = values[0]\r\n            Name = values[1].replace('_',' ')\r\n\r\n            if doctor_id == doctor_id_in_file:\r\n                print(Name)\r\n            else:\r\n                print('Doctor ID unidentifyable')\r\n\r\ndef view_appointments(doctor_id):\r\n    patients = {}\r\n    with open('cashier/patient.txt', 'r') as p:\r\n        lines = p.readlines()\r\n        for line in lines:\r\n            value = line.strip().split(',')\r\n            patient_id = value[0]\r\n            Name = value[1]\r\n            patients[patient_id] = {\r\n                'Name' : Name\r\n            }\r\n\r\n    records = {}\r\n    with open('cashier/appointment.txt', 'r') as file:\r\n        lines = file.readlines()\r\n        for line in lines:\r\n            values = line.strip().split(',')\r\n            app_id = values[0]\r\n            date = values[1]\r\n            hour = values[2]\r\n            status = values[3]\r\n            patient_id = values[4]\r\n            doctor_id_in_file = values[5]\r\n        \r\n            if doctor_id_in_file == doctor_id:\r\n                records[app_id] = {\r\n                    'date': date,\r\n                    'hour': hour,\r\n                    'status': status,\r\n                    'patient_id': patient_id,\r\n                    'doctor_id': doctor_id_in_file\r\n                }\r\n                \r\n            if records:\r\n                print(f\"Appointments for Dr. {get_doctor_name(doctor_id)}\")\r\n                for app_id, details in records.items():\r\n                    print(f\"Appointment ID: {app_id}\")\r\n                    print(f\"Date: {details[date]}\")\r\n                    print(f\"Patient ID: {details[patient_id]}\")\r\n                    print(f\"Patient Name: {patients.get(patient_id,{}).get('Name','unknown')}\")\r\n            else:\r\n                print(f\"No appointments for Doctor. {get_doctor_name(doctor_id)}\")\r\n    return records\r\n\r\ndef record_consultation(doctor_id):\r\n    patient_details = {}\r\n    with open('cashier/patient.txt','r') as patient:\r\n        patients = patient.readlines()\r\n        for person in patients:\r\n            values = person.strip().split(',')\r\n            Patient_Id = values[0]\r\n            Patient_Name = values[1].replace(' ', '_')\r\n            DOB = values[2]\r\n            Address = values[3].replace('','_')\r\n            Contact_num = values[4]\r\n            emergency_num = values[5]\r\n\r\n            patient_details[Patient_Id] = {\r\n                'Name' : Patient_Name,\r\n                'DOB' : DOB,\r\n                'Address' : Address,\r\n                'Contact number' : Contact_num,\r\n                'emergency contact number' : emergency_num\r\n            }\r\n    \r\n    appointment_details = {}\r\n    all_app = []\r\n    with open('cashier/appointment.txt', 'r') as app:\r\n        lines = app.readlines()\r\n        for line in lines:\r\n            values = line.strip().split(',')\r\n            app_id = values[0]\r\n            date = values[1]\r\n            hour = values[2]\r\n            status = values[3]\r\n            patient_id = values[4]\r\n            doctor_id_in_file = values[5]\r\n            \r\n            all_app.append({\r\n                'app_id': app_id,\r\n                'date': date,\r\n                'hour': hour,\r\n                'status': status,\r\n                'patient_id': patient_id,\r\n                'doctor_id': doctor_id_in_file\r\n            })\r\n\r\n            if doctor_id == doctor_id_in_file:\r\n                appointment_details[app_id] = {\r\n                    'Date' : date,\r\n                    'Hour' : hour,\r\n                    'Status' : status,\r\n                    'Patient_ID' : patient_id,\r\n                }\r\n\r\n    index = 1\r\n    appointment_list = {}\r\n    for app_id in appointment_details:\r\n        patient_id = appointment_details[app_id]['Patient ID']\r\n        patient_name = patient_details.get(patient_id, {}).get('Name','unknown')\r\n\r\n        appointment_list[index] = {\r\n            'appointment_id': app_id,\r\n            'appointment_data': appointment_details[app_id],\r\n            'patient_name': patient_name\r\n        }\r\n        print(f\"{index}. {patient_id}, {patient_name}\")\r\n        index += 1\r\n    \r\n    while True:\r\n        patient_selection = int(input(\"Enter the index number: \"))\r\n\r\n        try:\r\n            if patient_selection < 1 or patient_selection > index:\r\n                print('Invalid selection')\r\n                continue\r\n        except ValueError:\r\n            print('invalid value')\r\n\r\n        selected_patient = appointment_list[patient_selection]\r\n        patient_id = selected_patient['patient_id']\r\n        patient_name = selected_patient['patient_name'].replace('_', ' ')\r\n        selected_app_id = selected_patient['appointment_id']\r\n        print(f\"\\nRecording consultation for: {patient_name} ({patient_id})\")\r\n        print(\"-\" * 50)\r\n        \r\n        while True:\r\n            try:\r\n                age = int(input(\"Enter patient's age: \"))\r\n                if age < 0:\r\n                    print(\"Age cannot be negative. Please try again.\")\r\n                    continue\r\n                break\r\n            except ValueError:\r\n                print(\"Please enter a valid number for age!\")\r\n        \r\n        while True:\r\n                diagnosis = input('Diagnosis: ').strip\r\n                if not diagnosis:\r\n                    print(\"Diagnosis Can't be empty.\")\r\n                    continue\r\n                break\r\n        \r\n        while True:\r\n            print(\"Enter medications for your patient (separate with ; for multiple medicines)\\n\")\r\n            meds = input(\"Enter medicine(s): \").strip()\r\n            if not meds:\r\n                print(\"Medications can't be empty.\")\r\n                continue\r\n            break\r\n\r\n        while True:\r\n            print(\"Enter the quantity of the medicine(s),(separate with ; for multiple medicines)\\n\")\r\n            qty = input(\"Enter quantity: \")\r\n            if not qty:\r\n                print(\"Quantity can't be empty or negative. Please enter at least 1\")\r\n                continue\r\n            break\r\n    \r\n        while True:\r\n            print(\"Give advice(s) to your patient (separate by ; for multiple advices)\\n\")\r\n            advice = input(\"Enter the advices: \").strip()\r\n            if not advice:\r\n                print(\"Seriously, no advice? give your patient some advice.\")\r\n                continue\r\n            break\r\n        while True:\r\n            med_count = len(meds.split(';'))\r\n            qty_count = len(qty.split(';'))\r\n            \r\n            if med_count != qty_count:\r\n                print(f\"Warning: You entered {med_count} medication(s) but {qty_count} quantity(ies).\")\r\n                confirm = input(\"Do you want to continue anyway? (yes/no): \").lower()\r\n                if confirm == 'yes' or confirm == 'y':\r\n                    break\r\n                else:\r\n                    continue\r\n            break\r\n\r\n        record = f\"'{patient_id}','{patient_name}',{age},'{diagnosis}','{meds}','{qty}','{advice}'\"\r\n\r\n        try:\r\n            with open('doctor/patient_record_db.txt', 'a') as rec:\r\n                rec.write(record)\r\n                print(\"File saved successfully\")\r\n        except Exception:\r\n            print(f\"Error writing the file: {Exception}\")\r\n\r\n        try:\r\n            for appointment in all_app:\r\n                if appointment['app_id'] == selected_app_id:\r\n                    appointment['status'] = 'Completed'\r\n            \r\n            # Write all appointments back to file\r\n            with open('cashier/appointment.txt', 'w') as app_file:\r\n                for appointment in all_app:\r\n                    line = f\"{appointment['app_id']},{appointment['date']},{appointment['hour']},{appointment['status']},{appointment['patient_id']},{appointment['doctor_id']}\\n\"\r\n                    app_file.write(line)\r\n            \r\n            print(\"Appointment status updated to 'Completed'!\")\r\n        except Exception as e:\r\n            print(f\"Error updating appointment status: {e}\")\r\n        \r\n        # Sending the medicine prescription to the pharmacist in form of patient_id,token_no,barcode,qty of med\r\n        token = 1\r\n        med = {}\r\n        with open('pharmacist/medicine_stock.txt', 'r') as pres:\r\n            medicines = pres.readlines()\r\n\r\ndef view_consultation_reports(doctor_id):\r\n    print(\"\\n VIEW CONSULTATION REPORTS \")\r\n    found = False\r\n    \r\n    try:\r\n        with open('patient_record_db.txt', 'r') as f:\r\n            lines = f.readlines()\r\n            \r\n            for line in lines:\r\n                values = line.strip().split(',')\r\n                \r\n                patient_id = values[0].replace(\"'\", \"\")\r\n                patient_name = values[1].replace(\"'\", \"\").replace(\"_\", \" \")\r\n                age = values[2]\r\n                diagnosis = values[3].replace(\"'\", \"\")\r\n                meds = values[4].replace(\"'\", \"\")\r\n                advice = values[6].replace(\"'\", \"\")\r\n\r\n                print(\"-\" * 30)\r\n                print(f\"Patient: {patient_name} ({patient_id})\")\r\n                print(f\"Age: {age}\")\r\n                print(f\"Diagnosis: {diagnosis}\")\r\n                print(f\"Medications: {meds}\")\r\n                print(f\"Advice: {advice}\")\r\n                found = True\r\n                \r\n        if not found:\r\n            print(\"No record found.\")\r\n\r\n    except FileNotFoundError:\r\n        print(\"No record found\")\r\n    \r\n    \r\n        \r\ndef Doctor_Menu(doctor_id):\r\n\r\n    print(f\"Hello Dr. get_doctor_name(doctor_id)\")\r\n    while True:\r\n        print(\"~~Doctor Menu~~\")\r\n        print(\"1.View appointments\")\r\n        print(\"2.Record diagnosis and Consultation notes\")\r\n        print(\"3.View Consultation Reports\")\r\n        print(\"4.Back to Menu\")\r\n\r\n        choice = input(\"Which one do you want to pick\")\r\n        if choice == \"1\":\r\n            view_appointments(doctor_id) \r\n        elif choice == \"2\":\r\n            record_consultation(doctor_id)\r\n        elif choice == \"3\":\r\n            view_consultation_reports(doctor_id)\r\n        elif choice == \"4\":\r\n            print(\"Going back to menu....\")\r\n            break\r\n        else:\r\n            print(\"Invalid choice. Please choose the number above\")\r\n\r\n\r\n        \r\n            \r\n            \r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/doctor/Doctor.py b/doctor/Doctor.py
+--- a/doctor/Doctor.py	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/doctor/Doctor.py	(date 1767704826954)
+@@ -6,11 +6,11 @@
+         lines = f.readlines()
+         for line in lines:
+             values = line.strip().split(',')
+-            doctor_id_in_file = values[0]
+-            Name = values[1].replace('_',' ')
++            doctor_id_in_file = values[0].strip()
++            Name = values[1].replace('_',' ').strip()
+ 
+             if doctor_id == doctor_id_in_file:
+-                print(Name)
++                return Name
+             else:
+                 print('Doctor ID unidentifyable')
+ 
+@@ -259,7 +259,7 @@
+         
+ def Doctor_Menu(doctor_id):
+ 
+-    print(f"Hello Dr. get_doctor_name(doctor_id)")
++    print(f"Hello Dr. {get_doctor_name(doctor_id)}")
+     while True:
+         print("~~Doctor Menu~~")
+         print("1.View appointments")
+Index: pharmacist/pharmacist.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import csv\r\n\r\nfrom datetime import date\r\n\r\ndef add():\r\n    new_file = \"med_new_stock.txt\"\r\n    stock_file = \"medicine_stock.txt\"\r\n    try:\r\n        with open(\"med_new_stock.txt\", mode=\"r\", newline=\"\") as f_new:\r\n            reader = csv.reader(f_new)\r\n            new_meds = list(reader)\r\n        if not new_meds:\r\n            raise ValueError(\"No medicines found in med_new_stock.txt\")\r\n\r\n        with open(\"medicine_stock.txt\", mode=\"r\", newline=\"\") as f_stock:\r\n            reader = csv.reader(f_stock)\r\n            existing_meds = list(reader)\r\n        existing_barcodes = {row[0] for row in existing_meds}\r\n        for med in new_meds:\r\n            if med[0] in existing_barcodes:\r\n                raise ValueError(\"These Medicine's already exists in database.\")\r\n\r\n\r\n        with open(\"medicine_stock.txt\", mode=\"a\", newline=\"\") as f_stock:\r\n            writer = csv.writer(f_stock)\r\n            writer.writerows(new_meds)\r\n        print(\"Medicines from med_new_stock.txt:\")\r\n        print(f\"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}\")\r\n        for row in new_meds:\r\n            print(f\"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}\")\r\n        print(\"Medicines Added Successfully\")\r\n        print(\"\\n\\n\")\r\n        \r\n    except ValueError as ve:\r\n        print(f\"Error: {ve}\")\r\n\r\n\r\ndef update():\r\n    try:\r\n        with open(\"med_update_stock.txt\", mode=\"r\", newline=\"\") as f_update:\r\n            reader = csv.reader(f_update)\r\n            update_meds = list(reader)\r\n            \r\n        if not update_meds:\r\n            raise ValueError(\"No medicines found in med_update_stock.txt\")\r\n        \r\n        with open(\"medicine_stock.txt\", mode=\"r\", newline=\"\") as f_stock:\r\n            reader = csv.reader(f_stock)\r\n            stock_meds = list(reader)\r\n\r\n        stock_dict = {row[0]: row for row in stock_meds}\r\n\r\n        for med in update_meds:\r\n            barcode, name, qty, price, demand = med\r\n            if barcode in stock_dict:\r\n                existing = stock_dict[barcode]\r\n                existing[2] = str(int(existing[2]) + int(qty))\r\n                existing[3] = price\r\n                existing[4] = demand\r\n            else:\r\n                stock_dict[barcode] = med\r\n\r\n        with open(\"medicine_stock.txt\", mode=\"w\", newline=\"\") as f_stock:\r\n            writer = csv.writer(f_stock)\r\n            writer.writerows(stock_dict.values())\r\n            \r\n        print(\"Updated Medicines from med_update_stock.txt:\")\r\n        \r\n        print(f\"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}\")\r\n        for row in update_meds:\r\n            print(f\"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}\")\r\n\r\n        print(\"Medicines Updated Successfully\")\r\n        print(\"\\n\\n\")\r\n\r\n    except ValueError as ve:\r\n        print(f\"Error: {ve}\")\r\n\r\ndef remove():\r\n    try:\r\n        with open(\"med_remove.txt\", mode=\"r\", newline=\"\") as f_remove:\r\n            reader = csv.reader(f_remove)\r\n            remove_meds = list(reader)\r\n            for row in reader:\r\n                if row:\r\n                   med_id = row[0].strip().strip(\",\")\r\n                   if med_id:\r\n                       remove_meds.append(med_id)\r\n            \r\n        if not remove_meds:\r\n            raise ValueError(\"No medicines found in med_remove.txt\")\r\n        rows = []\r\n        with open(\"medicine_stock.txt\", \"r\") as file:\r\n            reader1 = csv.reader(file)\r\n            for row in reader1:\r\n                if len(row) < 3:\r\n                    continue\r\n                if row[0].strip() in remove_meds:\r\n                    continue\r\n                else :\r\n                    rows.append(row)\r\n        with open(\"medicine_stock.txt\", \"w\", newline=\"\") as file:\r\n            writer = csv.writer(file)\r\n            writer.writerows(rows)\r\n        print(\"Medicine Removed Succesfully\")\r\n        print(\"\\n\\n\")\r\n        \r\n    except ValueError as ve:\r\n        print(f\"Error: {ve}\")\r\n        print(\"\\n\\n\")\r\n\r\n\r\ndef view():\r\n    with open(\"medicine_stock.txt\", \"r\") as file:\r\n        reader = csv.reader(file)\r\n        print(f\"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}\")\r\n        for row in reader:\r\n            if len(row) < 3:\r\n                continue\r\n            print(f\"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}\")\r\n        print(\"\\n\\n\")\r\n\r\ndef view_spe():\r\n    b = input(\"Enter the Barcode:\")\r\n    w = 0\r\n    with open(\"medicine_stock.txt\", \"r\") as file:\r\n        reader = csv.reader(file)\r\n        print(f\"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}\")\r\n        for row in reader:\r\n            if len(row) < 3:\r\n                continue\r\n            if row[0] == b :\r\n                print(f\"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}\")\r\n                w += 1\r\n        if w == 0 :\r\n            print(f'Barcode Not Found in Database')\r\n        print(\"\\n\\n\")\r\n    \r\ndef view_low():\r\n    data = []\r\n    try:\r\n        with open(\"medicine_stock.txt\", \"r\") as file:\r\n            reader = csv.reader(file)\r\n            print(f\"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}\")\r\n            \r\n            for row in reader:\r\n\r\n                if len(row) < 3:\r\n                    continue\r\n\r\n                try:\r\n                    quantity = int(row[2])\r\n                except ValueError:\r\n                    continue\r\n\r\n                if quantity < 5:\r\n                    print(f\"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}\")\r\n                    data.append(row)\r\n\r\n        if data:\r\n            try:\r\n                with open(\"med_stock_low.txt\", \"w\", newline=\"\") as lowfile:\r\n                    writer = csv.writer(lowfile)\r\n                    writer.writerows(data)\r\n            except Exception as e:\r\n                print(f\"Error writing to med_stock_low.txt: {e}\")\r\n\r\n        print(\"\\n\\n\")\r\n\r\n    except FileNotFoundError:\r\n        print(\"Error: medicine_stock.txt not found.\")\r\n\r\ndef prepare(p_id,t_id):\r\n    global total, prows\r\n    total = 0\r\n    prows = []\r\n\r\n    with open(\"medicine_stock.txt\", \"r\") as f1, \\\r\n         open(\"med_db.txt\", \"r\") as f2:\r\n        reader1 = csv.reader(f1)\r\n        reader2 = csv.reader(f2)\r\n        rows1 = [row for row in reader1]\r\n        rows2 = [row for row in reader2]\r\n\r\n    with open(\"doctor_prescription.txt\", \"r\") as f3:\r\n        reader3 = csv.reader(f3)\r\n        prescriptions = [row for row in reader3]\r\n        \r\n    patient_prescriptions = [row for row in prescriptions if row[0] == p_id and row[1] == t_id]\r\n    if not patient_prescriptions:\r\n        print(f\"No prescriptions found for patient {p_id}\")\r\n        return\r\n    \r\n\r\n    for pres in patient_prescriptions:\r\n        _, _, barcode, qty_needed = pres\r\n        qty_needed = int(qty_needed)\r\n\r\n        found = False\r\n        for idx in range(len(rows1)):\r\n            if len(rows1[idx]) < 3:  \r\n                continue\r\n            if rows1[idx][0] == barcode:\r\n                found = True\r\n                stock_row = rows1[idx]\r\n    \r\n                sales_row = next((row for row in rows2 if row[0] == barcode), None)\r\n\r\n                if sales_row and int(stock_row[2]) >= qty_needed:\r\n                  \r\n                    stock_row[2] = str(int(stock_row[2]) - qty_needed)\r\n                    sales_row[2] = str(int(sales_row[2]) + qty_needed)\r\n\r\n                    pr = qty_needed * float(stock_row[3])\r\n                    total += pr\r\n                    prows.append((stock_row[0], stock_row[1], qty_needed, pr))\r\n                    with open(\"patient_billing_record.txt\", \"a\", newline=\"\") as f_billing:\r\n                        writer = csv.writer(f_billing)\r\n                        today = datetime.now().strftime(\"%Y-%m-%d\")\r\n                        writer.writerow([today, p_id, barcode, qty_needed, stock_row[3]])  \r\n                else:\r\n                    print(f\"Not enough stock for {stock_row[1]}\")\r\n                break\r\n\r\n        if not found:\r\n            print(f\"Barcode {barcode} not found in stock.\")\r\n            \r\n    with open(\"medicine_stock.txt\", \"w\", newline=\"\") as f1, \\\r\n         open(\"med_db.txt\", \"w\", newline=\"\") as f2:\r\n        writer1 = csv.writer(f1)\r\n        writer2 = csv.writer(f2)\r\n        writer1.writerows(rows1)\r\n        writer2.writerows(rows2)\r\n\r\n    print(\"\\n\\n\")\r\n\r\n\r\n        \r\n\r\ndef prepare_patient_medicine():\r\n    global total, prows\r\n    t_id = input(\"Enter Token No.\")\r\n    p_id = input(\"Enter Patient ID:\")\r\n    prepare(p_id,t_id)\r\n\r\n    print(\"Medicine slip for Patient\", p_id)\r\n    print(f\"{'|Barcode|':<10}{'|Medicine Name|':<15}{'|Quantity|':<10}{'|Price|':<10}\")\r\n    for row in  prows:\r\n        print(f\"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10.2f}\")\r\n\r\n\r\n    \r\n    print(\"TOTAL:                                   \", f\"{total:.2f}\")\r\n    print(\"\\n\\n\") \r\n    \r\ndef report():\r\n    with open(\"medicine_stock.txt\", \"r\") as file:\r\n        reader = csv.reader(file)\r\n        print(f\"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}{'Demand':<10}\")\r\n        for row in reader:\r\n            if len(row) < 3:\r\n                continue\r\n            print(f\"{row[0]:<10}{row[1]:<15}{row[2]:<10}{row[3]:<10}{row[4]:<10}\")\r\n        print(\"\\n\\n\")\r\n\r\ndef banner():\r\n    with open(\"medicine_stock.txt\", \"r\") as file:\r\n        reader = csv.reader(file)\r\n        out_of_stock = [row for row in reader if len(row) >= 3 and int(row[2]) == 0]\r\n\r\n        if out_of_stock:\r\n            print(\"The Following Medicines Are Out Of Stock:\")\r\n            for row in out_of_stock:\r\n                print(f\"{row[0]:<10}{row[1]:<15}\")\r\n            with open(\"med_stock_out.txt\", \"w\", newline=\"\") as outfile:\r\n                writer = csv.writer(outfile)\r\n                writer.writerows(out_of_stock)\r\n        else:\r\n            print(\"All medicines are in stock.\")\r\n\r\n    print(\"\\n\\n\")\r\n                    \r\n\r\ndef pharmasist():\r\n    while True:\r\n        banner()\r\n        print(\"Welcome These are the following operations\")\r\n        print((\"\\n1. Add Medicine\\n2. Update Medicine\\n3. Remove Medicine\\n4. View All Medicine \\n5. View Specific Medicine\\n6. View Low Stock\\n7. Prepare Patient Medicine\\n8. Print Report\\n9. Exit\"))\r\n        try:\r\n            i = str(input(\"What Operation would you like to Perform: \"))\r\n            print(\"\\n\\n\")\r\n        except ValueError:\r\n            print(\"Invalid input! Please enter a number between 1 and 9.\")\r\n            continue  \r\n\r\n        if i == \"1\":\r\n            add()  \r\n        elif i == \"2\":\r\n            update()\r\n        elif i == \"3\":\r\n            remove()\r\n        elif i == \"4\":\r\n            view()\r\n        elif i == \"5\":\r\n            view_spe()\r\n        elif i == \"6\":\r\n            view_low()\r\n        elif i == \"7\":\r\n            prepare_patient_medicine()\r\n        elif i == \"8\":\r\n            report()\r\n            \r\n        elif i == \"9\":\r\n            break\r\n        else:\r\n            print(\"Invalid choice! Please select a number between 1 and 9.\")\r\n\r\npharmasist()\r\n\r\n\r\n        \r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pharmacist/pharmacist.py b/pharmacist/pharmacist.py
+--- a/pharmacist/pharmacist.py	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/pharmacist/pharmacist.py	(date 1767704826961)
+@@ -1,18 +1,18 @@
+ import csv
+-
++import datetime
+ from datetime import date
+ 
+ def add():
+-    new_file = "med_new_stock.txt"
+-    stock_file = "medicine_stock.txt"
++    new_file = "pharmacist/med_new_stock.txt"
++    stock_file = "pharmacist/medicine_stock.txt"
+     try:
+-        with open("med_new_stock.txt", mode="r", newline="") as f_new:
++        with open("pharmacistmed_new_stock.txt", mode="r", newline="") as f_new:
+             reader = csv.reader(f_new)
+             new_meds = list(reader)
+         if not new_meds:
+             raise ValueError("No medicines found in med_new_stock.txt")
+ 
+-        with open("medicine_stock.txt", mode="r", newline="") as f_stock:
++        with open("pharmacist/medicine_stock.txt", mode="r", newline="") as f_stock:
+             reader = csv.reader(f_stock)
+             existing_meds = list(reader)
+         existing_barcodes = {row[0] for row in existing_meds}
+@@ -21,7 +21,7 @@
+                 raise ValueError("These Medicine's already exists in database.")
+ 
+ 
+-        with open("medicine_stock.txt", mode="a", newline="") as f_stock:
++        with open("pharmacist/medicine_stock.txt", mode="a", newline="") as f_stock:
+             writer = csv.writer(f_stock)
+             writer.writerows(new_meds)
+         print("Medicines from med_new_stock.txt:")
+@@ -37,14 +37,14 @@
+ 
+ def update():
+     try:
+-        with open("med_update_stock.txt", mode="r", newline="") as f_update:
++        with open("pharmacist/med_update_stock.txt", mode="r", newline="") as f_update:
+             reader = csv.reader(f_update)
+             update_meds = list(reader)
+             
+         if not update_meds:
+             raise ValueError("No medicines found in med_update_stock.txt")
+         
+-        with open("medicine_stock.txt", mode="r", newline="") as f_stock:
++        with open("pharmacist/medicine_stock.txt", mode="r", newline="") as f_stock:
+             reader = csv.reader(f_stock)
+             stock_meds = list(reader)
+ 
+@@ -60,7 +60,7 @@
+             else:
+                 stock_dict[barcode] = med
+ 
+-        with open("medicine_stock.txt", mode="w", newline="") as f_stock:
++        with open("pharmacist/medicine_stock.txt", mode="w", newline="") as f_stock:
+             writer = csv.writer(f_stock)
+             writer.writerows(stock_dict.values())
+             
+@@ -78,7 +78,7 @@
+ 
+ def remove():
+     try:
+-        with open("med_remove.txt", mode="r", newline="") as f_remove:
++        with open("pharmacist/med_remove.txt", mode="r", newline="") as f_remove:
+             reader = csv.reader(f_remove)
+             remove_meds = list(reader)
+             for row in reader:
+@@ -90,7 +90,7 @@
+         if not remove_meds:
+             raise ValueError("No medicines found in med_remove.txt")
+         rows = []
+-        with open("medicine_stock.txt", "r") as file:
++        with open("pharmacist/medicine_stock.txt", "r") as file:
+             reader1 = csv.reader(file)
+             for row in reader1:
+                 if len(row) < 3:
+@@ -99,7 +99,7 @@
+                     continue
+                 else :
+                     rows.append(row)
+-        with open("medicine_stock.txt", "w", newline="") as file:
++        with open("pharmacist/medicine_stock.txt", "w", newline="") as file:
+             writer = csv.writer(file)
+             writer.writerows(rows)
+         print("Medicine Removed Succesfully")
+@@ -111,7 +111,7 @@
+ 
+ 
+ def view():
+-    with open("medicine_stock.txt", "r") as file:
++    with open("pharmacist/medicine_stock.txt", "r") as file:
+         reader = csv.reader(file)
+         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
+         for row in reader:
+@@ -123,7 +123,7 @@
+ def view_spe():
+     b = input("Enter the Barcode:")
+     w = 0
+-    with open("medicine_stock.txt", "r") as file:
++    with open("pharmacist/medicine_stock.txt", "r") as file:
+         reader = csv.reader(file)
+         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
+         for row in reader:
+@@ -139,7 +139,7 @@
+ def view_low():
+     data = []
+     try:
+-        with open("medicine_stock.txt", "r") as file:
++        with open("pharmacistr/medicine_stock.txt", "r") as file:
+             reader = csv.reader(file)
+             print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Demand':<10}")
+             
+@@ -159,7 +159,7 @@
+ 
+         if data:
+             try:
+-                with open("med_stock_low.txt", "w", newline="") as lowfile:
++                with open("pharmacist/med_stock_low.txt", "w", newline="") as lowfile:
+                     writer = csv.writer(lowfile)
+                     writer.writerows(data)
+             except Exception as e:
+@@ -175,14 +175,14 @@
+     total = 0
+     prows = []
+ 
+-    with open("medicine_stock.txt", "r") as f1, \
+-         open("med_db.txt", "r") as f2:
++    with open("pharmacistmedicine_stock.txt", "r") as f1, \
++        open("pharmacist/med_db.txt", "r") as f2:
+         reader1 = csv.reader(f1)
+         reader2 = csv.reader(f2)
+         rows1 = [row for row in reader1]
+         rows2 = [row for row in reader2]
+ 
+-    with open("doctor_prescription.txt", "r") as f3:
++    with open("doctor/doctor_prescription.txt", "r") as f3:
+         reader3 = csv.reader(f3)
+         prescriptions = [row for row in reader3]
+         
+@@ -214,9 +214,9 @@
+                     pr = qty_needed * float(stock_row[3])
+                     total += pr
+                     prows.append((stock_row[0], stock_row[1], qty_needed, pr))
+-                    with open("patient_billing_record.txt", "a", newline="") as f_billing:
++                    with open("doctor/patient_billing_record.txt", "a", newline="") as f_billing:
+                         writer = csv.writer(f_billing)
+-                        today = datetime.now().strftime("%Y-%m-%d")
++                        today = datetime.datetime.now().strftime("%Y-%m-%d")
+                         writer.writerow([today, p_id, barcode, qty_needed, stock_row[3]])  
+                 else:
+                     print(f"Not enough stock for {stock_row[1]}")
+@@ -225,8 +225,8 @@
+         if not found:
+             print(f"Barcode {barcode} not found in stock.")
+             
+-    with open("medicine_stock.txt", "w", newline="") as f1, \
+-         open("med_db.txt", "w", newline="") as f2:
++    with open("pharmacist/medicine_stock.txt", "w", newline="") as f1, \
++         open("pharmacist/med_db.txt", "w", newline="") as f2:
+         writer1 = csv.writer(f1)
+         writer2 = csv.writer(f2)
+         writer1.writerows(rows1)
+@@ -254,7 +254,7 @@
+     print("\n\n") 
+     
+ def report():
+-    with open("medicine_stock.txt", "r") as file:
++    with open("pharmacist/medicine_stock.txt", "r") as file:
+         reader = csv.reader(file)
+         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}{'Demand':<10}")
+         for row in reader:
+@@ -264,7 +264,7 @@
+         print("\n\n")
+ 
+ def banner():
+-    with open("medicine_stock.txt", "r") as file:
++    with open("pharmacist/medicine_stock.txt", "r") as file:
+         reader = csv.reader(file)
+         out_of_stock = [row for row in reader if len(row) >= 3 and int(row[2]) == 0]
+ 
+@@ -272,7 +272,7 @@
+             print("The Following Medicines Are Out Of Stock:")
+             for row in out_of_stock:
+                 print(f"{row[0]:<10}{row[1]:<15}")
+-            with open("med_stock_out.txt", "w", newline="") as outfile:
++            with open("pharmacist/med_stock_out.txt", "w", newline="") as outfile:
+                 writer = csv.writer(outfile)
+                 writer.writerows(out_of_stock)
+         else:
+@@ -315,7 +315,6 @@
+         else:
+             print("Invalid choice! Please select a number between 1 and 9.")
+ 
+-pharmasist()
+ 
+ 
+         
+Index: cashier/Group Project.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>'''n = input(\"Enter name: \")\r\np = input(\"Enter pass: \")'''\r\n\r\n\r\n'''f = open(\"login.txt\",\"r\")\r\na = open(\"login.txt\",\"a\")'''\r\n\r\n\r\n\r\n'''for line in f:\r\n    if n in line:\r\n        lst = line.strip().split(\",\")\r\n        if lst[0] == n and lst[1] == p:\r\n            print(\"Login Successful\")\r\n        else:\r\n            print(\"Login Failed\")'''\r\n\r\n\r\ndef view_schedule():\r\n    failsafe = \"exit\" #Assign a variable so they can exit easily even with random lower/uppercase letters\r\n    while True:\r\n        try: #Error Handling\r\n            #Using with open to close all files automatically after use\r\n            print(\"\\n---Schedule Viewer---\\n\"\r\n                  \"1. View All Schedule\\n\"\r\n                  \"2. View Schedule by Patient Name\\n\"\r\n                  \"3. View Schedule by date\\n\"\r\n                  \"4. View Schedule by Doctor\\n\"\r\n                  \"5. View Schedule by Status\\n\"\r\n                  \"6. View Schedule by ID\\n\"\r\n                  \"7. Exit\\n\"\r\n                  \"Format: ScheduleID, Patient Name, Appointment Date, Doctor Name, Status\")\r\n            n = int(input(\"Enter your choice: \"))\r\n\r\n            if n not in [1, 2, 3, 4, 5, 6, 7]:\r\n                print(\"Invalid Choice\") #If they insert outside the number range\r\n                continue\r\n            elif n == 7: #To Exit\r\n                print(\"Exiting\")\r\n                break #Breaks the while loop\r\n            else:\r\n                if n == 1:\r\n                    count = 1\r\n                    with open(\"cashier/schedule.txt\", \"r\") as r:\r\n                        for line in r: #Checks all the lines\r\n                            print(count,line.strip()) #Prints all the lines without white space\r\n                            count += 1 #To display line number while printing\r\n                elif n == 2:\r\n                    while True:\r\n                        count = 1\r\n                        with open(\"schedule.txt\", \"r\") as r:\r\n                            name = input(\"\\nEnter Patient Name or Exit: \") #Insert Patient Name\r\n                            found = False\r\n                            if name.lower() == failsafe.lower(): # Exit if not capitalize properly\r\n                                print(\"Exiting\")\r\n                                break\r\n                            else:\r\n                                for line in r: #Checks all the lines\r\n                                    lst = line.strip().split(\",\") #Print line without white space and split the lines into lst[0] = name and lst [1] = date\r\n                                    if name.lower().strip() == lst[1].lower().strip(): #Search for an exact match for the patient name while avoiding case sensitivity\r\n                                        print(count,line.strip()) #Prints the lines that matches without white space\r\n                                        found = True\r\n                                        count += 1 #To display line number while printing\r\n                                if found is False: #Only runs if none of the lines contain the name\r\n                                    print(\"No Schedule\")\r\n                elif n == 3:\r\n                    while True:\r\n                        count = 1\r\n                        with open(\"schedule.txt\", \"r\") as r:\r\n                            date = input(\"\\nEnter Exact Date or Exit: \") #Insert date\r\n                            found = False\r\n                            if date.lower() == failsafe.lower():  # Exit if not capitalize properly\r\n                                print(\"Exiting\")\r\n                                break\r\n                            else:\r\n                                for line in r:\r\n                                    lst = line.strip().split(\",\")\r\n                                    if lst[2] == date: #To make sure only the specific date is shown\r\n                                        print(count,line.strip())\r\n                                        found = True\r\n                                        count += 1\r\n                                        continue\r\n                                if found is False:\r\n                                    print(\"No Schedule\")\r\n                elif n == 4:\r\n                    while True:\r\n                        with open(\"schedule.txt\", \"r\") as r:\r\n                            count = 1\r\n                            doctor = input(\"\\nEnter Doctor Name or Exit: \")\r\n                            found = False\r\n                            if doctor.lower() == failsafe.lower(): # Exit if not capitalize properly\r\n                                print(\"Exiting\")\r\n                                break\r\n                            else:\r\n                                for line in r:\r\n                                    lst = line.strip().split(\",\")\r\n                                    if lst[3].lower() == doctor.lower():\r\n                                        print(count,line.strip())\r\n                                        found = True\r\n                                        count += 1\r\n                                        continue\r\n                                if found is False:\r\n                                    print(\"No Schedule\")\r\n                elif n == 5:\r\n\r\n                    while True: #To make it so if they put an invalid input, they will still be on the \"Status\" menu\r\n                        count = 1\r\n                        print(\"\\nSelect Status\\n\"\r\n                              \"1. Pending\\n\"\r\n                              \"2. Done\")\r\n                        status = input(\"Enter Status or Exit: \")\r\n                        found = False\r\n                        if status.lower() == failsafe.lower(): # Exit if not capitalize properly\r\n                            print(\"Exiting\")\r\n                            break\r\n                        elif status == \"2\":\r\n                            status = \"Done\"\r\n                        elif status == \"1\":\r\n                            status = \"Pending\"\r\n                        else:\r\n                            print(\"Invalid Choice\")\r\n                            continue\r\n\r\n                        with open(\"schedule.txt\", \"r\") as r:\r\n                            for line in r:\r\n                                lst = line.strip().split(\",\")\r\n                                if lst[4].lower() == status.lower():\r\n                                    print(count, line.strip())\r\n                                    count += 1\r\n                                    found = True\r\n                        if found is False :\r\n                            print(\"No Schedule\")\r\n\r\n                elif n == 6:\r\n                    while True:\r\n                        count = 1\r\n                        with open(\"schedule.txt\", \"r\") as r:\r\n                            name = input(\"\\nEnter ScheduleID or Exit: \")  # Insert Patient Name\r\n                            found = False\r\n                            if name.lower() == failsafe.lower():  # Exit if not capitalize properly\r\n                                print(\"Exiting\")\r\n                                break\r\n                            else:\r\n                                for line in r:  # Checks all the lines\r\n                                    lst = line.strip().split(\r\n                                        \",\")  # Print line without white space and split the lines into lst[0] = name and lst [1] = date\r\n                                    if name.lower().strip() == lst[\r\n                                        0].lower().strip():  # Search for an exact match for the patient name while avoiding case sensitivity\r\n                                        print(count, line.strip())  # Prints the lines that matches without white space\r\n                                        found = True\r\n                                        count += 1  # To display line number while printing\r\n                                if found is False:  # Only runs if none of the lines contain the name\r\n                                    print(\"No Schedule\")\r\n\r\n\r\n        except ValueError: #If they don't insert an intiger\r\n            print(\"\\nInvalid Choice\")\r\n        except FileNotFoundError:\r\n            print(\"\\nNo such file or directory\")\r\n        except KeyboardInterrupt:\r\n            print(\"\\nExiting\")\r\n            break\r\n\r\nview_schedule()\r\ndef view_patient():\r\n        failsafe = \"exit\" #To make sure people can exit menus\r\n        while True:\r\n            try:\r\n                print(\"---Patient Data Viewer---\\n\"\r\n                      \"1. View All Patients\\n\"\r\n                      \"2. View Patient by Name\\n\"\r\n                      \"3. View Patient by Age\\n\"\r\n                      \"4. View Patient by Address\\n\"\r\n                      \"5. View Patient by PatientID\\n\"\r\n                      \"6. Exit\\n\"\r\n                      \"Format: PatientID, Name, Age, Address\\n\")\r\n\r\n                n = int(input(\"Enter your choice: \"))\r\n                if n == 1:\r\n                    with open(\"cashier/patient.txt\", \"r\") as r:\r\n                        for line in r:\r\n                            print(line.strip())\r\n            except ValueError:\r\n                print(\"\\nInvalid Choice\")\r\n\r\n        #Make a patient ID\r\n        #Dont forget to capitalize\r\n        #def delete()\r\n            #Make a pending schedule file and a done schedule file\r\n            #Copy both in seperate files\r\n            #Delete after X amount of years\r\n            #make it so u can change status, name, etc\r\n            #Put output in a file so they can edit based on output\r\n\r\nview_patient()
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cashier/Group Project.py b/cashier/Group Project.py
+--- a/cashier/Group Project.py	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/cashier/Group Project.py	(date 1767704826951)
+@@ -1,195 +1,699 @@
+-'''n = input("Enter name: ")
+-p = input("Enter pass: ")'''
+-
+-
+-'''f = open("login.txt","r")
+-a = open("login.txt","a")'''
+-
+-
++def load_appointment():
++    try:
++        with open("appointment.txt", "r") as a:
++            a_lines = a.readlines()
++            return a_lines
++    except FileNotFoundError:
++        print("\nNo such file or directory")
++def load_patient():
++    try:
++        with open("patient.txt", "r") as p:
++            p_lines = p.readlines()
++            return p_lines
++    except FileNotFoundError:
++        print("\nNo such file or directory")
++        return p_lines
+ 
+-'''for line in f:
+-    if n in line:
+-        lst = line.strip().split(",")
+-        if lst[0] == n and lst[1] == p:
+-            print("Login Successful")
+-        else:
+-            print("Login Failed")'''
+-
+-
+-def view_schedule():
+-    failsafe = "exit" #Assign a variable so they can exit easily even with random lower/uppercase letters
++def view_appointment():
++    # This function handles all appointment viewing related features
+     while True:
+         try: #Error Handling
+             #Using with open to close all files automatically after use
+-            print("\n---Schedule Viewer---\n"
+-                  "1. View All Schedule\n"
+-                  "2. View Schedule by Patient Name\n"
+-                  "3. View Schedule by date\n"
+-                  "4. View Schedule by Doctor\n"
+-                  "5. View Schedule by Status\n"
+-                  "6. View Schedule by ID\n"
++            a_lines = load_appointment()
++            print("\n---Appointment Viewer---\n"
++                  "1. View All Appointment\n"
++                  "2. View Appointment by Patient ID\n"
++                  "3. View Appointment by Date\n"
++                  "4. View Appointment by Doctor ID\n"
++                  "5. View Appointment by Status\n"
++                  "6. View Appointment by Appointment ID\n"
+                   "7. Exit\n"
+-                  "Format: ScheduleID, Patient Name, Appointment Date, Doctor Name, Status")
++                  "Format: Appointment ID, Appointment Date, Appointment Time, Status, Patient ID, Doctor ID\n")
+             n = int(input("Enter your choice: "))
+-
+-            if n not in [1, 2, 3, 4, 5, 6, 7]:
+-                print("Invalid Choice") #If they insert outside the number range
+-                continue
+-            elif n == 7: #To Exit
+-                print("Exiting")
+-                break #Breaks the while loop
+-            else:
+-                if n == 1:
+-                    count = 1
+-                    with open("cashier/schedule.txt", "r") as r:
+-                        for line in r: #Checks all the lines
+-                            print(count,line.strip()) #Prints all the lines without white space
+-                            count += 1 #To display line number while printing
+-                elif n == 2:
+-                    while True:
+-                        count = 1
+-                        with open("schedule.txt", "r") as r:
+-                            name = input("\nEnter Patient Name or Exit: ") #Insert Patient Name
+-                            found = False
+-                            if name.lower() == failsafe.lower(): # Exit if not capitalize properly
+-                                print("Exiting")
+-                                break
+-                            else:
+-                                for line in r: #Checks all the lines
+-                                    lst = line.strip().split(",") #Print line without white space and split the lines into lst[0] = name and lst [1] = date
+-                                    if name.lower().strip() == lst[1].lower().strip(): #Search for an exact match for the patient name while avoiding case sensitivity
+-                                        print(count,line.strip()) #Prints the lines that matches without white space
+-                                        found = True
+-                                        count += 1 #To display line number while printing
+-                                if found is False: #Only runs if none of the lines contain the name
+-                                    print("No Schedule")
+-                elif n == 3:
+-                    while True:
+-                        count = 1
+-                        with open("schedule.txt", "r") as r:
+-                            date = input("\nEnter Exact Date or Exit: ") #Insert date
+-                            found = False
+-                            if date.lower() == failsafe.lower():  # Exit if not capitalize properly
+-                                print("Exiting")
+-                                break
+-                            else:
+-                                for line in r:
+-                                    lst = line.strip().split(",")
+-                                    if lst[2] == date: #To make sure only the specific date is shown
+-                                        print(count,line.strip())
+-                                        found = True
+-                                        count += 1
+-                                        continue
+-                                if found is False:
+-                                    print("No Schedule")
+-                elif n == 4:
+-                    while True:
+-                        with open("schedule.txt", "r") as r:
+-                            count = 1
+-                            doctor = input("\nEnter Doctor Name or Exit: ")
+-                            found = False
+-                            if doctor.lower() == failsafe.lower(): # Exit if not capitalize properly
+-                                print("Exiting")
+-                                break
+-                            else:
+-                                for line in r:
+-                                    lst = line.strip().split(",")
+-                                    if lst[3].lower() == doctor.lower():
+-                                        print(count,line.strip())
+-                                        found = True
+-                                        count += 1
+-                                        continue
+-                                if found is False:
+-                                    print("No Schedule")
+-                elif n == 5:
++        except ValueError:  # If they don't insert an intiger
++            print("\nInvalid Choice, Enter a Valid Number")
++            continue
++        if n not in [1, 2, 3, 4, 5, 6, 7]:
++            print("Invalid Choice") #If they insert outside the number range
++            continue
++        elif n == 7: #To Exit
++            print("Exiting")
++            break #Breaks the while loop
++        else:
++            if n == 1:
++                count = 1
++                for line in a_lines: #Checks all the lines
++                    print(count,line.strip()) #Prints all the lines without white space
++                    count += 1 #To display line number while printing
++            elif n in [2, 3, 4, 6]:
++                if n == 2:
++                    place = 4
++                    menu = "Patient ID"
++                elif n == 3:
++                    place = 1
++                    menu = "Exact Date (day-month-year)"
++                elif n == 4:
++                    place = 5
++                    menu = "Doctor ID"
++                elif n == 6:
++                    place = 0
++                    menu = "Appointment ID"
++                else:
++                    continue
++                while True:
++                    count = 1
++                    found = False
++                    sort_by = input(f"\nEnter {menu} or exit: ")
++                    if sort_by.lower() == "exit":
++                        print("\nExiting")
++                        break
++                    else:
++                        for line in a_lines:
++                            lst = line.strip().split(",")
++                            if lst[place].lower() == sort_by.lower():
++                                print(count,line.strip())
++                                count += 1
++                                found = True
++                    if found == False:
++                        print("No Records Found")
++            elif n == 5:
++                while True: #To make it so if they put an invalid input, they will still be on the "Status" menu
++                    count = 1 #to number all line outputed
++                    print("\nSelect Status\n"
++                          "1. Pending\n"
++                          "2. Done")
++                    status = input("Enter Status or Exit: ")
++                    found = False
++                    if status.lower().strip() == "exit": # Exit if not capitalize properly
++                        print("Exiting")
++                        break
++                    elif status.strip() == "2":
++                        status = "Done"
++                    elif status.strip() == "1":
++                        status = "Pending"
++                    else:
++                        print("Invalid Choice")
++                        continue
++                    for line in a_lines:
++                        lst = line.strip().split(",")
++                        if lst[3].lower() == status.lower():
++                            print(count, line.strip())
++                            count += 1
++                            found = True
++                    if found is False :
++                        print("No Appointment")
++
++
++
++def view_patient():
++# This function handles all patient viewing related features
++    while True:
++        try:
++            p_lines = load_patient()
++            print("\n---Patient Data Viewer---\n"
++                  "1. View All Patients\n"
++                  "2. View Patient by Name\n"
++                  "3. View Patient by Sex\n"
++                  "4. View Patient by Birth Year\n"
++                  "5. View Patient by Address\n"
++                  "6. View Patient by PatientID\n"
++                  "7. Exit\n"
++                  "Format: PatientID, Name, Sex, DOB, Address, Contact Number, Emergency Contact Number\n")
++
++            n = int(input("Enter your choice: "))
++        except ValueError:  # If they don't insert an intiger
++            print("\nInvalid Choice, Enter a Valid Number")
++            continue
++        if n not in [1, 2, 3, 4, 5, 6, 7]:
++            print("Invalid Choice")  # If they insert outside the number range
++            continue
++        elif n == 7:
++            print("\nExiting")
++            break
++        elif n == 1:
++            count = 1 #to number all line outputed
++            for line in p_lines:
++                print(count,line.strip())
++                count += 1
++        elif n in [2, 5, 6]:
++            if n == 2:
++                place = 1
++                menu = "Patient Name"
++            elif n == 5:
++                place = 4
++                menu = "Address"
++            elif n == 6:
++                place = 0
++                menu = "Patient ID"
++            else:
++                continue
++            while True:
++                count = 1
++                found = False
++                sort_by = input(f"\nEnter {menu} or exit: ")
++                if sort_by.lower() == "exit":
++                    print("\nExiting")
++                    break
++                else:
++                    for line in p_lines:
++                        lst = line.strip().split(",")
++                        if lst[place].lower() == sort_by.lower():
++                            print(count, line.strip())
++                            count += 1
++                            found = True
++                    if found == False:
++                        print("No Records Found")
++        elif n == 3:
++            while True:  # To make it so if they put an invalid input, they will still be on the "Status" menu
++                count = 1  # to number all line outputed
++                print("\nSelect Sex\n"
++                      "1. Male\n"
++                      "2. Female")
++                sex = input("Enter Sex or Exit: ")
++                found = False
++                if sex.lower() == "exit":  # Exit if not capitalize properly
++                    print("\nExiting")
++                    break
++                elif sex.strip() == "2":
++                    sex = "F"
++                elif sex.strip() == "1":
++                    sex = "M"
++                else:
++                    print("\nInvalid Choice")
++                    continue
++
++                for line in p_lines:
++                    lst = line.strip().split(",")
++                    if lst[2].lower() == sex.lower():
++                        print(count, line.strip())
++                        count += 1
++                        found = True
++                if found is False:
++                    print("\nNo Records Found")
++        elif n == 4:
++            while True:
++                try:
++                    found = False
++                    count = 1
++                    year = int(input("\nEnter Patient Birth Year or insert 0 to Exit: "))
++                    if year == 0:
++                        print("Exiting")
++                        break
++                    else:
++                        year = str(year)
++                        for line in p_lines:
++                            lst = line.strip().split(",")
++                            if year in lst[3]:
++                                print(count,line.strip())
++                                found = True
++                                count += 1  # To display line number while printing
++                    if found is False:
++                        print("\nNo patient record found")
++                except ValueError: #If they dont insert an valid year
++                    print("\nInvalid Year")
++
++def alter_patient():
++# This function handles all patient-related operations via menu options
++    while True:
++        try:
++            p_lines = load_patient()
++            print("\n---Patient Data Alterator---\n"
++                  "1. View All Patients\n"
++                  "2. Add Patient\n"
++                  "3. Alter Patient Details\n"
++                  "4. Exit\n"
++                  "Format: PatientID, Name, Sex, DOB, Address, Contact Number, Emergency Contact Number\n")
++            n = int(input("Enter your choice: "))
++        except ValueError:
++            print("\nInvalid Choice, Enter a Valid Number")
++            continue
++        if n not in [1, 2, 3, 4]: #To handle if they put outside of range
++            print("\nInvalid Choice")
++            continue
++        elif n == 4:
++            print("\nExiting")
++            break
++        elif n == 1:
++            count = 1
++            for line in p_lines:
++                print(count,line.strip())
++                count += 1
++        elif n == 2:
++            add_patient()
++        elif n == 3:
++            alter_patient_details()
++
++
++def alter_patient_details():
++    while True:
++        p_lines = load_patient()  # to put the new data inserted into the list
++        found = False
++        # -------- ALTER PATIENTS DETAILS --------
++        print("\n1. Alter Name\n"
++              "2. Alter Contact Number\n"
++              "3. Alter Emergency Contact Number\n"
++              "4. Alter Address\n"
++              "5. Exit\n")
++        choice = input("\nEnter your choice: ")
++        if choice.strip() not in ["1", "2", "3", "4", "5"]:
++            print("\nInvalid Choice, Enter a Valid Number")
++            continue
++        elif choice.strip() == "5":
++            print("\nExiting")
++            break
++        # The "place" represents the respective indexes of the data in the file
++        elif choice.strip() == "1":
++            place = 1
++            menu = "Patient Name"
++        elif choice.strip() == "2":
++            place = 5
++            menu = "Contact Number"
++        elif choice.strip() == "3":
++            place = 6
++            menu = "Emergency Contact Number"
++        elif choice.strip() == "4":
++            place = 4
++            menu = "Address"
++        else:
++            continue
++        p_id = input("\nEnter Patient ID: ")
++        new_value = input(f"\nEnter new {menu}: ")
++        if choice.strip() in ["2", "3"] and not new_value.isdigit():
++            print("\nPlease Insert a Contact Number.")
++            continue
++        with open("patient.txt", "w") as w:
++            for line in p_lines:
++                lst = line.strip().split(",")
++                if lst[0].lower() != p_id.lower():
++                    w.write(line)
++                elif lst[0].lower() == p_id.lower():
++                    if choice.strip() in ["2", "3"]:
++                        lst[place] = new_value  # Does not title numbers
++                    else:
++                        lst[place] = new_value.title()
++                    w.write(f"{lst[0]},{lst[1]},{lst[2]},{lst[3]},{lst[4]},{lst[5]},{lst[6]}\n")
++                    found = True
++        if found == False:
++            print("\nNo Records Found")
++        elif found == True:
++            print("\nPatient Record Updated")
++
++def add_patient():
++    while True:
++        p_lines = load_patient()  # to put the new data inserted into the list
++        try:
++            i = int(input("\nHow Many Patients do you want to add or 0 to exit: "))
++        except ValueError:
++            print("\nInvalid Choice, Enter a Valid Number")
++            continue
++        if i == 0:
++            print("\nExiting")
++            break
++        elif i > 0:
++            for i in range(int(i)):
++                # -------- INSERTING ALL THE NESCESARRY DATA --------
++                while True:
++                    p_id = input("\nEnter Patient ID: ")
++                    exist = False
++                    for line in p_lines:
++                        lst = line.strip().split(",")
++                        if p_id.lower() == lst[0].lower():  # Check if there is already a patient with said ID
++                            print("Patient ID already exists")
++                            exist = True
++                    if exist is False:
++                        break
++                name = input("\nEnter Patient Name: ")
++                while True:
++                    sex = input("\nEnter Patient Sex (M or F): ")
++                    if sex.upper().strip() not in ["M", "F"]:
++                        print("\nInvalid Choice")
++                    else:
++                        break
++                DOB = input("\nEnter Patient DOB (day-month-year): ")
++                address = input("\nEnter Patient Address: ")
++                while True:  # To ensure that if they put the wrong data, they will be prompted the same contact number prompt
++                    try:
++                        C_No = int(input("\nEnter Patient Contact Number: "))
++                        break
++                    except ValueError:
++                        print("\nPlease Enter a Valid Contact Number")
++
++                while True:  # To ensure that if they put the wrong data, they will be prompted the same contact number prompt
++                    try:
++                        E_No = int(input("\nEnter Patient Emergency Contact Number: "))
++                        break
++                    except ValueError:
++                        print("\nPlease Enter a Valid Contact Number")
++                with open("patient.txt", "a") as a:
++                    a.write(f"{p_id.title()},{name.title()},{sex},{DOB},{address.title()},{C_No},{E_No}\n")
++
++def alter_appointment():
++# This function handles all appointment-related operations via menu options
++    while True:
++        try:
++            a_lines = load_appointment()
++            print("\n---Appointment Alterator---\n"
++                  "1. View All Appointments\n"
++                  "2. Add Appointments\n"
++                  "3. Delete Appointments\n"
++                  "4. Alter Appointment Details\n"
++                  "5. Exit\n"
++                  "Format: Appointment ID, Appointment Date, Appointment Time, Status, Patient ID, Doctor ID\n")
++            n = int(input("Enter your choice: "))
++        except ValueError:
++            print("\nInvalid Choice, Enter a Valid Number")
++            continue
++        if n not in [1, 2, 3, 4, 5]: #To handle if they put outside of range
++            print("\nInvalid Choice")
++            continue
++        elif n == 5:
++            print("\nExiting")
++            break
++        elif n == 1:
++            count = 1
++            for line in a_lines:
++                print(count,line.strip())
++                count += 1
++        elif n == 2:
++            add_appointment()
++        elif n == 3:
++            delete_appointment()
++        elif n == 4:
++            alter_appointment_details()
++
++
++
++def add_appointment():
++    try:
++        while True:
++            a_lines = load_appointment() #to put the new data inserted into the list
++            try:
++                i = int(input("\nHow Many Appointments do you want to add or 0 to exit: "))
++            except ValueError:
++                print("\nInvalid Choice, Enter a Valid Number")
++                continue
++            if i == 0:
++                print("\nExiting")
++                break
++            elif i > 0:
++                # -------- INSERTING ALL THE NESCESARRY DATA --------
++                for i in range(int(i)):
++                    while True:
++                        a_id = input("\nEnter Appointment ID: ")
++                        exist = False
++                        for line in a_lines:
++                            lst = line.strip().split(",")
++                            if a_id.lower() == lst[0].lower():  # Check if there is already an appointment with said ID
++                                print("Appointment ID already exists, Please enter a new ID")
++                                exist = True
++                        if exist == False:
++                            break
++                    while True:
++                        p_id = input("\nEnter Patient ID: ")
++                        exist = False
++                        with open("patient.txt", "r") as p_r:
++                            for line in p_r:
++                                lst = line.strip().split(",")
++                                if p_id.lower() == lst[0].lower():  # Check if the Patient ID exist
++                                    exist = True
++                            if exist == True:
++                                break
++                            else:
++                                print("Patient ID not found. Please enter a valid Patient ID.")
++                    date = input("\nEnter Appointment Date (day-month-year): ")
++                    time = input("\nEnter Time (24 hour format): ")
++                    while True:
++                        d_id = input("\nEnter Doctor ID: ")
++                        exist = False
++                        with open("../doctor/doctor.txt", "r") as d_r:
++                            for line in d_r:
++                                lst = line.strip().split(",")
++                                if d_id.lower() == lst[0].lower():  # Check if the Doctor ID exist
++                                    exist = True
++                        if exist == True:
++                            break
++                        else:
++                            print("Doctor ID not found. Please enter a valid Doctor ID.")
++                    with open("appointment.txt", "a") as a:
++                        a.write(f"{a_id.title()},{date},{time},Pending,{p_id.title()},{d_id.title()}\n")
++    except FileNotFoundError:
++        print("\nNo Files Found")
+ 
+-                    while True: #To make it so if they put an invalid input, they will still be on the "Status" menu
+-                        count = 1
+-                        print("\nSelect Status\n"
+-                              "1. Pending\n"
+-                              "2. Done")
+-                        status = input("Enter Status or Exit: ")
+-                        found = False
+-                        if status.lower() == failsafe.lower(): # Exit if not capitalize properly
+-                            print("Exiting")
+-                            break
+-                        elif status == "2":
+-                            status = "Done"
+-                        elif status == "1":
+-                            status = "Pending"
+-                        else:
+-                            print("Invalid Choice")
+-                            continue
+-
+-                        with open("schedule.txt", "r") as r:
+-                            for line in r:
+-                                lst = line.strip().split(",")
+-                                if lst[4].lower() == status.lower():
+-                                    print(count, line.strip())
+-                                    count += 1
+-                                    found = True
+-                        if found is False :
+-                            print("No Schedule")
++def delete_appointment():
++    while True:
++        a_lines = load_appointment()  # to put the new data inserted into the list
++        # -------- DELETE APPOINTMENT --------
++        print("\n1. Delete by Line\n"
++              "2. Delete by Patient ID\n"
++              "3. Delete by Doctor ID\n"
++              "4. Delete by Appointment ID\n"
++              "5. Delete by Status\n"
++              "6. Delete All Lines\n"
++              "7. Exit\n")
++        choice = input("\nEnter your choice: ")
++        if choice.strip() not in ["1", "2", "3", "4", "5", "6", "7"]:
++            print("\nInvalid Choice")
++        elif choice.strip() == "7":
++            print("\nExiting")
++            break
++        elif choice.strip() == "1":
++            delete_appointment_by_line()
++        elif choice.strip() == "4":
++           delete_appointment_by_A_ID()
++        # The "place" represents the respective indexes of the data in the file
++        elif choice.strip() in ["2", "3", "5"]:
++            if choice.strip() == "2":
++                menu = "Patient ID"
++                place = 4
++            elif choice.strip() == "3":
++                menu = "Doctor ID"
++                place = 5
++            elif choice.strip() == "5":
++                menu = "Status (Done or Pending)"
++                place = 3
++            else:
++                continue
++            delete_appointment_by_field(place, menu)
++
++        elif choice.strip() == "6":
++            delete_all_appointments()
++
++def delete_all_appointments():
++    while True:
++        confirm = input("\nAre you sure you want to delete all lines? (y/n): ")
++        if confirm.lower() != "y":
++            break
++        elif confirm.lower() == "y":
++            with open("appointment.txt", "w") as w:
++                w.writelines("")
++                print("\nDeleted successfully")
++
++
++def delete_appointment_by_line():
++    while True:
++        a_lines = load_appointment()  # to put the new data inserted into the list
++        count = 1
++        for line in a_lines:
++            print(count, line.strip())
++            count += 1
++        try:
++            to_delete = int(input("\nEnter line number to delete or enter 0 to exit: "))
++            if to_delete == 0:
++                break
++            elif to_delete > len(a_lines) or to_delete <= 0:
++                print("\nPlease enter a valid line number")
++            else:
++                confirmation = input("Are you sure you want to delete this line? (y/n): ")
++                if confirmation.lower() != "y":
++                    print("\nOperation cancelled")
++                    break
++                elif confirmation.lower() == "y":
++                    print("\nDeleted successfully")
++                    with open("appointment.txt", "w") as w:
++                        for line in a_lines:
++                            if line != a_lines[to_delete - 1]:
++                                w.write(line)
++
++        except ValueError:
++            print("\nInvalid Data Type")
++
++def delete_appointment_by_A_ID():
++    while True:
++        a_lines = load_appointment()  # to put the new data inserted into the list
++        found = False
++        count = 1
++        id = input("\nEnter Appointment ID or exit: ")
++        if id.lower() == "exit":
++            print("\nExiting")
++            break
++        else:
++            for line in a_lines:
++                lst = line.strip().split(",")
++                if id.lower() == lst[0].lower():
++                    print(count, line.strip())
++                    count += 1
++                    found = True
++            if found is True:
++                confirm = input("\nDo you want to delete this line? (y/n): ")
++                if confirm.lower().strip() != "y":
++                    print("\nOperation cancelled")
++                    break
++                elif confirm.lower().strip() == "y":
++                    print("\nDeleted successfully")
++                    with open("appointment.txt", "w") as w:
++                        for line in a_lines:
++                            lst = line.strip().split(",")
++                            if id.lower() != lst[0].lower():
++                                w.write(line)
++            if found is False:
++                print("\nNo Records Found")
+ 
+-                elif n == 6:
+-                    while True:
+-                        count = 1
+-                        with open("schedule.txt", "r") as r:
+-                            name = input("\nEnter ScheduleID or Exit: ")  # Insert Patient Name
+-                            found = False
+-                            if name.lower() == failsafe.lower():  # Exit if not capitalize properly
+-                                print("Exiting")
+-                                break
+-                            else:
+-                                for line in r:  # Checks all the lines
+-                                    lst = line.strip().split(
+-                                        ",")  # Print line without white space and split the lines into lst[0] = name and lst [1] = date
+-                                    if name.lower().strip() == lst[
+-                                        0].lower().strip():  # Search for an exact match for the patient name while avoiding case sensitivity
+-                                        print(count, line.strip())  # Prints the lines that matches without white space
+-                                        found = True
+-                                        count += 1  # To display line number while printing
+-                                if found is False:  # Only runs if none of the lines contain the name
+-                                    print("No Schedule")
++def delete_appointment_by_field(place, menu):
++    while True:
++        a_lines = load_appointment()  # to put the new data inserted into the list
++        count = 1  # to number all line outputed
++        found = False
++        temp_list = []
++        actual_list = []
++        new_value = input(f"\nEnter {menu} or Exit: ")
++        if new_value.lower() == "exit":  # to make it easier to exit the menu
++            print("\nExiting")
++            break
++        else:
++            for line in a_lines:
++                lst = line.strip().split(",")
++                if new_value.lower() == lst[
++                    place].lower():  # find only exact match + to make capitalisation not matter for accesability
++                    print(count, line.strip())
++                    found = True
++                    count += 1  # To display line number while printing
++                    temp_list.append(f"{line}")  # append each record to an empty list for easy access
+ 
+-
+-        except ValueError: #If they don't insert an intiger
+-            print("\nInvalid Choice")
+-        except FileNotFoundError:
+-            print("\nNo such file or directory")
+-        except KeyboardInterrupt:
++            if found == True:
++                print("\n1. Delete by Line\n"
++                      "2. Delete All\n"
++                      "3. Exit\n")
++                mode = input("\nChoose what mode to use: ")
++                if mode.strip() not in ["1", "2", "3"]:
++                    print("\nInvalid Choice")
++                elif mode.strip() == "3":
++                    print("\nExiting")
++                    break
++                elif mode.strip() == "2":
++                    confirm = input("\nAre you sure you want to delete this line(s)? (y/n): ")
++                    if confirm.lower() != "y":
++                        print("\nOperation cancelled")
++                    elif confirm.lower() == "y":
++                        print("\nLine(s) Deleted successfully")
++                        for line in a_lines:
++                            if line not in temp_list:
++                                actual_list.append(line)  # To write down all the wanted records in a list
++                    with open("appointment.txt", "w") as w:
++                        w.writelines(
++                            actual_list)  # write the list containing the wanted lines to the actual file
++                elif mode.strip() == "1":
++                    try:
++                        delete = int(input("\nwhat line to delete or insert 0 to Exit: "))  # to prompt user what line to delete base on the output given
++                    except ValueError:
++                        print("\nInvalid Data Type")
++                        continue
++                    if delete == 0:
++                        print("\nExiting")
++                        break
++                    elif delete <= len(temp_list) and delete >= 1:  # to ensure they can only input number not larger than the available lines
++                        confirmation = input("\nAre you sure you want to delete this line? (y/n): ")
++                        if confirmation.lower() == "y":
++                            for line in a_lines:
++                                if line != temp_list[delete - 1]:
++                                    actual_list.append(line)  # Write the lines that don't want to be deleted into a list
++                            with open("appointment.txt", "w") as w:
++                                w.writelines(
++                                    actual_list)  # write the list containing the wanted lines to the actual file
++                                print("\nDeleted successfully")
++                        elif confirmation.lower() != "y":
++                            print("\nOperation cancelled")
++                    elif delete not in range(
++                            len(temp_list) + 1):  # If they insert a number bigger than the available line number
++                        print("\nPlease enter a valid line number")
++            if found is False:
++                print("No record found")
++
++def alter_appointment_details():
++    while True:
++        a_lines = load_appointment()  # to put the new data inserted into the list
++        found = False
++        # -------- ALTER APPOINTMENT DETAILS --------
++        print("\n1. Alter Doctor ID\n"  # No alter Patient ID because if is the patient change, its technically a new appointment
++            "2. Alter Time\n"
++            "3. Alter Date\n"
++            "4. Alter Status\n"
++            "5. Exit\n")
++        choice = input("\nEnter your choice: ")
++        if choice.strip() not in ["1", "2", "3", "4", "5"]:
++            print("\nInvalid Choice, Enter a Valid Number")
++            continue
++        elif choice.strip() == "5":
+             print("\nExiting")
+             break
++        # The "place" represents the respective indexes of the data in the file
++        elif choice.strip() == "2":
++            place = 2
++            menu = "Time"
++        elif choice.strip() == "3":
++            place = 1
++            menu = "Date"
++        elif choice.strip() == "4":
++            place = 3
++            menu = "Status"
++        elif choice.strip() == "1":
++            place = 5
++            menu = "Doctor ID"
++        else:
++            continue
++        a_id = input("\nEnter Appointment ID: ")
++        new_value = input(f"\nEnter new {menu}: ")
++        with open("appointment.txt", "w") as w:
++            for line in a_lines:
++                lst = line.strip().split(",")
++                if lst[0].lower() != a_id.lower():
++                    w.write(line)
++                elif lst[0].lower() == a_id.lower():
++                    lst[place] = new_value.title()
++                    w.write(f"{lst[0]},{lst[1]},{lst[2]},{lst[3]},{lst[4]},{lst[5]}\n")
++                    found = True
++        if found == False:
++            print("\nNo Records Found")
++        elif found == True:
++            print("\nAppointment Updated")
+ 
+-view_schedule()
+-def view_patient():
+-        failsafe = "exit" #To make sure people can exit menus
+-        while True:
+-            try:
+-                print("---Patient Data Viewer---\n"
+-                      "1. View All Patients\n"
+-                      "2. View Patient by Name\n"
+-                      "3. View Patient by Age\n"
+-                      "4. View Patient by Address\n"
+-                      "5. View Patient by PatientID\n"
+-                      "6. Exit\n"
+-                      "Format: PatientID, Name, Age, Address\n")
+-
+-                n = int(input("Enter your choice: "))
+-                if n == 1:
+-                    with open("cashier/patient.txt", "r") as r:
+-                        for line in r:
+-                            print(line.strip())
+-            except ValueError:
+-                print("\nInvalid Choice")
++
++def receptionist_main():
++    while True:
++        try:
++            print("\n---Welcome to Receptionist---\n"
++                  "1. View Patient Records\n"
++                  "2. View Appointment Records\n"
++                  "3. Alter Patient Records\n"
++                  "4. Alter Appointment Records\n"
++                  "5. Exit\n")
++            mode = int(input("\nChoose what mode to use: "))
++            if mode not in [1, 2, 3, 4, 5]:
++                print("\nInvalid Choice, Enter a Mode")
++            elif mode == 5:
++                print("\nExiting")
++                break
++            elif mode == 4:
++                alter_appointment()
++            elif mode == 3:
++                alter_patient()
++            elif mode == 2:
++                view_appointment()
++            elif mode == 1:
++                view_patient()
++        except ValueError:
++            print("\nInvalid Choice, Enter a Valid Number")
++        except KeyboardInterrupt:
++            print("\nExiting")
++            break
+ 
+-        #Make a patient ID
+-        #Dont forget to capitalize
+-        #def delete()
+-            #Make a pending schedule file and a done schedule file
+-            #Copy both in seperate files
+-            #Delete after X amount of years
+-            #make it so u can change status, name, etc
+-            #Put output in a file so they can edit based on output
+-
+-view_patient()
+\ No newline at end of file
++receptionist_main()
+Index: login/user_db.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>Charlie_Kirk;Charlie@aphdoctor.aph.com;WeAreCharlieKirk123!_;Doctor\r\nSpongebob_Squarepants;Spongebob@aphaccountant.aph.com;BikiniBottom24!_;accountant\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/login/user_db.txt b/login/user_db.txt
+--- a/login/user_db.txt	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/login/user_db.txt	(date 1767704826958)
+@@ -1,2 +1,3 @@
+ Charlie_Kirk;Charlie@aphdoctor.aph.com;WeAreCharlieKirk123!_;Doctor
+ Spongebob_Squarepants;Spongebob@aphaccountant.aph.com;BikiniBottom24!_;accountant
++John_Pork;johnpork@aphdoctor.aph.com;IlovePork123!_;Doctor
+Index: login/clocked_in.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>2025-12-28 22:40:06.919549: accountant, davidchristp123!_\r\n2025-12-28 22:40:30.247534: accountant, davidchristp123!_\r\n2025-12-29 21:59:59.959460: Doctor, Charlie_Kirk\r\n2025-12-29 22:04:45.060085: accountant, Spongebob_Squarepants\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/login/clocked_in.txt b/login/clocked_in.txt
+--- a/login/clocked_in.txt	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/login/clocked_in.txt	(date 1767704826956)
+@@ -2,3 +2,6 @@
+ 2025-12-28 22:40:30.247534: accountant, davidchristp123!_
+ 2025-12-29 21:59:59.959460: Doctor, Charlie_Kirk
+ 2025-12-29 22:04:45.060085: accountant, Spongebob_Squarepants
++2026-01-06 20:02:58.140133: Doctor, John_Pork
++2026-01-06 20:05:11.363777: Doctor, John_Pork
++2026-01-06 20:07:32.956682: Doctor, John_Pork
+Index: accountant/account__assistant.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import os\r\nimport datetime\r\n\r\ndef redo_action(prompt):\r\n    while True:\r\n        choice = input(f'{prompt}? (yes/no): ').strip().lower()\r\n        if choice in ('yes','y'):\r\n            return True\r\n        elif choice in ('no','n'):\r\n            return False\r\n        else:\r\n            print(\"Invalid Value. please enter 'yes', or 'no'.\")\r\n        \r\ndef get_user_total_details():\r\n    try:\r\n        with open('accountant/receipt_id.txt','r') as re:\r\n            last_id = int(re.read())\r\n    except FileNotFoundError:\r\n        last_id = 0\r\n    \r\n    receipt_id = last_id + 1\r\n    receipt_id_str = str(receipt_id)\r\n\r\n    patient_name = input('Enter patient name to be totalled: ').strip()\r\n    receipt_details = []\r\n    found = False\r\n    total = 0.00\r\n    Date_Entry = \"\"\r\n    with open('accountant/patient_billing_record.txt','r') as user_sum:\r\n        for user in user_sum:\r\n            if not user.strip():\r\n                continue\r\n\r\n            line = user.strip().split(';')\r\n\r\n            if len(line) < 5:\r\n                continue\r\n            try:\r\n                Date_Entry = line[0].strip().split(',')\r\n                username = line[1].strip()\r\n                item_name = line[2].strip()\r\n                Quantity = int(line[3].strip())\r\n                price = float(line[4].strip())\r\n            except (ValueError, IndexError):\r\n                continue\r\n\r\n            if username == patient_name:\r\n                found = True\r\n                item_total = Quantity * price\r\n                total += item_total\r\n                receipt_details.append(f\"{item_name} x {Quantity} = {item_total:.2f}\")\r\n            \r\n        if not found:\r\n            print(f'no records found for patient: {patient_name}')\r\n            if not redo_action('Create Another receipt'):\r\n                return\r\n            else:\r\n                get_user_total_details()\r\n                return\r\n    \r\n    # Display and store them into a different username billing receipts\r\n    receipt_path = f\"accountant/{patient_name.replace(\" \",\"_\")}_receipt.txt\"\r\n    try:\r\n        with open(receipt_path, 'a') as receipt:\r\n            receipt.write(\"Asia Pacific Hospital receipt\\n\")\r\n            receipt.write(\"================================\\n\")\r\n            receipt.write(f\"Receipt Id: {receipt_id_str}\\n\")\r\n            receipt.write(f\"Name : {patient_name.replace('_',' ')}\\n\")\r\n            receipt.write(f\"Time created: {Date_Entry}\\n\")\r\n            receipt.write(\"================================\\n\")\r\n            for i in receipt_details:\r\n                receipt.write(i + '\\n')\r\n            receipt.write(f\"Total Amount: {total:.2f}\\n\")\r\n        \r\n        print(f'receipt created successfully at {receipt_path}')\r\n\r\n    except Exception as e:\r\n        print(f\"Error creating receipt: {e}\")\r\n    \r\n    try:\r\n        with open('accountant/receipt_db.txt','a') as rl:\r\n            rl.write(f\"{receipt_id_str}: {patient_name}\\n\")\r\n        \r\n        with open('receipt_id.txt', 'w') as re:\r\n            re.write(str(receipt_id))\r\n        \r\n        print(f\"{patient_name}'s receipt has been created\")\r\n        \r\n    except Exception as e: \r\n        print(f\"Error inserting receipt into the list: {e}\") \r\n    \r\n    if not redo_action('Create another receipt'):\r\n        return\r\n\r\ndef get_receipt_list():\r\n    receipts = {}\r\n    current_id = 1\r\n    with open('accountant/receipt_db.txt','r') as rl:\r\n        lines = rl.readlines()\r\n        for line in lines:\r\n\r\n            patient_name = line.split(':')[1].strip()\r\n\r\n            receipts[current_id] = patient_name\r\n            print(f'{current_id}. {patient_name}')\r\n\r\n            current_id += 1\r\n    \r\n    print('Enter the ID to view the receipt details (00 to exit)')\r\n    while True:\r\n        choice = input('>>> ')\r\n\r\n        if choice == '00':\r\n            break\r\n\r\n        try:\r\n            choice = int(choice)\r\n        except ValueError:\r\n            print('invalid ID')\r\n            continue\r\n            \r\n        if choice in receipts:\r\n            patient_name = receipts[choice]\r\n            receipt_file = f\"accountant/{patient_name.lower().replace(' ','_')}_receipt.txt\"\r\n        else:\r\n            print('invalid ID')\r\n            continue\r\n\r\n        try:\r\n            with open(receipt_file, 'r') as file:\r\n                print(f\" Receipt for {patient_name}\")\r\n                print(file.read())\r\n        except FileNotFoundError:\r\n            print(f'Error : receipt for {patient_name} cant be found')\r\n\r\n        if not redo_action('see another receipt'):\r\n            return\r\n\r\ndef delete_receipt():\r\n    receipts = {}\r\n    current_id = 1\r\n    with open('accountant/receipt_db.txt','r') as rl:\r\n        lines = rl.readlines()\r\n        for line in lines:\r\n\r\n            patient_name = line.split(':')[1].strip()\r\n\r\n            receipts[current_id] = patient_name\r\n            print(f'{current_id}. {patient_name}')\r\n\r\n            current_id += 1\r\n    \r\n    print('Enter the receipt ID to Delete (00 to exit)')\r\n    while True:\r\n        choice = input('>>> ')\r\n\r\n        if choice == '00':\r\n            break\r\n\r\n        if not lines:\r\n            print(\"No receipts to delete\")\r\n            return\r\n\r\n        try:\r\n            choice = int(choice)\r\n        except ValueError:\r\n            print('invalid ID')\r\n            continue\r\n            \r\n        if choice in receipts:\r\n            patient_name = receipts[choice]\r\n            receipt_file = f\"accountant/{patient_name.lower().replace(' ','_')}_receipt.txt\"\r\n        else:\r\n            print('invalid ID')\r\n            continue\r\n\r\n        if os.path.exists(receipt_file):\r\n            os.remove(receipt_file)\r\n            print(f\"{patient_name}'s receipt has been deleted\")\r\n        else: \r\n            print(f\"receipt for {patient_name} not found\")\r\n\r\n        del lines[choice - 1]\r\n\r\n        with open('accountant/receipt_db.txt', 'w') as rl:\r\n            rl.writelines(lines)    \r\n        \r\n        print('Receipt deleted successfully')\r\n\r\n        if not redo_action('delete another receipt'):\r\n            return\r\n\r\ndef daily_summary():\r\n    patient_count = 0\r\n    med_sold = {}\r\n    patients = set()\r\n    total = 0\r\n    Date = \"\"\r\n    VALID_DATE = False\r\n\r\n    while not VALID_DATE:\r\n        Date = input('Enter the date to generate summary (YYYY-MM-DD) or press Enter for today: ').strip()\r\n\r\n        if not Date:\r\n            Date = datetime.date.today().strftime('%Y-%m-%d')\r\n            print(f\"Using today's date: {Date}\")\r\n            VALID_DATE = True  \r\n        else:\r\n            try:\r\n                datetime.datetime.strptime(Date, '%Y-%m-%d')\r\n                VALID_DATE = True \r\n            except ValueError:\r\n                print(\"Invalid date format! Please use YYYY-MM-DD (e.g., 2025-12-30)\")\r\n\r\n\r\n    with open('accountant/patient_billing_record.txt','r') as f:\r\n        lines = f.readlines()\r\n        for line in lines:\r\n\r\n            if not line.strip():\r\n                continue\r\n            part = line.strip().split(';')\r\n            date = part[0].strip().replace(\"'\",\"\")\r\n            patient_name = part[1].strip().replace(\"'\",\"\")\r\n            item_name = part[2].strip().replace(\"'\",\"\")\r\n            quantity = int(part[3].strip())\r\n            price = float(part[4].strip())\r\n\r\n            if Date == date:\r\n                patients.add(patient_name)\r\n                med_sold[item_name] = med_sold.get(item_name, 0) + quantity\r\n                total += (quantity * price)\r\n\r\n        patient_count = len(patients)\r\n    \r\n    if patient_count == 0:\r\n        print(f'no transaction found for {Date}')\r\n        return\r\n    \r\n    summary_file_path = f\"accountant/{Date}_daily_summary.txt\"\r\n\r\n    with open(summary_file_path, 'w') as sum: \r\n        sum.write(f\"Asia Pacific Hospital Healthplus Sales Summary\\n\")\r\n        sum.write(\"============================\\n\")\r\n        sum.write(f\"Date: {Date}\\n\")\r\n        sum.write(f\"Total Patients: {patient_count}\\n\")\r\n        sum.write(\"items sold:\\n\")\r\n        for item, quantity in sorted(med_sold.items()):\r\n            sum.write(f\"{item}: {quantity} x {price} = {quantity * price}\\n\")\r\n        \r\n        sum.write(\"=================================\\n\")\r\n        sum.write(f\"Total Income = RM.{total:.2f}\\n\")\r\n    \r\n    print(f\"Daily Summary for today is saved on {summary_file_path}\")\r\n\r\n    if not redo_action('Generate another summary'):\r\n        return\r\n\r\ndef add_new_med_stock():\r\n    with open('pharmacist/med_stock_low.txt','r') as f:\r\n        info = f.readlines()\r\n        for line in info:\r\n            element = line.strip().split(',')\r\n            code = element[0]\r\n            Name = element[1]\r\n            stock = int(element[2])\r\n            Price = float(element[3])\r\n            Demands = element[4]\r\n            print(\"Barcode, Name, Stock, Price, Demand\")\r\n            print(f\"{code}, {Name}, {stock}, {Price}, {Demands}\\n\")\r\n    \r\n    barcode = int(input(\"Enter Medicine's QR code: \"))\r\n    med_name = input('Enter medicine name: ').replace(' ', '_')\r\n    quantity = int(input(\"Enter quantity: \"))\r\n    price = float(input(\"Enter the price: \"))\r\n    demand = input(\"Enter demand [low, medium, high]: \").title()\r\n    if demand not in ['Low', 'Medium', 'High']:\r\n        print('Wrong demand type.')\r\n    else:\r\n        with open('pharmacist/med_new_stock.txt','w') as p:\r\n            p.write(f\"{barcode},{med_name},{quantity},{price},{demand}\")\r\n        with open('pharmacist/medicine_stock.txt', 'a') as m:\r\n            m.write(f\"{barcode},{med_name},{quantity},{price}\")\r\n\r\n        print('Item has been added to the list')\r\n\r\n    if not redo_action(\"Want to enter another medicine? (yes/no): \"):\r\n        return\r\n        \r\ndef update_quantity_med():\r\n    existing_meds = {}\r\n    with open('pharmacist/med_db.txt', 'r') as p:\r\n        lines = p.readlines()\r\n        for line in lines:\r\n            values = line.strip().split(',')\r\n            Barcode = values[0]\r\n            med_name = values[1]\r\n            quantity = values[2]\r\n            price = values[3]\r\n            demand = values[4]\r\n            existing_meds[Barcode] = {\r\n                'Name' : med_name,\r\n                'Quantity' : int(quantity),\r\n                'Price' : price,  \r\n                'Demand' : demand\r\n            }\r\n    \r\n    select_item_barcode = str(int(input('Enter the medicine barcode: ')))\r\n    if select_item_barcode in existing_meds:\r\n        print(f\"Medicine name: {existing_meds[select_item_barcode]['Name']}\")\r\n        print(f\"Quantity: {existing_meds[select_item_barcode]['Quantity']}\")\r\n\r\n        add_quantity = int(input(\"enter the quantity to be added: \"))\r\n        existing_meds[select_item_barcode]['Quantity'] += add_quantity\r\n        \r\n        print(f\"New quantity: {existing_meds[select_item_barcode]['Quantity']}\")\r\n        print(\"Quantity updated successfully!\")\r\n\r\n        demand = input(\"Enter demand [low, medium, high]: \").title()\r\n        if demand not in ['Low', 'Medium', 'High']:\r\n            print('Wrong demand type.')\r\n        else:\r\n            with open('pharmacist/med_update_stock.txt','w') as up:\r\n                up.write(f\"{select_item_barcode},{existing_meds[select_item_barcode]['Name']},{existing_meds[select_item_barcode]['Quantity']},{existing_meds[select_item_barcode]['Price']},{demand}\\n\")                \r\n                print(\"Item quantity updated\")\r\n    if not redo_action('Add another item quantity? (yes/no) '):\r\n        return\r\n\r\ndef accountant_main():\r\n    while True:\r\n        print('Accountant management dashboard')\r\n        print(\"1. Create Billing Receipt\")\r\n        print(\"2. View all receipts\")\r\n        print(\"3. Delete receipt(s)\")\r\n        print(\"4. Daily Summary Generator\")\r\n        print(\"5. Add new medicine to stock\")\r\n        print(\"6. Update existing medicine(s) stock\")\r\n        print(\"7. Log out\")    \r\n        choice = input(\"> \")\r\n        match choice:\r\n            case '1':\r\n                get_user_total_details()\r\n            case '2':\r\n                get_receipt_list()\r\n            case '3':\r\n                delete_receipt()\r\n            case '4':\r\n                daily_summary()\r\n            case '5':\r\n                add_new_med_stock()\r\n            case '6':\r\n                update_quantity_med()\r\n            case '7':\r\n                with open('login/logged_out.txt','a') as l:\r\n                    l.write(f'[{datetime.datetime.now()}] accountant logged out\\n')\r\n                print('Bye. See you tomorrow. Have a great day')\r\n                break\r\n\r\naccountant_main()\r\n\r\n\r\n\r\n\r\n\r\n    \r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/accountant/account__assistant.py b/accountant/account__assistant.py
+--- a/accountant/account__assistant.py	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/accountant/account__assistant.py	(date 1767704826950)
+@@ -323,6 +323,7 @@
+             with open('pharmacist/med_update_stock.txt','w') as up:
+                 up.write(f"{select_item_barcode},{existing_meds[select_item_barcode]['Name']},{existing_meds[select_item_barcode]['Quantity']},{existing_meds[select_item_barcode]['Price']},{demand}\n")                
+                 print("Item quantity updated")
++                
+     if not redo_action('Add another item quantity? (yes/no) '):
+         return
+ 
+@@ -356,7 +357,6 @@
+                 print('Bye. See you tomorrow. Have a great day')
+                 break
+ 
+-accountant_main()
+ 
+ 
+ 
+Index: cashier/receptionist.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>def load_appointment():\r\n    try:\r\n        with open(\"appointment.txt\", \"r\") as a:\r\n            a_lines = a.readlines()\r\n            return a_lines\r\n    except FileNotFoundError:\r\n        print(\"\\nNo such file or directory\")\r\n\r\ndef load_patient():\r\n    try:\r\n        with open(\"patient.txt\", \"r\") as p:\r\n            p_lines = p.readlines()\r\n            return p_lines\r\n    except FileNotFoundError:\r\n        print(\"\\nNo such file or directory\")\r\n\r\ndef view_appointment():\r\n    # This function handles all appointment viewing related features\r\n    while True:\r\n        try: #Error Handling\r\n            #Using with open to close all files automatically after use\r\n            a_lines = load_appointment()\r\n            print(\"\\n---Appointment Viewer---\\n\"\r\n                  \"1. View All Appointment\\n\"\r\n                  \"2. View Appointment by Patient ID\\n\"\r\n                  \"3. View Appointment by Date\\n\"\r\n                  \"4. View Appointment by Doctor ID\\n\"\r\n                  \"5. View Appointment by Status\\n\"\r\n                  \"6. View Appointment by Appointment ID\\n\"\r\n                  \"7. Exit\\n\"\r\n                  \"Format: Appointment ID, Appointment Date, Appointment Time, Status, Patient ID, Doctor ID\\n\")\r\n            n = int(input(\"Enter your choice: \"))\r\n        except ValueError:  # If they don't insert an intiger\r\n            print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n            continue\r\n        if n not in [1, 2, 3, 4, 5, 6, 7]:\r\n            print(\"Invalid Choice\") #If they insert outside the number range\r\n            continue\r\n        elif n == 7: #To Exit\r\n            print(\"Exiting\")\r\n            break #Breaks the while loop\r\n        else:\r\n            if n == 1:\r\n                count = 1\r\n                for line in a_lines: #Checks all the lines\r\n                    print(count,line.strip()) #Prints all the lines without white space\r\n                    count += 1 #To display line number while printing\r\n            elif n in [2, 3, 4, 6]:\r\n                if n == 2:\r\n                    place = 4\r\n                    menu = \"Patient ID\"\r\n                elif n == 3:\r\n                    place = 1\r\n                    menu = \"Exact Date (day-month-year)\"\r\n                elif n == 4:\r\n                    place = 5\r\n                    menu = \"Doctor ID\"\r\n                elif n == 6:\r\n                    place = 0\r\n                    menu = \"Appointment ID\"\r\n                else:\r\n                    continue\r\n                while True:\r\n                    count = 1\r\n                    found = False\r\n                    sort_by = input(f\"\\nEnter {menu} or exit: \")\r\n                    if sort_by.lower() == \"exit\":\r\n                        print(\"\\nExiting\")\r\n                        break\r\n                    else:\r\n                        for line in a_lines:\r\n                            lst = line.strip().split(\",\")\r\n                            if lst[place].lower() == sort_by.lower():\r\n                                print(count,line.strip())\r\n                                count += 1\r\n                                found = True\r\n                    if found == False:\r\n                        print(\"No Records Found\")\r\n            elif n == 5:\r\n                while True: #To make it so if they put an invalid input, they will still be on the \"Status\" menu\r\n                    count = 1 #to number all line outputed\r\n                    print(\"\\nSelect Status\\n\"\r\n                          \"1. Pending\\n\"\r\n                          \"2. Done\")\r\n                    status = input(\"Enter Status or Exit: \")\r\n                    found = False\r\n                    if status.lower().strip() == \"exit\": # Exit if not capitalize properly\r\n                        print(\"Exiting\")\r\n                        break\r\n                    elif status.strip() == \"2\":\r\n                        status = \"Done\"\r\n                    elif status.strip() == \"1\":\r\n                        status = \"Pending\"\r\n                    else:\r\n                        print(\"Invalid Choice\")\r\n                        continue\r\n                    for line in a_lines:\r\n                        lst = line.strip().split(\",\")\r\n                        if lst[3].lower() == status.lower():\r\n                            print(count, line.strip())\r\n                            count += 1\r\n                            found = True\r\n                    if found is False :\r\n                        print(\"No Appointment\")\r\n\r\n\r\n\r\ndef view_patient():\r\n# This function handles all patient viewing related features\r\n    while True:\r\n        try:\r\n            p_lines = load_patient()\r\n            print(\"\\n---Patient Data Viewer---\\n\"\r\n                  \"1. View All Patients\\n\"\r\n                  \"2. View Patient by Name\\n\"\r\n                  \"3. View Patient by Sex\\n\"\r\n                  \"4. View Patient by Birth Year\\n\"\r\n                  \"5. View Patient by Address\\n\"\r\n                  \"6. View Patient by PatientID\\n\"\r\n                  \"7. Exit\\n\"\r\n                  \"Format: PatientID, Name, Sex, DOB, Address, Contact Number, Emergency Contact Number\\n\")\r\n\r\n            n = int(input(\"Enter your choice: \"))\r\n        except ValueError:  # If they don't insert an intiger\r\n            print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n            continue\r\n        if n not in [1, 2, 3, 4, 5, 6, 7]:\r\n            print(\"Invalid Choice\")  # If they insert outside the number range\r\n            continue\r\n        elif n == 7:\r\n            print(\"\\nExiting\")\r\n            break\r\n        elif n == 1:\r\n            count = 1 #to number all line outputed\r\n            for line in p_lines:\r\n                print(count,line.strip())\r\n                count += 1\r\n        elif n in [2, 5, 6]:\r\n            if n == 2:\r\n                place = 1\r\n                menu = \"Patient Name\"\r\n            elif n == 5:\r\n                place = 4\r\n                menu = \"Address\"\r\n            elif n == 6:\r\n                place = 0\r\n                menu = \"Patient ID\"\r\n            else:\r\n                continue\r\n            while True:\r\n                count = 1\r\n                found = False\r\n                sort_by = input(f\"\\nEnter {menu} or exit: \")\r\n                if sort_by.lower() == \"exit\":\r\n                    print(\"\\nExiting\")\r\n                    break\r\n                else:\r\n                    for line in p_lines:\r\n                        lst = line.strip().split(\",\")\r\n                        if lst[place].lower() == sort_by.lower():\r\n                            print(count, line.strip())\r\n                            count += 1\r\n                            found = True\r\n                    if found == False:\r\n                        print(\"No Records Found\")\r\n        elif n == 3:\r\n            while True:  # To make it so if they put an invalid input, they will still be on the \"Status\" menu\r\n                count = 1  # to number all line outputed\r\n                print(\"\\nSelect Sex\\n\"\r\n                      \"1. Male\\n\"\r\n                      \"2. Female\")\r\n                sex = input(\"Enter Sex or Exit: \")\r\n                found = False\r\n                if sex.lower() == \"exit\":  # Exit if not capitalize properly\r\n                    print(\"\\nExiting\")\r\n                    break\r\n                elif sex.strip() == \"2\":\r\n                    sex = \"F\"\r\n                elif sex.strip() == \"1\":\r\n                    sex = \"M\"\r\n                else:\r\n                    print(\"\\nInvalid Choice\")\r\n                    continue\r\n\r\n                for line in p_lines:\r\n                    lst = line.strip().split(\",\")\r\n                    if lst[2].lower() == sex.lower():\r\n                        print(count, line.strip())\r\n                        count += 1\r\n                        found = True\r\n                if found is False:\r\n                    print(\"\\nNo Records Found\")\r\n        elif n == 4:\r\n            while True:\r\n                try:\r\n                    found = False\r\n                    count = 1\r\n                    year = int(input(\"\\nEnter Patient Birth Year or insert 0 to Exit: \"))\r\n                    if year == 0:\r\n                        print(\"Exiting\")\r\n                        break\r\n                    else:\r\n                        year = str(year)\r\n                        for line in p_lines:\r\n                            lst = line.strip().split(\",\")\r\n                            if year in lst[3]:\r\n                                print(count,line.strip())\r\n                                found = True\r\n                                count += 1  # To display line number while printing\r\n                    if found is False:\r\n                        print(\"\\nNo patient record found\")\r\n                except ValueError: #If they dont insert an valid year\r\n                    print(\"\\nInvalid Year\")\r\n\r\ndef alter_patient():\r\n# This function handles all patient-related operations via menu options\r\n    while True:\r\n        try:\r\n            p_lines = load_patient()\r\n            print(\"\\n---Patient Data Alterator---\\n\"\r\n                  \"1. View All Patients\\n\"\r\n                  \"2. Add Patient\\n\"\r\n                  \"3. Alter Patient Details\\n\"\r\n                  \"4. Exit\\n\"\r\n                  \"Format: PatientID, Name, Sex, DOB, Address, Contact Number, Emergency Contact Number\\n\")\r\n            n = int(input(\"Enter your choice: \"))\r\n        except ValueError:\r\n            print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n            continue\r\n        if n not in [1, 2, 3, 4]: #To handle if they put outside of range\r\n            print(\"\\nInvalid Choice\")\r\n            continue\r\n        elif n == 4:\r\n            print(\"\\nExiting\")\r\n            break\r\n        elif n == 1:\r\n            count = 1\r\n            for line in p_lines:\r\n                print(count,line.strip())\r\n                count += 1\r\n        elif n == 2:\r\n            add_patient()\r\n        elif n == 3:\r\n            alter_patient_details()\r\n\r\n\r\ndef alter_patient_details():\r\n    while True:\r\n        p_lines = load_patient()  # to put the new data inserted into the list\r\n        found = False\r\n        # -------- ALTER PATIENTS DETAILS --------\r\n        print(\"\\n1. Alter Name\\n\"\r\n              \"2. Alter Contact Number\\n\"\r\n              \"3. Alter Emergency Contact Number\\n\"\r\n              \"4. Alter Address\\n\"\r\n              \"5. Exit\\n\")\r\n        choice = input(\"\\nEnter your choice: \")\r\n        if choice.strip() not in [\"1\", \"2\", \"3\", \"4\", \"5\"]:\r\n            print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n            continue\r\n        elif choice.strip() == \"5\":\r\n            print(\"\\nExiting\")\r\n            break\r\n        # The \"place\" represents the respective indexes of the data in the file\r\n        elif choice.strip() == \"1\":\r\n            place = 1\r\n            menu = \"Patient Name\"\r\n        elif choice.strip() == \"2\":\r\n            place = 5\r\n            menu = \"Contact Number\"\r\n        elif choice.strip() == \"3\":\r\n            place = 6\r\n            menu = \"Emergency Contact Number\"\r\n        elif choice.strip() == \"4\":\r\n            place = 4\r\n            menu = \"Address\"\r\n        else:\r\n            continue\r\n        p_id = input(\"\\nEnter Patient ID: \")\r\n        new_value = input(f\"\\nEnter new {menu}: \")\r\n        if choice.strip() in [\"2\", \"3\"] and not new_value.isdigit():\r\n            print(\"\\nPlease Insert a Contact Number.\")\r\n            continue\r\n        with open(\"patient.txt\", \"w\") as w:\r\n            for line in p_lines:\r\n                lst = line.strip().split(\",\")\r\n                if lst[0].lower() != p_id.lower():\r\n                    w.write(line)\r\n                elif lst[0].lower() == p_id.lower():\r\n                    if choice.strip() in [\"2\", \"3\"]:\r\n                        lst[place] = new_value  # Does not title numbers\r\n                    else:\r\n                        lst[place] = new_value.title()\r\n                    w.write(f\"{lst[0]},{lst[1]},{lst[2]},{lst[3]},{lst[4]},{lst[5]},{lst[6]}\\n\")\r\n                    found = True\r\n        if found == False:\r\n            print(\"\\nNo Records Found\")\r\n        elif found == True:\r\n            print(\"\\nPatient Record Updated\")\r\n\r\ndef add_patient():\r\n    while True:\r\n        p_lines = load_patient()  # to put the new data inserted into the list\r\n        try:\r\n            i = int(input(\"\\nHow Many Patients do you want to add or 0 to exit: \"))\r\n        except ValueError:\r\n            print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n            continue\r\n        if i == 0:\r\n            print(\"\\nExiting\")\r\n            break\r\n        elif i > 0:\r\n            for i in range(int(i)):\r\n                # -------- INSERTING ALL THE NESCESARRY DATA --------\r\n                while True:\r\n                    p_id = input(\"\\nEnter Patient ID: \")\r\n                    exist = False\r\n                    for line in p_lines:\r\n                        lst = line.strip().split(\",\")\r\n                        if p_id.lower() == lst[0].lower():  # Check if there is already a patient with said ID\r\n                            print(\"Patient ID already exists\")\r\n                            exist = True\r\n                    if exist is False:\r\n                        break\r\n                name = input(\"\\nEnter Patient Name: \")\r\n                while True:\r\n                    sex = input(\"\\nEnter Patient Sex (M or F): \")\r\n                    if sex.upper().strip() not in [\"M\", \"F\"]:\r\n                        print(\"\\nInvalid Choice\")\r\n                    else:\r\n                        break\r\n                DOB = input(\"\\nEnter Patient DOB (day-month-year): \")\r\n                address = input(\"\\nEnter Patient Address: \")\r\n                while True:  # To ensure that if they put the wrong data, they will be prompted the same contact number prompt\r\n                    try:\r\n                        C_No = int(input(\"\\nEnter Patient Contact Number: \"))\r\n                        break\r\n                    except ValueError:\r\n                        print(\"\\nPlease Enter a Valid Contact Number\")\r\n\r\n                while True:  # To ensure that if they put the wrong data, they will be prompted the same contact number prompt\r\n                    try:\r\n                        E_No = int(input(\"\\nEnter Patient Emergency Contact Number: \"))\r\n                        break\r\n                    except ValueError:\r\n                        print(\"\\nPlease Enter a Valid Contact Number\")\r\n                with open(\"patient.txt\", \"a\") as a:\r\n                    a.write(f\"{p_id.title()},{name.title()},{sex},{DOB},{address.title()},{C_No},{E_No}\\n\")\r\n\r\ndef alter_appointment():\r\n# This function handles all appointment-related operations via menu options\r\n    while True:\r\n        try:\r\n            a_lines = load_appointment()\r\n            print(\"\\n---Appointment Alterator---\\n\"\r\n                  \"1. View All Appointments\\n\"\r\n                  \"2. Add Appointments\\n\"\r\n                  \"3. Delete Appointments\\n\"\r\n                  \"4. Alter Appointment Details\\n\"\r\n                  \"5. Exit\\n\"\r\n                  \"Format: Appointment ID, Appointment Date, Appointment Time, Status, Patient ID, Doctor ID\\n\")\r\n            n = int(input(\"Enter your choice: \"))\r\n        except ValueError:\r\n            print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n            continue\r\n        if n not in [1, 2, 3, 4, 5]: #To handle if they put outside of range\r\n            print(\"\\nInvalid Choice\")\r\n            continue\r\n        elif n == 5:\r\n            print(\"\\nExiting\")\r\n            break\r\n        elif n == 1:\r\n            count = 1\r\n            for line in a_lines:\r\n                print(count,line.strip())\r\n                count += 1\r\n        elif n == 2:\r\n            add_appointment()\r\n        elif n == 3:\r\n            delete_appointment()\r\n        elif n == 4:\r\n            alter_appointment_details()\r\n\r\n\r\n\r\ndef add_appointment():\r\n    try:\r\n        while True:\r\n            a_lines = load_appointment() #to put the new data inserted into the list\r\n            try:\r\n                i = int(input(\"\\nHow Many Appointments do you want to add or 0 to exit: \"))\r\n            except ValueError:\r\n                print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n                continue\r\n            if i == 0:\r\n                print(\"\\nExiting\")\r\n                break\r\n            elif i > 0:\r\n                # -------- INSERTING ALL THE NESCESARRY DATA --------\r\n                for i in range(int(i)):\r\n                    while True:\r\n                        a_id = input(\"\\nEnter Appointment ID: \")\r\n                        exist = False\r\n                        for line in a_lines:\r\n                            lst = line.strip().split(\",\")\r\n                            if a_id.lower() == lst[0].lower():  # Check if there is already an appointment with said ID\r\n                                print(\"Appointment ID already exists, Please enter a new ID\")\r\n                                exist = True\r\n                        if exist == False:\r\n                            break\r\n                    while True:\r\n                        p_id = input(\"\\nEnter Patient ID: \")\r\n                        exist = False\r\n                        with open(\"patient.txt\", \"r\") as p_r:\r\n                            for line in p_r:\r\n                                lst = line.strip().split(\",\")\r\n                                if p_id.lower() == lst[0].lower():  # Check if the Patient ID exist\r\n                                    exist = True\r\n                            if exist == True:\r\n                                break\r\n                            else:\r\n                                print(\"Patient ID not found. Please enter a valid Patient ID.\")\r\n                    date = input(\"\\nEnter Appointment Date (day-month-year): \")\r\n                    time = input(\"\\nEnter Time (24 hour format): \")\r\n                    while True:\r\n                        d_id = input(\"\\nEnter Doctor ID: \")\r\n                        exist = False\r\n                        with open(\"../doctor/doctor.txt\", \"r\") as d_r:\r\n                            for line in d_r:\r\n                                lst = line.strip().split(\",\")\r\n                                if d_id.lower() == lst[0].lower():  # Check if the Doctor ID exist\r\n                                    exist = True\r\n                        if exist == True:\r\n                            break\r\n                        else:\r\n                            print(\"Doctor ID not found. Please enter a valid Doctor ID.\")\r\n                    with open(\"appointment.txt\", \"a\") as a:\r\n                        a.write(f\"{a_id.title()},{date},{time},Pending,{p_id.title()},{d_id.title()}\\n\")\r\n    except FileNotFoundError:\r\n        print(\"\\nNo Files Found\")\r\n\r\ndef delete_appointment():\r\n    while True:\r\n        a_lines = load_appointment()  # to put the new data inserted into the list\r\n        # -------- DELETE APPOINTMENT --------\r\n        print(\"\\n1. Delete by Line\\n\"\r\n              \"2. Delete by Patient ID\\n\"\r\n              \"3. Delete by Doctor ID\\n\"\r\n              \"4. Delete by Appointment ID\\n\"\r\n              \"5. Delete by Status\\n\"\r\n              \"6. Delete All Lines\\n\"\r\n              \"7. Exit\\n\")\r\n        choice = input(\"\\nEnter your choice: \")\r\n        if choice.strip() not in [\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\"]:\r\n            print(\"\\nInvalid Choice\")\r\n        elif choice.strip() == \"7\":\r\n            print(\"\\nExiting\")\r\n            break\r\n        elif choice.strip() == \"1\":\r\n            delete_appointment_by_line()\r\n        elif choice.strip() == \"4\":\r\n           delete_appointment_by_A_ID()\r\n        # The \"place\" represents the respective indexes of the data in the file\r\n        elif choice.strip() in [\"2\", \"3\", \"5\"]:\r\n            if choice.strip() == \"2\":\r\n                menu = \"Patient ID\"\r\n                place = 4\r\n            elif choice.strip() == \"3\":\r\n                menu = \"Doctor ID\"\r\n                place = 5\r\n            elif choice.strip() == \"5\":\r\n                menu = \"Status (Done or Pending)\"\r\n                place = 3\r\n            else:\r\n                continue\r\n            delete_appointment_by_field(place, menu)\r\n\r\n        elif choice.strip() == \"6\":\r\n            delete_all_appointments()\r\n\r\ndef delete_all_appointments():\r\n    while True:\r\n        confirm = input(\"\\nAre you sure you want to delete all lines? (y/n): \")\r\n        if confirm.lower() != \"y\":\r\n            break\r\n        elif confirm.lower() == \"y\":\r\n            with open(\"appointment.txt\", \"w\") as w:\r\n                w.writelines(\"\")\r\n                print(\"\\nDeleted successfully\")\r\n\r\n\r\ndef delete_appointment_by_line():\r\n    while True:\r\n        a_lines = load_appointment()  # to put the new data inserted into the list\r\n        count = 1\r\n        for line in a_lines:\r\n            print(count, line.strip())\r\n            count += 1\r\n        try:\r\n            done = False\r\n            to_delete = int(input(\"\\nEnter line number to delete or enter 0 to exit: \"))\r\n            if to_delete == 0:\r\n                break\r\n            elif to_delete > len(a_lines) or to_delete <= 0:\r\n                print(\"\\nPlease enter a valid line number\")\r\n            else:\r\n                confirmation = input(\"Are you sure you want to delete this line? (y/n): \")\r\n                if confirmation.lower() != \"y\":\r\n                    print(\"\\nOperation cancelled\")\r\n                    break\r\n                elif confirmation.lower() == \"y\":\r\n                    print(\"\\nDeleted successfully\")\r\n                    with open(\"appointment.txt\", \"w\") as w:\r\n                        for line in a_lines:\r\n                            if line != a_lines[to_delete - 1]:\r\n                                w.write(line)\r\n                                done = True\r\n            if done == True:\r\n                break\r\n        except ValueError:\r\n            print(\"\\nInvalid Data Type\")\r\n\r\ndef delete_appointment_by_A_ID():\r\n    while True:\r\n        a_lines = load_appointment()  # to put the new data inserted into the list\r\n        found = False\r\n        count = 1\r\n        id = input(\"\\nEnter Appointment ID or exit: \")\r\n        if id.lower() == \"exit\":\r\n            print(\"\\nExiting\")\r\n            break\r\n        else:\r\n            for line in a_lines:\r\n                lst = line.strip().split(\",\")\r\n                if id.lower() == lst[0].lower():\r\n                    print(count, line.strip())\r\n                    count += 1\r\n                    found = True\r\n            if found is True:\r\n                confirm = input(\"\\nDo you want to delete this line? (y/n): \")\r\n                if confirm.lower().strip() != \"y\":\r\n                    print(\"\\nOperation cancelled\")\r\n                    break\r\n                elif confirm.lower().strip() == \"y\":\r\n                    print(\"\\nDeleted successfully\")\r\n                    with open(\"appointment.txt\", \"w\") as w:\r\n                        for line in a_lines:\r\n                            lst = line.strip().split(\",\")\r\n                            if id.lower() != lst[0].lower():\r\n                                w.write(line)\r\n            if found is False:\r\n                print(\"\\nNo Records Found\")\r\n\r\ndef delete_appointment_by_field(place, menu):\r\n    while True:\r\n        a_lines = load_appointment()  # to put the new data inserted into the list\r\n        count = 1  # to number all line outputed\r\n        found = False\r\n        temp_list = []\r\n        actual_list = []\r\n        new_value = input(f\"\\nEnter {menu} or Exit: \")\r\n        if new_value.lower() == \"exit\":  # to make it easier to exit the menu\r\n            print(\"\\nExiting\")\r\n            break\r\n        else:\r\n            for line in a_lines:\r\n                lst = line.strip().split(\",\")\r\n                if new_value.lower() == lst[\r\n                    place].lower():  # find only exact match + to make capitalisation not matter for accesability\r\n                    print(count, line.strip())\r\n                    found = True\r\n                    count += 1  # To display line number while printing\r\n                    temp_list.append(f\"{line}\")  # append each record to an empty list for easy access\r\n\r\n            if found == True:\r\n                print(\"\\n1. Delete by Line\\n\"\r\n                      \"2. Delete All\\n\"\r\n                      \"3. Exit\\n\")\r\n                mode = input(\"\\nChoose what mode to use: \")\r\n                if mode.strip() not in [\"1\", \"2\", \"3\"]:\r\n                    print(\"\\nInvalid Choice\")\r\n                elif mode.strip() == \"3\":\r\n                    print(\"\\nExiting\")\r\n                    break\r\n                elif mode.strip() == \"2\":\r\n                    confirm = input(\"\\nAre you sure you want to delete this line(s)? (y/n): \")\r\n                    if confirm.lower() != \"y\":\r\n                        print(\"\\nOperation cancelled\")\r\n                    elif confirm.lower() == \"y\":\r\n                        print(\"\\nLine(s) Deleted successfully\")\r\n                        for line in a_lines:\r\n                            if line not in temp_list:\r\n                                actual_list.append(line)  # To write down all the wanted records in a list\r\n                    with open(\"appointment.txt\", \"w\") as w:\r\n                        w.writelines(\r\n                            actual_list)  # write the list containing the wanted lines to the actual file\r\n                elif mode.strip() == \"1\":\r\n                    try:\r\n                        delete = int(input(\"\\nwhat line to delete or insert 0 to Exit: \"))  # to prompt user what line to delete base on the output given\r\n                    except ValueError:\r\n                        print(\"\\nInvalid Data Type\")\r\n                        continue\r\n                    if delete == 0:\r\n                        print(\"\\nExiting\")\r\n                        break\r\n                    elif delete <= len(temp_list) and delete >= 1:  # to ensure they can only input number not larger than the available lines\r\n                        confirmation = input(\"\\nAre you sure you want to delete this line? (y/n): \")\r\n                        if confirmation.lower() == \"y\":\r\n                            for line in a_lines:\r\n                                if line != temp_list[delete - 1]:\r\n                                    actual_list.append(line)  # Write the lines that don't want to be deleted into a list\r\n                            with open(\"appointment.txt\", \"w\") as w:\r\n                                w.writelines(\r\n                                    actual_list)  # write the list containing the wanted lines to the actual file\r\n                                print(\"\\nDeleted successfully\")\r\n                        elif confirmation.lower() != \"y\":\r\n                            print(\"\\nOperation cancelled\")\r\n                    elif delete not in range(\r\n                            len(temp_list) + 1):  # If they insert a number bigger than the available line number\r\n                        print(\"\\nPlease enter a valid line number\")\r\n            if found is False:\r\n                print(\"No record found\")\r\n\r\ndef alter_appointment_details():\r\n    while True:\r\n        a_lines = load_appointment()  # to put the new data inserted into the list\r\n        found = False\r\n        # -------- ALTER APPOINTMENT DETAILS --------\r\n        print(\"\\n1. Alter Doctor ID\\n\"  # No alter Patient ID because if is the patient change, its technically a new appointment\r\n            \"2. Alter Time\\n\"\r\n            \"3. Alter Date\\n\"\r\n            \"4. Alter Status\\n\"\r\n            \"5. Exit\\n\")\r\n        choice = input(\"\\nEnter your choice: \")\r\n        if choice.strip() not in [\"1\", \"2\", \"3\", \"4\", \"5\"]:\r\n            print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n            continue\r\n        elif choice.strip() == \"5\":\r\n            print(\"\\nExiting\")\r\n            break\r\n        # The \"place\" represents the respective indexes of the data in the file\r\n        elif choice.strip() == \"2\":\r\n            place = 2\r\n            menu = \"Time\"\r\n        elif choice.strip() == \"3\":\r\n            place = 1\r\n            menu = \"Date\"\r\n        elif choice.strip() == \"4\":\r\n            place = 3\r\n            menu = \"Status\"\r\n        elif choice.strip() == \"1\":\r\n            place = 5\r\n            menu = \"Doctor ID\"\r\n        else:\r\n            continue\r\n        a_id = input(\"\\nEnter Appointment ID: \")\r\n        new_value = input(f\"\\nEnter new {menu}: \")\r\n        with open(\"appointment.txt\", \"w\") as w:\r\n            for line in a_lines:\r\n                lst = line.strip().split(\",\")\r\n                if lst[0].lower() != a_id.lower():\r\n                    w.write(line)\r\n                elif lst[0].lower() == a_id.lower():\r\n                    lst[place] = new_value.title()\r\n                    w.write(f\"{lst[0]},{lst[1]},{lst[2]},{lst[3]},{lst[4]},{lst[5]}\\n\")\r\n                    found = True\r\n        if found == False:\r\n            print(\"\\nNo Records Found\")\r\n        elif found == True:\r\n            print(\"\\nAppointment Updated\")\r\n\r\n\r\ndef receptionist_main():\r\n    while True:\r\n        try:\r\n            print(\"\\n---Welcome to Receptionist---\\n\"\r\n                  \"1. View Patient Records\\n\"\r\n                  \"2. View Appointment Records\\n\"\r\n                  \"3. Alter Patient Records\\n\"\r\n                  \"4. Alter Appointment Records\\n\"\r\n                  \"5. Exit\\n\")\r\n            mode = int(input(\"\\nChoose what mode to use: \"))\r\n            if mode not in [1, 2, 3, 4, 5]:\r\n                print(\"\\nInvalid Choice, Enter a Mode\")\r\n            elif mode == 5:\r\n                print(\"\\nExiting\")\r\n                break\r\n            elif mode == 4:\r\n                alter_appointment()\r\n            elif mode == 3:\r\n                alter_patient()\r\n            elif mode == 2:\r\n                view_appointment()\r\n            elif mode == 1:\r\n                view_patient()\r\n        except ValueError:\r\n            print(\"\\nInvalid Choice, Enter a Valid Number\")\r\n        except KeyboardInterrupt:\r\n            print(\"\\nExiting\")\r\n\r\nreceptionist_main()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cashier/receptionist.py b/cashier/receptionist.py
+--- a/cashier/receptionist.py	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/cashier/receptionist.py	(date 1767704826953)
+@@ -1,3 +1,4 @@
++import datetime
+ def load_appointment():
+     try:
+         with open("appointment.txt", "r") as a:
+@@ -684,6 +685,9 @@
+                 print("\nInvalid Choice, Enter a Mode")
+             elif mode == 5:
+                 print("\nExiting")
++                with open('login/logged_out.txt','a') as l:
++                    l.write(f'[{datetime.datetime.now()}] receptionist logged out\n')
++                print('Bye. See you tomorrow. Have a great day')
+                 break
+             elif mode == 4:
+                 alter_appointment()
+@@ -698,4 +702,3 @@
+         except KeyboardInterrupt:
+             print("\nExiting")
+ 
+-receptionist_main()
+Index: login/pseudocode.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// IMPORT PYTHON LIBRARIES\r\nIMPORT base64\r\nIMPORT codecs\r\nIMPORT hashlib\r\nIMPORT datetime as dt\r\nfrom pharmacist.pharmacist import pharmasist\r\nfrom accountant.account__assistant import accountant_main, delete_receipt, user_total_details, get_receipt_list\r\n\r\nFUNCTION encrypt_password(password):\r\n\r\n    // change the password string into base64\r\n\r\n    SET password_bytes = CONVERT password string to utf-8\r\n    SET base64_encoded = ENCODE password_bytes into base64 using base64 algorithm\r\n    SET base64_string = DECODE base64_encoded into utf-8\r\n\r\n    // encode the base64 string to rot-13\r\n    SET ROT_13_encode = ENCODE base64_string to ROT-13\r\n\r\n    // encode the ROT-13 String to SHA256\r\n    SET hash_bytes = CONVERT ROT_13_encode string into utf-8 string\r\n    SET sha256_string = HASH hash_bytes into SHA256 HASH STRING \r\n    SET final_hex_representation = CONVERT sha256_string into HEX STRING\r\n    DISPLAY final_hex_representation\r\n\r\nENDFUNCTION\r\n\r\nFUNCTION register():\r\n    WHILE True DO\r\n        PROMPT USER TO ENTER THEIR EMAIL ADDRESS (user_email)\r\n\r\n        IF user_email NOT CONTAIN '@' THEN\r\n            DISPLAY 'Invalid Email'\r\n        ELSE\r\n            BREAK LOOP\r\n        ENDIF\r\n    ENDWHILE\r\n\r\n    SET email_domain to python list ['aphdoctor.aph.com','aphaccountant.aph.com','aphreceptionist.aph.com','aphpharmacist.aph.com','aphhadmin.aph.com']\r\n    TRY:\r\n        SET domain = split by '@', take the first index of user_email\r\n    \r\n        IF domain == email_domain[0]\r\n            SET role = 'Doctor'\r\n        ELSE IF domain == email_domain[1]\r\n            SET role = 'accountant'\r\n        ELSE IF domain == email_domain[2]\r\n            SET role = 'receptionist'\r\n        ELSE IF domain == email_domain[3]\r\n            SET role = 'pharmacist'\r\n        ELSE IF domain == email_domain[4]\r\n            SET role = 'administrator'\r\n        ELSE\r\n            SET role = 'patient'\r\n        ENDIF\r\n    \r\n    CATCH IndexError:\r\n        DISPLAY 'invalid email format'\r\n\r\n    ENDTRY\r\n    \r\n    PROMPT USER FOR USERNAME (trim whitespaces, replace space between characters to '_')\r\n\r\n    WHILE True DO\r\n        PROMPT USER FOR PASSWORD (password) (trim whitespaces)\r\n        \r\n        SET password_length = length of password\r\n        SET uppercase_count = 0\r\n        SET lowercase_count = 0\r\n        SET num_count = 0 \r\n        SET special_characters TO PYTHON LIST ['[','!','@','#','$','%','^','&','*','(',')','.','?','\"',':','{','}','|','<','>',']']\r\n        SET special_count = 0\r\n        SET all_valid = True\r\n\r\n        IF password_length < 12:\r\n            DISPLAY \"your password length is {password_length}. you password must have at least 12 characters\"\r\n            SET all_valid = False\r\n        ENDIF\r\n\r\n        FOR every letter in password DO\r\n            IF letter is uppercase DO\r\n                INCREMENT uppercase_count by 1\r\n            ELSE IF letter is lowercase DO\r\n                INCREMENT lowercase_count by 1\r\n            ENDIF\r\n            IF letter is numeric DO\r\n                INCREMENT num_count by 1\r\n            ENDIF\r\n        ENDFOR\r\n        \r\n        IF uppercase_count < 1 DO \r\n            DISPLAY 'your password must have at least 1 uppercase letter'\r\n            SET all_valid = False\r\n        ENDIF\r\n\r\n        IF lowercase_count < 1 DO\r\n            DISPLAY 'Your password must have at least 1 lowercase character'\r\n            SET all_valid = False\r\n        ENDIF\r\n\r\n        FOR every letter in password\r\n            IF letter is a special character DO\r\n                INCREMENT special_count by 1\r\n            ENDIF\r\n        ENDFOR\r\n\r\n        IF special_count < 1 DO\r\n            DISPLAY 'Your password must have at least 1 special characters'\r\n            SET all_valid = False\r\n        ENDIF\r\n\r\n        IF num_count < 1 DO\r\n            DISPLAY 'Your password must have at least 1 digit number'\r\n            SET all_valid = False\r\n        ENDIF\r\n\r\n        IF all_valid IS True DO \r\n            DISPLAY 'Password all match'\r\n            SET encrypted_pass = encrypt_password(password) \r\n            EXIT LOOP\r\n        ENDIF\r\n    ENDWHILE\r\n    \r\n    DISPLAY 'username: {username}, email: {user_email}, Password: {encrypted_pass} Role: {role}'\r\n\r\n    TRY:\r\n        OPEN login/user_db.txt FOR APPENDING AS f\r\n            WRITE '{username},{user_email},{password},{role}' + new line to f\r\n            DISPLAY 'User Registered succesfully'\r\n        CLOSE f\r\n    CATCH FileNotFoundError AS e:\r\n        DISPLAY 'Error: {e}'\r\n    END TRY\r\n    \r\n    TRY:\r\n        OPEN login/user_db_encrypted.txt FOR APPENDING AS fe\r\n            WRITE '{username},{user_email},{encrypt_password(password)},{role}' + new line TO fe\r\n        CLOSE fe\r\n    CATCH FileNotFoundError as e:\r\n        DISPLAY 'Error: {e}'\r\n    END TRY\r\nEND FUNCTION\r\n\r\nFUNCTION login():\r\n    SET wrong_attempt_count = 3\r\n\r\n    WHILE wrong_attempt_count NOT 0 DO \r\n\r\n        PROMPT USER TO ENTER THEIR EMAIL ADDRESS (email) (trim whitespaces)\r\n        PROMPT USER TO ENTER THEIR PASSWORD (password) (trim whitespaces)\r\n        SET enc_password = encrypt_password(password)\r\n        SET valid_user = False\r\n\r\n        OPEN login/user_db_encrypted.txt FOR READING as f\r\n            SET lines = read all lines from f\r\n\r\n            FOR EVERY line IN lines DO\r\n                SET fields = trim whitespaces, and split by comma\r\n                EXTRACT username FROM fields[0] (remove quotes)\r\n                EXTRACT file_email FROM fields[1] (remove quotes)\r\n                EXTRACT file_password FROM fields[2] (remove quotes)\r\n                EXTRACT user_role FROM fields[3] (remove quotes)\r\n            ENDFOR\r\n\r\n            IF valid_user IS True THEN\r\n                OPEN login/clocked_in.txt FOR APPENDING as cl\r\n                    GET current timestamp\r\n                    WRITE '{current timestamp}: {user_role}, {username}' + add new line TO cl\r\n                CLOSE FILE\r\n                DISPLAY 'Hello {user_role}, {username}' + add new line\r\n\r\n                IF user_role is 'Doctor' THEN\r\n                    DISPLAY 'Hello Doctor {username}'\r\n                    RETURN from FUNCTION\r\n            \r\n               ELSE IF user_role is 'accountant' THEN\r\n                    DISPLAY 'Hello accountant {username}, ready to count some money?'\r\n                    RETURN from FUNCTION\r\n\r\n                ELSE IF user_role is 'pharmacist' THEN\r\n                    DISPLAY 'Hello pharmacist {username}'\r\n                    RETURN from FUNCTION\r\n\r\n                ELSE IF user_role is 'receptionist' THEN\r\n                    DISPLAY 'Catchingg... Hello {username}'\r\n                    RETURN from FUNCTION\r\n\r\n                ELSE IF user_role is 'Administrator' THEN\r\n                    DISPLAY 'Hello Admin. lets go manage some stuffs today'\r\n                    RETURN from FUNCTION\r\n                \r\n                ELSE\r\n                    DISPLAY 'No role for you. Do you even work here?'\r\n                    BREAK \r\n                ENDIF\r\n            ELSE\r\n                DECREMENT wrong_attempt_count by 1\r\n                DISPLAY 'credentials invalid. you have {wrong_attempt_count} attempt(S) left'\r\n            ENDIF\r\n        CLOSE FILE\r\n    DISPLAY 'hacker detected, go away'\r\nEND FUNCTION\r\n\r\nFUNCTION main():\r\n    WHILE True DO\r\n        DISPLAY 'Asia Pacific Hospital HealthPlus patient management'\r\n        DISPLAY '1. Register'\r\n        DISPLAY '2. Login'\r\n        DISPLAY '3. Exit'\r\n        PROMPT USER TO ENTER THEIR OPTION AND CONVERT TO INTEGER (choice)\r\n        CASE OF choice \r\n            1: JUMP TO FUNCTION register()\r\n            2: JUMP TO FUNCTION login()\r\n            3: BREAK \r\n        ENDCASE\r\n    ENDWHILE\r\nENDFUNCTION\r\n\r\n\r\n\r\n\r\n    \r\n\r\n            \r\n    
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/login/pseudocode.txt b/login/pseudocode.txt
+--- a/login/pseudocode.txt	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/login/pseudocode.txt	(date 1767704826958)
+@@ -169,9 +169,35 @@
+                 CLOSE FILE
+                 DISPLAY 'Hello {user_role}, {username}' + add new line
+ 
+-                IF user_role is 'Doctor' THEN
+-                    DISPLAY 'Hello Doctor {username}'
+-                    RETURN from FUNCTION
++                IF user_role equals 'Doctor' THEN
++                    SET doctor_found to FALSE
++                    
++                    OPEN file 'doctor/Doctor.txt' for reading
++                        READ all lines from file into lines array
++                        
++                        FOR EACH line in lines DO
++                            REMOVE leading/trailing whitespace from line
++                            SPLIT line by comma into value array
++                            SET doctor_id to first element of value (remove whitespace)
++                            SET doctor_name to second element of value (remove whitespace)
++                            
++                            SET username_normalized to username with underscores replaced by spaces
++                            
++                            IF username_normalized equals doctor_name THEN
++                                CALL Doctor_Menu function with doctor_id parameter
++                                SET doctor_found to TRUE
++                                EXIT loop
++                            END IF
++                        END FOR
++                    CLOSE file
++                    
++                    IF doctor_found is TRUE THEN
++                        EXIT function
++                    ELSE
++                        PRINT "Doctor {username} not found in Doctor.txt"
++                        EXIT function
++                    END IF
++                END IF
+             
+                ELSE IF user_role is 'accountant' THEN
+                     DISPLAY 'Hello accountant {username}, ready to count some money?'
+Index: login/user_db_encrypted.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>Charlie_Kirk;Charlie@aphdoctor.aph.com;89c5f54459bbde105061b12505d4bce2a89bb4c91e4d5b8f72790bb4b2b36261;Doctor\r\nSpongebob_Squarepants;Spongebob@aphaccountant.aph.com;8dafd188d67e24a3ea2ff5a06bfe44df1686043d137f6a519d3359d7f6676623;accountant\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/login/user_db_encrypted.txt b/login/user_db_encrypted.txt
+--- a/login/user_db_encrypted.txt	(revision 5234a9a0a5dbc806f5049b8440f41baab6a07ea8)
++++ b/login/user_db_encrypted.txt	(date 1767704826959)
+@@ -1,2 +1,3 @@
+ Charlie_Kirk;Charlie@aphdoctor.aph.com;89c5f54459bbde105061b12505d4bce2a89bb4c91e4d5b8f72790bb4b2b36261;Doctor
+ Spongebob_Squarepants;Spongebob@aphaccountant.aph.com;8dafd188d67e24a3ea2ff5a06bfe44df1686043d137f6a519d3359d7f6676623;accountant
++John_Pork;johnpork@aphdoctor.aph.com;d08fd34c29be76fea0ca400b16eafb9799146bfe9e96febb96003973a8066840;Doctor
