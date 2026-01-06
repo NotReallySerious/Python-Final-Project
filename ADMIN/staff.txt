@@ -1,0 +1,15 @@
+admin_john,john@aphhadmin.aph.com,AdminPass123!,administrator
+admin_sarah,sarah@aphhadmin.aph.com,SecureAdmin#2024,administrator
+
+recept_mary,mary@aphreceptionist.aph.com,RecepStrong!456,receptionist
+recept_david,david@aphreceptionist.aph.com,Welcome@2025,receptionist
+
+dr_smith,smith@aphdoctor.aph.com,DocCare#789,Doctor
+dr_lee,lee@aphdoctor.aph.com,HealthPlus2025!,Doctor
+dr_kumar,kumar@aphdoctor.aph.com,ClinicDoc@321,Doctor
+
+pharma_anna,anna@aphpharmacist.aph.com,PharmaSafe!654,pharmacist
+pharma_james,james@aphpharmacist.aph.com,MedStore#987,pharmacist
+
+acct_ravi,ravi@aphaccountant.aph.com,Account$2025,accountant
+acct_linda,linda@aphaccountant.aph.com,FinanceSecure!111,accountant
