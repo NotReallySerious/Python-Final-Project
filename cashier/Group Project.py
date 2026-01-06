@@ -497,7 +497,6 @@ def delete_appointment_by_line():
             print(count, line.strip())
             count += 1
         try:
-            done = False
             to_delete = int(input("\nEnter line number to delete or enter 0 to exit: "))
             if to_delete == 0:
                 break
