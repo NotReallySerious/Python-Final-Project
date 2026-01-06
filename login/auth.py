@@ -4,6 +4,8 @@ import hashlib
 import datetime as dt
 from pharmacist.pharmacist import pharmasist
 from accountant.account__assistant import accountant_main, delete_receipt, get_user_total_details, get_receipt_list
+from doctor.Doctor import Doctor_Menu
+from cashier.receptionist import receptionist_main
 
 def encrypt_password(password):
     #change password into bytes before encoding
@@ -140,8 +142,26 @@ def login():
                 print(f'Hello {user_role}, {username}\n')
 
                 if user_role == 'Doctor':
-                    print(f'Hello Doctor {username}')
-                    return
+                    doctor_found = False
+                    with open('doctor/Doctor.txt','r') as f:
+                        lines = f.readlines()
+                        for line in lines:
+                            value = line.strip().split(',')
+                            doctor_id = value[0].strip()
+                            doctor_name = value[1].strip()
+
+                            username_normalized = username.replace('_', ' ')
+                            
+                            if username_normalized == doctor_name:
+                                Doctor_Menu(doctor_id)
+                                doctor_found = True
+                                break
+                    
+                    if doctor_found:
+                        return
+                    else:
+                        print(f"Doctor {username} not found in Doctor.txt")
+                        return
 
                 elif user_role == 'accountant':
                     print(f'Hello accountant {username}, ready to count some money?')
@@ -183,5 +203,9 @@ def main():
                 register()
             case 2:
                 login()
+            case 3:
+                print('Thank you for using APH HealthPlus')
+                break
 
-main()
+if __name__ == "__main__":
+    main()

@@ -698,4 +698,3 @@ def receptionist_main():
         except KeyboardInterrupt:
             print("\nExiting")
 
-receptionist_main()
