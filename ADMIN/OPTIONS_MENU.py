@@ -29,7 +29,8 @@ what is your choice? (enter a number 1-3)"""))
                         if chooseusers== "1":
                             register()
                         elif chooseusers == "2":
-                            ##UpdateUsers()
+                            username = input("Enter username to delete: ")
+                            update_member(username)
                         elif chooseusers == "3":
                             ##DeleteUsers()
                         elif chooseusers == "4":
@@ -110,58 +111,70 @@ what is your choice? (enter number 1-2)"""))
     except ValueError:
         print("Please enter a number.")
 
-def UpdateUsers():
-    def update_user():
-        user_id = input("Enter the username of the user to update: ").strip()
+def update_member(username):
+    with open("login/user_db.txt", "r") as file:
+        lines = file.readlines()
 
-        try:
-            with open("login/user_db.txt", "r") as file:
-                lines = file.readlines()
+    updated = False
+    with open("login/user_db.txt", "w") as file, open("login/user_db_encrypted.txt", "w") as enc_file:
+        for line in lines:
+            stored_username, stored_email, stored_password, stored_role = line.strip().split(",")
 
-            updated_lines = []
-            found = False
+            if stored_username == username:
+                print("\nWhat would you like to update?")
+                print("1. Email")
+                print("2. Password")
+                print("3. Role")
+                choice = input("Enter choice (1-3): ")
 
-            for line in lines:
-                fields = line.strip().split(";")
-                existing_username = fields[0]
+                if choice == "1":
+                    new_email = input("Enter new email: ")
+                    # EMAIL CHECKING
+                    if "@" not in new_email or "." not in new_email.split("@")[-1]:
+                        print("Invalid email format. Update failed.")
+                        file.write(line)
+                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
+                    else:
+                        file.write(f"{stored_username},{new_email},{stored_password},{stored_role}\n")
+                        enc_file.write(f"{stored_username},{new_email},{encrypt_password(stored_password)},{stored_role}\n")
+                        print("Email updated successfully.")
 
-                if existing_username == user_id:
-                    found = True
-                    print("Current record:", line.strip())
+                elif choice == "2":
+                    new_password = input("Enter new password: ")
+                    # PASSWORD CHECKING
+                    if len(new_password) < 8 or not any(char.isdigit() for char in new_password):
+                        print("Password must be at least 8 characters and contain a number. Update failed.")
+                        file.write(line)
+                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
+                    else:
+                        file.write(f"{stored_username},{stored_email},{new_password},{stored_role}\n")
+                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(new_password)},{stored_role}\n")
+                        print("Password updated successfully.")
 
-                    print("\nWhich fields do you want to update?")
-                    print("Options: username, email, password, role")
-                    choices = input("Enter fields (comma-separated): ").replace(" ", "").split(",")
+                elif choice == "3":
+                    new_role = input("Enter new role: ")
+                    # DOMAIN ROLE CHECKING
+                    allowed_roles = ["admin", "user", "staff"]
+                    if new_role.lower() not in allowed_roles:
+                        print("Invalid role. Must be one of: admin, user, staff. Update failed.")
+                        file.write(line)
+                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
+                    else:
+                        file.write(f"{stored_username},{stored_email},{stored_password},{new_role}\n")
+                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{new_role}\n")
+                        print("Role updated successfully.")
 
-                    for choice in choices:
-                        if choice.lower() == "username":
-                            fields[0] = input("Enter new username: ").strip()
-                        elif choice.lower() == "email":
-                            fields[1] = input("Enter new email: ").strip()
-                        elif choice.lower() == "password":
-                            fields[2] = input("Enter new password: ").strip()
-                        elif choice.lower() == "role":
-                            fields[3] = input("Enter new role: ").strip()
-                        else:
-                            print(f"Invalid choice: {choice}")
-
-                    new_line = ";".join(fields) + "\n"
-                    updated_lines.append(new_line)
                 else:
-                    updated_lines.append(line)
+                    print("Invalid choice. No changes made.")
+                    file.write(line)
+                    enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
 
-            with open("login/user_db.txt", "w") as file:
-                file.writelines(updated_lines)
-
-            if found:
-                print(f"User {user_id} updated successfully.")
+                updated = True
             else:
-                print(f"Error: User {user_id} not found.")
-
-        except FileNotFoundError:
-            print("Error: user_db.txt file not found.")
-        except Exception as e:
-            print("Error while updating user:", str(e))
+                file.write(line)
+                enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
+    if not updated:
+        print("Username not found. No updates made.")
 def DeleteUsers():
         user_id = input("Enter the User ID to delete: ")
         try:
@@ -202,15 +215,15 @@ def med_remove():
         count = int(input("How many medicine do you want to remove? "))
         for i in range(0,count):
                 while True:
-                    barcode = int(input(f"Enter medicine barcode (less than 6 digits): "))
+                    barcode = int(input(f"Enter medicine barcode (5 digits): "))
                     # Validation: must be digits and length < 6
-                    if len(barcode) < 6:
+                    if len(barcode) == 5:
                         with open("med_remove.txt", "w") as file:
-                            file.write(barcode + "\n")
-                        print(f"Barcode {barcode} recorded (replaced previous).")
+                            file.write(barcode , "\n")
+                        print(f"Barcode {barcode} recorded.")
                         break
                     else:
-                        print("Invalid barcode. Must be numeric and less than 6 digits. Try again.")
+                        print("Invalid barcode. Must be numeric and 5 digits. Try again.")
         print("Final barcode saved to med_remove.txt.")
     except ValueError:
         print("Error: Please enter a valid number for how many medicines to remove.")
