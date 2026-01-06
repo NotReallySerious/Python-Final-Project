@@ -379,6 +379,7 @@ def accountant_main():
                 print('Bye. See you tomorrow. Have a great day')
                 break
 
+accountant_main()
 
 
 

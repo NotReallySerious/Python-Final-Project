@@ -32,7 +32,8 @@ what is your choice? (enter a number 1-3)"""))
                             username = input("Enter username to update: ")
                             update_member(username)
                         elif chooseusers == "3":
-                            delete_member()
+                            username = input("Enter username to delete: ")
+                            delete_member(username)
                         elif chooseusers == "4":
                             break
                         else:
@@ -175,7 +176,6 @@ def update_member(username):
                 enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
     if not updated:
         print("Username not found. No updates made.")
-
 def delete_member(username):
     try:
         with open("login/user_db.txt", "r") as file:
@@ -204,7 +204,6 @@ def delete_member(username):
 
     if not deleted:
         print("Username not found. No deletion performed.")
-
 def med_remove():
     try:
         count = int(input("How many medicine do you want to remove? "))
