@@ -264,7 +264,7 @@ def report():
         print("\n\n")
 
 def banner():
-    with open("medicine_stock.txt", "r") as file:
+    with open("pharmacist/medicine_stock.txt", "r") as file:
         reader = csv.reader(file)
         out_of_stock = [row for row in reader if len(row) >= 3 and int(row[2]) == 0]
 
