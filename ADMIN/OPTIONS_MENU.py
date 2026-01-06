@@ -29,10 +29,10 @@ what is your choice? (enter a number 1-3)"""))
                         if chooseusers== "1":
                             register()
                         elif chooseusers == "2":
-                            username = input("Enter username to delete: ")
+                            username = input("Enter username to update: ")
                             update_member(username)
                         elif chooseusers == "3":
-                            ##DeleteUsers()
+                            delete_member()
                         elif chooseusers == "4":
                             break
                         else:
@@ -175,41 +175,36 @@ def update_member(username):
                 enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
     if not updated:
         print("Username not found. No updates made.")
-def DeleteUsers():
-        user_id = input("Enter the User ID to delete: ")
-        try:
-            # Step 1: Read all records
-            with open("user_db.txt", "r") as file:
-                lines = file.readlines()
 
-            updated_lines = []
-            found = False
+def delete_member(username):
+    try:
+        with open("login/user_db.txt", "r") as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        print("Error: login/user_db.txt not found.")
+        return
 
-            # Step 2: Search for the user
+    deleted = False
+    try:
+        with open("login/user_db.txt", "w") as file, open("login/user_db_encrypted.txt", "w") as enc_file:
             for line in lines:
-                fields = line.strip().split("|")
-                existing_id = fields[0]
+                stored_username, stored_email, stored_password, stored_role = line.strip().split(",")
 
-                if existing_id == user_id:
-                    found = True
-                    print("Deleting record:", line.strip())
-                    # Skip adding this line to updated_lines (effectively deleting it)
+                if stored_username == username:
+                    # Skip writing this line → deletion
+                    print(f"User '{stored_username}' deleted successfully.")
+                    deleted = True
                 else:
-                    updated_lines.append(line)
+                    # Keep other users intact
+                    file.write(line)
+                    enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
 
-            # Step 3: Rewrite file without the deleted record
-            with open("user_db.txt", "w") as file:
-                file.writelines(updated_lines)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
 
-            if found:
-                print(f"User {user_id} deleted successfully.")
-            else:
-                print(f"Error: User ID {user_id} not found.")
+    if not deleted:
+        print("Username not found. No deletion performed.")
 
-        except FileNotFoundError:
-            print("Error: user_db.txt file not found.")
-        except Exception as e:
-            print("Error while deleting user:", str(e))
 def med_remove():
     try:
         count = int(input("How many medicine do you want to remove? "))
