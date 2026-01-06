@@ -1,0 +1,134 @@
+Index: accountant/account__assistant.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import os\r\nimport datetime\r\n\r\ndef redo_action(prompt):\r\n    while True:\r\n        choice = input(f'{prompt}? (yes/no): ').strip().lower()\r\n        if choice in ('yes','y'):\r\n            return True\r\n        elif choice in ('no','n'):\r\n            return False\r\n        else:\r\n            print(\"Invalid Value. please enter 'yes', or 'no'.\")\r\n        \r\ndef get_user_total_details():\r\n    try:\r\n        with open('accountant/receipt_id.txt','r') as re:\r\n            last_id = int(re.read())\r\n    except FileNotFoundError:\r\n        last_id = 0\r\n    \r\n    receipt_id = last_id + 1\r\n    receipt_id_str = str(receipt_id)\r\n\r\n    patient_name = input('Enter patient name to be totalled: ').strip()\r\n    receipt_details = []\r\n    found = False\r\n    total = 0.00\r\n    Date_Entry = \"\"\r\n    with open('accountant/patient_billing_record.txt','r') as user_sum:\r\n        for user in user_sum:\r\n            if not user.strip():\r\n                continue\r\n\r\n            line = user.strip().split(';')\r\n\r\n            if len(line) < 5:\r\n                continue\r\n            try:\r\n                Date_Entry = line[0].strip().split(',')\r\n                username = line[1].strip()\r\n                item_name = line[2].strip()\r\n                Quantity = int(line[3].strip())\r\n                price = float(line[4].strip())\r\n            except (ValueError, IndexError):\r\n                continue\r\n\r\n            if username == patient_name:\r\n                found = True\r\n                item_total = Quantity * price\r\n                total += item_total\r\n                receipt_details.append(f\"{item_name} x {Quantity} = {item_total:.2f}\")\r\n            \r\n        if not found:\r\n            print(f'no records found for patient: {patient_name}')\r\n            if not redo_action('Create Another receipt'):\r\n                return\r\n            else:\r\n                get_user_total_details()\r\n                return\r\n    \r\n    # Display and store them into a different username billing receipts\r\n    receipt_path = f\"accountant/{patient_name.replace(\" \",\"_\")}_receipt.txt\"\r\n    try:\r\n        with open(receipt_path, 'a') as receipt:\r\n            receipt.write(\"Asia Pacific Hospital receipt\\n\")\r\n            receipt.write(\"================================\\n\")\r\n            receipt.write(f\"Receipt Id: {receipt_id_str}\\n\")\r\n            receipt.write(f\"Name : {patient_name.replace('_',' ')}\\n\")\r\n            receipt.write(f\"Time created: {Date_Entry}\\n\")\r\n            receipt.write(\"================================\\n\")\r\n            for i in receipt_details:\r\n                receipt.write(i + '\\n')\r\n            receipt.write(f\"Total Amount: {total:.2f}\\n\")\r\n        \r\n        print(f'receipt created successfully at {receipt_path}')\r\n\r\n    except Exception as e:\r\n        print(f\"Error creating receipt: {e}\")\r\n    \r\n    try:\r\n        with open('accountant/receipt_db.txt','a') as rl:\r\n            rl.write(f\"{receipt_id_str}: {patient_name}\\n\")\r\n        \r\n        with open('receipt_id.txt', 'w') as re:\r\n            re.write(str(receipt_id))\r\n        \r\n        print(f\"{patient_name}'s receipt has been created\")\r\n        \r\n    except Exception as e: \r\n        print(f\"Error inserting receipt into the list: {e}\") \r\n    \r\n    if not redo_action('Create another receipt'):\r\n        return\r\n\r\ndef get_receipt_list():\r\n    receipts = {}\r\n    current_id = 1\r\n    with open('accountant/receipt_db.txt','r') as rl:\r\n        lines = rl.readlines()\r\n        for line in lines:\r\n\r\n            patient_name = line.split(':')[1].strip()\r\n\r\n            receipts[current_id] = patient_name\r\n            print(f'{current_id}. {patient_name}')\r\n\r\n            current_id += 1\r\n    \r\n    print('Enter the ID to view the receipt details (00 to exit)')\r\n    while True:\r\n        choice = input('>>> ')\r\n\r\n        if choice == '00':\r\n            break\r\n\r\n        try:\r\n            choice = int(choice)\r\n        except ValueError:\r\n            print('invalid ID')\r\n            continue\r\n            \r\n        if choice in receipts:\r\n            patient_name = receipts[choice]\r\n            receipt_file = f\"accountant/{patient_name.lower().replace(' ','_')}_receipt.txt\"\r\n        else:\r\n            print('invalid ID')\r\n            continue\r\n\r\n        try:\r\n            with open(receipt_file, 'r') as file:\r\n                print(f\" Receipt for {patient_name}\")\r\n                print(file.read())\r\n        except FileNotFoundError:\r\n            print(f'Error : receipt for {patient_name} cant be found')\r\n\r\n        if not redo_action('see another receipt'):\r\n            return\r\n\r\ndef delete_receipt():\r\n    receipts = {}\r\n    current_id = 1\r\n    with open('accountant/receipt_db.txt','r') as rl:\r\n        lines = rl.readlines()\r\n        for line in lines:\r\n\r\n            patient_name = line.split(':')[1].strip()\r\n\r\n            receipts[current_id] = patient_name\r\n            print(f'{current_id}. {patient_name}')\r\n\r\n            current_id += 1\r\n    \r\n    print('Enter the receipt ID to Delete (00 to exit)')\r\n    while True:\r\n        choice = input('>>> ')\r\n\r\n        if choice == '00':\r\n            break\r\n\r\n        if not lines:\r\n            print(\"No receipts to delete\")\r\n            return\r\n\r\n        try:\r\n            choice = int(choice)\r\n        except ValueError:\r\n            print('invalid ID')\r\n            continue\r\n            \r\n        if choice in receipts:\r\n            patient_name = receipts[choice]\r\n            receipt_file = f\"accountant/{patient_name.lower().replace(' ','_')}_receipt.txt\"\r\n        else:\r\n            print('invalid ID')\r\n            continue\r\n\r\n        if os.path.exists(receipt_file):\r\n            os.remove(receipt_file)\r\n            print(f\"{patient_name}'s receipt has been deleted\")\r\n        else: \r\n            print(f\"receipt for {patient_name} not found\")\r\n\r\n        del lines[choice - 1]\r\n\r\n        with open('accountant/receipt_db.txt', 'w') as rl:\r\n            rl.writelines(lines)    \r\n        \r\n        print('Receipt deleted successfully')\r\n\r\n        if not redo_action('delete another receipt'):\r\n            return\r\n\r\ndef daily_summary():\r\n    patient_count = 0\r\n    med_sold = {}\r\n    patients = set()\r\n    total = 0\r\n    Date = \"\"\r\n    VALID_DATE = False\r\n\r\n    while not VALID_DATE:\r\n        Date = input('Enter the date to generate summary (YYYY-MM-DD) or press Enter for today: ').strip()\r\n\r\n        if not Date:\r\n            Date = datetime.date.today().strftime('%Y-%m-%d')\r\n            print(f\"Using today's date: {Date}\")\r\n            VALID_DATE = True  \r\n        else:\r\n            try:\r\n                datetime.datetime.strptime(Date, '%Y-%m-%d')\r\n                VALID_DATE = True \r\n            except ValueError:\r\n                print(\"Invalid date format! Please use YYYY-MM-DD (e.g., 2025-12-30)\")\r\n\r\n\r\n    with open('accountant/patient_billing_record.txt','r') as f:\r\n        lines = f.readlines()\r\n        for line in lines:\r\n\r\n            if not line.strip():\r\n                continue\r\n            part = line.strip().split(';')\r\n            date = part[0].strip().replace(\"'\",\"\")\r\n            patient_name = part[1].strip().replace(\"'\",\"\")\r\n            item_name = part[2].strip().replace(\"'\",\"\")\r\n            quantity = int(part[3].strip())\r\n            price = float(part[4].strip())\r\n\r\n            if Date == date:\r\n                patients.add(patient_name)\r\n                med_sold[item_name] = med_sold.get(item_name, 0) + quantity\r\n                total += (quantity * price)\r\n\r\n        patient_count = len(patients)\r\n    \r\n    if patient_count == 0:\r\n        print(f'no transaction found for {Date}')\r\n        return\r\n    \r\n    summary_file_path = f\"accountant/{Date}_daily_summary.txt\"\r\n\r\n    with open(summary_file_path, 'w') as sum: \r\n        sum.write(f\"Asia Pacific Hospital Healthplus Sales Summary\\n\")\r\n        sum.write(\"============================\\n\")\r\n        sum.write(f\"Date: {Date}\\n\")\r\n        sum.write(f\"Total Patients: {patient_count}\\n\")\r\n        sum.write(\"items sold:\\n\")\r\n        for item, quantity in sorted(med_sold.items()):\r\n            sum.write(f\"{item}: {quantity} x {price} = {quantity * price}\\n\")\r\n        \r\n        sum.write(\"=================================\\n\")\r\n        sum.write(f\"Total Income = RM.{total:.2f}\\n\")\r\n    \r\n    print(f\"Daily Summary for today is saved on {summary_file_path}\")\r\n\r\n    if not redo_action('Generate another summary'):\r\n        return\r\n\r\ndef add_new_med_stock():\r\n    with open('pharmacist/med_stock_low.txt','r') as f:\r\n        info = f.readlines()\r\n        for line in info:\r\n            element = line.strip().split(',')\r\n            code = element[0]\r\n            Name = element[1]\r\n            stock = int(element[2])\r\n            Price = float(element[3])\r\n            Demands = element[4]\r\n            print(\"Barcode, Name, Stock, Price, Demand\")\r\n            print(f\"{code}, {Name}, {stock}, {Price}, {Demands}\\n\")\r\n    \r\n    barcode = int(input(\"Enter Medicine's QR code: \"))\r\n    med_name = input('Enter medicine name: ').replace(' ', '_')\r\n    quantity = int(input(\"Enter quantity: \"))\r\n    price = float(input(\"Enter the price: \"))\r\n    demand = input(\"Enter demand [low, medium, high]: \").title()\r\n    if demand not in ['Low', 'Medium', 'High']:\r\n        print('Wrong demand type.')\r\n    else:\r\n        with open('pharmacist/med_new_stock.txt','w') as p:\r\n            p.write(f\"{barcode},{med_name},{quantity},{price},{demand}\")\r\n        with open('pharmacist/medicine_stock.txt', 'a') as m:\r\n            m.write(f\"{barcode},{med_name},{quantity},{price}\")\r\n\r\n        print('Item has been added to the list')\r\n\r\n    if not redo_action(\"Want to enter another medicine? (yes/no): \"):\r\n        return\r\n        \r\ndef update_quantity_med():\r\n    existing_meds = {}\r\n    with open('pharmacist/med_db.txt', 'r') as p:\r\n        lines = p.readlines()\r\n        for line in lines:\r\n            values = line.strip().split(',')\r\n            Barcode = values[0]\r\n            med_name = values[1]\r\n            quantity = values[2]\r\n            price = values[3]\r\n            demand = values[4]\r\n            existing_meds[Barcode] = {\r\n                'Name' : med_name,\r\n                'Quantity' : int(quantity),\r\n                'Price' : price,  \r\n                'Demand' : demand\r\n            }\r\n    \r\n    select_item_barcode = str(int(input('Enter the medicine barcode: ')))\r\n    if select_item_barcode in existing_meds:\r\n        print(f\"Medicine name: {existing_meds[select_item_barcode]['Name']}\")\r\n        print(f\"Quantity: {existing_meds[select_item_barcode]['Quantity']}\")\r\n\r\n        add_quantity = int(input(\"enter the quantity to be added: \"))\r\n        existing_meds[select_item_barcode]['Quantity'] += add_quantity\r\n        \r\n        print(f\"New quantity: {existing_meds[select_item_barcode]['Quantity']}\")\r\n        print(\"Quantity updated successfully!\")\r\n\r\n        demand = input(\"Enter demand [low, medium, high]: \").title()\r\n        if demand not in ['Low', 'Medium', 'High']:\r\n            print('Wrong demand type.')\r\n        else:\r\n            with open('pharmacist/med_update_stock.txt','w') as up:\r\n                up.write(f\"{select_item_barcode},{existing_meds[select_item_barcode]['Name']},{existing_meds[select_item_barcode]['Quantity']},{existing_meds[select_item_barcode]['Price']},{demand}\\n\")                \r\n                print(\"Item quantity updated\")\r\n    if not redo_action('Add another item quantity? (yes/no) '):\r\n        return\r\n\r\ndef accountant_main():\r\n    while True:\r\n        print('Accountant management dashboard')\r\n        print(\"1. Create Billing Receipt\")\r\n        print(\"2. View all receipts\")\r\n        print(\"3. Delete receipt(s)\")\r\n        print(\"4. Daily Summary Generator\")\r\n        print(\"5. Add new medicine to stock\")\r\n        print(\"6. Update existing medicine(s) stock\")\r\n        print(\"7. Log out\")    \r\n        choice = input(\"> \")\r\n        match choice:\r\n            case '1':\r\n                get_user_total_details()\r\n            case '2':\r\n                get_receipt_list()\r\n            case '3':\r\n                delete_receipt()\r\n            case '4':\r\n                daily_summary()\r\n            case '5':\r\n                add_new_med_stock()\r\n            case '6':\r\n                update_quantity_med()\r\n            case '7':\r\n                with open('login/logged_out.txt','a') as l:\r\n                    l.write(f'[{datetime.datetime.now()}] accountant logged out\\n')\r\n                print('Bye. See you tomorrow. Have a great day')\r\n                break\r\n\r\naccountant_main()\r\n\r\n\r\n\r\n\r\n\r\n    \r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/accountant/account__assistant.py b/accountant/account__assistant.py
+--- a/accountant/account__assistant.py	(revision 6f77b446f7bfd4f676edcc7595fb8fdf1dffd834)
++++ b/accountant/account__assistant.py	(date 1767709325545)
+@@ -257,60 +257,80 @@
+         return
+ 
+ def add_new_med_stock():
+-    with open('pharmacist/med_stock_low.txt','r') as f:
+-        info = f.readlines()
+-        for line in info:
+-            element = line.strip().split(',')
+-            code = element[0]
+-            Name = element[1]
+-            stock = int(element[2])
+-            Price = float(element[3])
+-            Demands = element[4]
+-            print("Barcode, Name, Stock, Price, Demand")
+-            print(f"{code}, {Name}, {stock}, {Price}, {Demands}\n")
++    try:
++        with open('pharmacist/med_stock_low.txt','r') as f:
++            info = f.readlines()
++            if info:  
++                print("Current medicines in stock:")
++                print("Barcode, Name, Stock, Price, Demand")
++                for line in info:
++                    element = line.strip().split(',')
++                    code = element[0]
++                    Name = element[1]
++                    stock = int(element[2])
++                    Price = float(element[3])
++                    Demands = element[4]
++                    print(f"{code}, {Name}, {stock}, {Price}, {Demands}\n")
++            else:
++                print("No medicines in database yet.")
++    except FileNotFoundError:
++        print("Medicine database file not found. Starting fresh.")
+     
+     barcode = int(input("Enter Medicine's QR code: "))
+     med_name = input('Enter medicine name: ').replace(' ', '_')
+     quantity = int(input("Enter quantity: "))
+     price = float(input("Enter the price: "))
+     demand = input("Enter demand [low, medium, high]: ").title()
++    
+     if demand not in ['Low', 'Medium', 'High']:
+         print('Wrong demand type.')
+     else:
+         with open('pharmacist/med_new_stock.txt','w') as p:
+-            p.write(f"{barcode},{med_name},{quantity},{price},{demand}")
+-        with open('pharmacist/medicine_stock.txt', 'a') as m:
+-            m.write(f"{barcode},{med_name},{quantity},{price}")
++            p.write(f"{barcode},{med_name},{quantity},{price},{demand}\n")
++        with open('pharmacist/med_db.txt', 'a') as m:  
++            m.write(f"{barcode},{med_name},{quantity},{price}\n")  
+ 
+         print('Item has been added to the list')
+ 
+     if not redo_action("Want to enter another medicine? (yes/no): "):
+         return
+-        
++
+ def update_quantity_med():
+     existing_meds = {}
+-    with open('pharmacist/med_db.txt', 'r') as p:
+-        lines = p.readlines()
+-        for line in lines:
+-            values = line.strip().split(',')
+-            Barcode = values[0]
+-            med_name = values[1]
+-            quantity = values[2]
+-            price = values[3]
+-            demand = values[4]
+-            existing_meds[Barcode] = {
+-                'Name' : med_name,
+-                'Quantity' : int(quantity),
+-                'Price' : price,  
+-                'Demand' : demand
+-            }
++    try:
++        with open('pharmacist/med_db.txt', 'r') as p:
++            lines = p.readlines()
++            if not lines:
++                print("No medicines in database.")
++                return
++                
++            print("Current medicines in stock:")
++            print("Barcode, Name, Quantity, Price, Demand")
++            for line in lines:
++                values = line.strip().split(',')
++                Barcode = values[0]
++                med_name = values[1]
++                quantity = values[2]
++                price = values[3]
++                demand = values[4]
++                existing_meds[Barcode] = {
++                    'Name' : med_name,
++                    'Quantity' : int(quantity),
++                    'Price' : price,  
++                    'Demand' : demand
++                }
++                print(f"{Barcode}, {med_name}, {quantity}, {price}, {demand}")
++            print()  # Empty line for spacing
++    except FileNotFoundError:
++        print("Medicine database file not found.")
++        return
+     
+     select_item_barcode = str(int(input('Enter the medicine barcode: ')))
+     if select_item_barcode in existing_meds:
+         print(f"Medicine name: {existing_meds[select_item_barcode]['Name']}")
+         print(f"Quantity: {existing_meds[select_item_barcode]['Quantity']}")
+ 
+-        add_quantity = int(input("enter the quantity to be added: "))
++        add_quantity = int(input("Enter the quantity to be added: "))
+         existing_meds[select_item_barcode]['Quantity'] += add_quantity
+         
+         print(f"New quantity: {existing_meds[select_item_barcode]['Quantity']}")
+@@ -323,7 +343,10 @@
+             with open('pharmacist/med_update_stock.txt','w') as up:
+                 up.write(f"{select_item_barcode},{existing_meds[select_item_barcode]['Name']},{existing_meds[select_item_barcode]['Quantity']},{existing_meds[select_item_barcode]['Price']},{demand}\n")                
+                 print("Item quantity updated")
+-    if not redo_action('Add another item quantity? (yes/no) '):
++    else:
++        print("Medicine barcode not found.")
++                
++    if not redo_action('Add another item quantity? (yes/no): '):
+         return
+ 
+ def accountant_main():

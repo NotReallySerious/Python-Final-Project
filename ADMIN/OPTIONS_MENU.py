@@ -50,11 +50,11 @@ what is your choice? (enter a number 1-3)"""))
     *************************************
                         what is your choice? (enter number 1-3)"""))
                         if choosedocrecs == "1":
-                            ##add function here
+                            add_doctor()
                         elif choosedocrecs== "2":
-                            ##add function
+                            update_doctor()
                         elif choosedocrecs== "3":
-                            ##add function
+                            delete_doctor()
                         elif choosedocrecs== "4":
                             break
                         else:
@@ -256,6 +256,62 @@ def read_staff():
 
     except FileNotFoundError:
         print("Error: hospital_staff.txt file not found.")
+def add_doctor():
+    doctor_id = input("Enter doctor ID: ").strip()
+    doctor_name = input("Enter doctor name: ").strip()
+
+    try:
+        with open("doctor.txt", "a") as file:
+            file.write(f"{doctor_id},{doctor_name}\n")
+        print("Doctor added successfully.")
+    except FileNotFoundError:
+        print("Error: doctor.txt file not found.")
+def update_doctor():
+    doctor_id = input("Enter doctor ID to update: ").strip()
+    new_name = input("Enter new doctor name: ").strip()
+
+    try:
+        with open("doctor.txt", "r") as file:
+            lines = file.readlines()
+
+        updated = False
+        with open("doctor.txt", "w") as file:
+            for line in lines:
+                stored_id, stored_name = line.strip().split(",")
+                if stored_id == doctor_id:
+                    file.write(f"{stored_id},{new_name}\n")
+                    updated = True
+                    print("Doctor updated successfully.")
+                else:
+                    file.write(line)
+
+        if not updated:
+            print("Doctor ID not found. No updates made.")
+
+    except FileNotFoundError:
+        print("Error: doctor.txt file not found.")
+def delete_doctor():
+    doctor_id = input("Enter doctor ID to delete: ").strip()
+
+    try:
+        with open("doctor.txt", "r") as file:
+            lines = file.readlines()
+
+        deleted = False
+        with open("doctor.txt", "w") as file:
+            for line in lines:
+                stored_id, stored_name = line.strip().split(",")
+                if stored_id == doctor_id:
+                    deleted = True
+                    print(f"Doctor {stored_name} (ID: {stored_id}) deleted successfully.")
+                else:
+                    file.write(line)
+
+        if not deleted:
+            print("Doctor ID not found. No deletion performed.")
+
+    except FileNotFoundError:
+        print("Error: doctor.txt file not found.")
 
 menu()
 
