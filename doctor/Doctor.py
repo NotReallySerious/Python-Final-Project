@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> ee1c32b6395a4a1a2f9c95950f97475b0cfd4e7d
 from accountant.account__assistant import redo_action
 
 
