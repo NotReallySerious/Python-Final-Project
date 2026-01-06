@@ -283,6 +283,101 @@ FUNCTION daily_summary():
     ENDIF
 ENDFUNCTION
 
+FUNCTION add_new_med_stock():
+    OPEN file 'pharmacist/med_stock_low.txt' in read mode as f
+        READ all lines from file into info array
+        FOR each line in info DO
+            REMOVE whitespace from line and SPLIT by comma into element array
+            SET code = element[0]
+            SET Name = element[1]
+            SET stock = element[2] as integer
+            SET Price = element[3] as float
+            SET Demands = element[4]
+            DISPLAY "Barcode, Name, Stock, Price, Demand"
+            DISPLAY code, Name, stock, Price, Demands with newline
+        END FOR
+    CLOSE file
+    
+    prompt user for barcode with prompt "Enter Medicine's QR code: "
+    prompt user for medicine name as string with prompt "Enter medicine name: "
+    REPLACE all spaces in med_name with underscores
+    prompt user for quantity in integer with prompt "Enter quantity: "
+    prompt user for price in float with prompt "Enter the price: "
+    prompt user for demand with prompt "Enter demand [low, medium, high]: "
+    CONVERT demand to title case
+    
+    IF demand is NOT in ['Low', 'Medium', 'High'] THEN
+        DISPLAY 'Wrong demand type.'
+    ELSE
+        OPEN file 'pharmacist/med_new_stock.txt' in write mode as p
+            WRITE to p: barcode, med_name, quantity, price, demand (comma-separated)
+        CLOSE file
+        
+        OPEN file 'pharmacist/medicine_stock.txt' in append mode as m
+            WRITE to m: barcode, med_name, quantity, price (comma-separated)
+        CLOSE file
+        
+        DISPLAY 'Item has been added to the list'
+    END IF
+    
+    IF NOT redo_action("Want to enter another medicine? (yes/no): ") THEN
+        RETURN from function
+    END IF
+END FUNCTION
+
+
+FUNCTION update_quantity_med():
+    INITIALIZE empty dictionary existing_meds
+    
+    OPEN file 'pharmacist/med_db.txt' in read mode as p
+        READ all lines from file into lines array
+        FOR each line in lines DO
+            REMOVE whitespace from line and SPLIT by comma into values array
+            SET Barcode = values[0]
+            SET med_name = values[1]
+            SET quantity = values[2]
+            SET price = values[3]
+            SET demand = values[4]
+            
+            CREATE entry in existing_meds with key Barcode containing:
+                Name: med_name
+                Quantity: quantity as integer
+                Price: price
+                Demand: demand
+        END FOR
+    CLOSE file
+    
+    prompt user for barcode in string with prompt "Enter the medicine barcode: "
+    CONVERT to string of integer (removes leading zeros)
+    SET select_item_barcode = converted barcode
+    
+    IF select_item_barcode exists in existing_meds THEN
+        DISPLAY "Medicine name: " + existing_meds[select_item_barcode]['Name']
+        DISPLAY "Quantity: " + existing_meds[select_item_barcode]['Quantity']
+        
+        INPUT add_quantity as integer with prompt "enter the quantity to be added: "
+        ADD add_quantity to existing_meds[select_item_barcode]['Quantity']
+        
+        DISPLAY "New quantity: " + existing_meds[select_item_barcode]['Quantity']
+        DISPLAY "Quantity updated successfully!"
+        
+        INPUT demand as string with prompt "Enter demand [low, medium, high]: "
+        CONVERT demand to title case
+        
+        IF demand is NOT in ['Low', 'Medium', 'High'] THEN
+            DISPLAY 'Wrong demand type.'
+        ELSE
+            OPEN file 'pharmacist/med_update_stock.txt' in write mode as up
+                WRITE to up: select_item_barcode, Name, Quantity, Price, demand (comma-separated) with newline
+            CLOSE file
+            DISPLAY "Item quantity updated"
+        END IF
+    END IF
+    
+    IF NOT redo_action('Add another item quantity? (yes/no) ') THEN
+        RETURN from function
+    END IF
+END FUNCTION
 
 FUNCTION accountant_main():
     WHILE TRUE DO
@@ -290,7 +385,10 @@ FUNCTION accountant_main():
         DISPLAY '1. Create Billing Dashboard'
         DISPLAY '2. View all receipts'
         DISPLAY '3. Delete Receipt(s)'
-        DISPLAY '4. Log Out'
+        DISPLAY '4. Generate Daily Summary'
+        DISPLAY '5. Add new item(s) to medicine stock'
+        DISPLAY '6. Update existing medicine(s) stock'
+        DISPLAY '7. Log Out'
 
         PROMPT USER TO ENTER CHOICE (choice)
         CASE OF choice

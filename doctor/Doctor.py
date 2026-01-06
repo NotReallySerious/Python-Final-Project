@@ -1,5 +1,5 @@
-import accountant
-from accountant.account__assistant import redo_action
+from accountant import account__assistant
+
 
 def get_doctor_name(doctor_id):
     with open('doctor/Doctor.txt', 'r') as f:

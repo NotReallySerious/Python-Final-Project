@@ -257,6 +257,18 @@ def daily_summary():
         return
 
 def add_new_med_stock():
+    with open('pharmacist/med_stock_low.txt','r') as f:
+        info = f.readlines()
+        for line in info:
+            element = line.strip().split(',')
+            code = element[0]
+            Name = element[1]
+            stock = int(element[2])
+            Price = float(element[3])
+            Demands = element[4]
+            print("Barcode, Name, Stock, Price, Demand")
+            print(f"{code}, {Name}, {stock}, {Price}, {Demands}\n")
+    
     barcode = int(input("Enter Medicine's QR code: "))
     med_name = input('Enter medicine name: ').replace(' ', '_')
     quantity = int(input("Enter quantity: "))
@@ -321,7 +333,9 @@ def accountant_main():
         print("2. View all receipts")
         print("3. Delete receipt(s)")
         print("4. Daily Summary Generator")
-        print("5. Log out")    
+        print("5. Add new medicine to stock")
+        print("6. Update existing medicine(s) stock")
+        print("7. Log out")    
         choice = input("> ")
         match choice:
             case '1':
@@ -333,6 +347,10 @@ def accountant_main():
             case '4':
                 daily_summary()
             case '5':
+                add_new_med_stock()
+            case '6':
+                update_quantity_med()
+            case '7':
                 with open('login/logged_out.txt','a') as l:
                     l.write(f'[{datetime.datetime.now()}] accountant logged out\n')
                 print('Bye. See you tomorrow. Have a great day')
