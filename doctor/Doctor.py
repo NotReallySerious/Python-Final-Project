@@ -1,4 +1,4 @@
-from accountant import account__assistant
+from accountant.account__assistant import redo_action
 
 
 def get_doctor_name(doctor_id):

@@ -2,7 +2,7 @@ import base64
 import codecs
 import hashlib
 import datetime as dt
-from pharmacist.pharmacist import pharmasist
+from pharmacist.pharmacist import pharmacist
 from accountant.account__assistant import accountant_main, delete_receipt, get_user_total_details, get_receipt_list
 from doctor.Doctor import Doctor_Menu
 from cashier.receptionist import receptionist_main

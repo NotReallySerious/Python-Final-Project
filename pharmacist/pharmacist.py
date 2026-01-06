@@ -297,11 +297,7 @@ def report():
 # Function to check for medicines that are out of stock.
 # Prints them and saves the list into 'med_stock_out.txt'.
 def banner():
-<<<<<<< HEAD
     with open("pharmacist/medicine_stock.txt", "r", newline="") as file:
-=======
-    with open("medicine_stock.txt", "r") as file:
->>>>>>> cbf14970b71ec4a099e4c119daa6815806092f70
         reader = csv.reader(file)
         out_of_stock = [
             row for row in reader
