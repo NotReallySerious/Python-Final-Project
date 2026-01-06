@@ -1,3 +1,4 @@
+import datetime
 def load_appointment():
     try:
         with open("appointment.txt", "r") as a:
@@ -684,6 +685,9 @@ def receptionist_main():
                 print("\nInvalid Choice, Enter a Mode")
             elif mode == 5:
                 print("\nExiting")
+                with open('login/logged_out.txt','a') as l:
+                    l.write(f'[{datetime.datetime.now()}] receptionist logged out\n')
+                print('Bye. See you tomorrow. Have a great day')
                 break
             elif mode == 4:
                 alter_appointment()
@@ -698,4 +702,3 @@ def receptionist_main():
         except KeyboardInterrupt:
             print("\nExiting")
 
-receptionist_main()

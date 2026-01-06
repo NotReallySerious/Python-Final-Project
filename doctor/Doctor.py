@@ -6,11 +6,11 @@ def get_doctor_name(doctor_id):
         lines = f.readlines()
         for line in lines:
             values = line.strip().split(',')
-            doctor_id_in_file = values[0]
-            Name = values[1].replace('_',' ')
+            doctor_id_in_file = values[0].strip()
+            Name = values[1].replace('_',' ').strip()
 
             if doctor_id == doctor_id_in_file:
-                print(Name)
+                return Name
             else:
                 print('Doctor ID unidentifyable')
 
@@ -259,7 +259,7 @@ def view_consultation_reports(doctor_id):
         
 def Doctor_Menu(doctor_id):
 
-    print(f"Hello Dr. get_doctor_name(doctor_id)")
+    print(f"Hello Dr. {get_doctor_name(doctor_id)}")
     while True:
         print("~~Doctor Menu~~")
         print("1.View appointments")

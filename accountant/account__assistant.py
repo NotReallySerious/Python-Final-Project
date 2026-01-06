@@ -323,6 +323,7 @@ def update_quantity_med():
             with open('pharmacist/med_update_stock.txt','w') as up:
                 up.write(f"{select_item_barcode},{existing_meds[select_item_barcode]['Name']},{existing_meds[select_item_barcode]['Quantity']},{existing_meds[select_item_barcode]['Price']},{demand}\n")                
                 print("Item quantity updated")
+                
     if not redo_action('Add another item quantity? (yes/no) '):
         return
 
@@ -356,7 +357,6 @@ def accountant_main():
                 print('Bye. See you tomorrow. Have a great day')
                 break
 
-accountant_main()
 
 
 

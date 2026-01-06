@@ -169,9 +169,35 @@ FUNCTION login():
                 CLOSE FILE
                 DISPLAY 'Hello {user_role}, {username}' + add new line
 
-                IF user_role is 'Doctor' THEN
-                    DISPLAY 'Hello Doctor {username}'
-                    RETURN from FUNCTION
+                IF user_role equals 'Doctor' THEN
+                    SET doctor_found to FALSE
+                    
+                    OPEN file 'doctor/Doctor.txt' for reading
+                        READ all lines from file into lines array
+                        
+                        FOR EACH line in lines DO
+                            REMOVE leading/trailing whitespace from line
+                            SPLIT line by comma into value array
+                            SET doctor_id to first element of value (remove whitespace)
+                            SET doctor_name to second element of value (remove whitespace)
+                            
+                            SET username_normalized to username with underscores replaced by spaces
+                            
+                            IF username_normalized equals doctor_name THEN
+                                CALL Doctor_Menu function with doctor_id parameter
+                                SET doctor_found to TRUE
+                                EXIT loop
+                            END IF
+                        END FOR
+                    CLOSE file
+                    
+                    IF doctor_found is TRUE THEN
+                        EXIT function
+                    ELSE
+                        PRINT "Doctor {username} not found in Doctor.txt"
+                        EXIT function
+                    END IF
+                END IF
             
                ELSE IF user_role is 'accountant' THEN
                     DISPLAY 'Hello accountant {username}, ready to count some money?'
