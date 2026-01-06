@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="added options menu for ADMIN - deva">
-      <change beforePath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" beforeDir="false" afterPath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" afterDir="false" />
-    </list>
+    <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="added options menu for ADMIN - deva" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -47,7 +45,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Merging main",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/imper/Python-Final-Project/ADMIN",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
