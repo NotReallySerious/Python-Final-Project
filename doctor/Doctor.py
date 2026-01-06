@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> ee1c32b6395a4a1a2f9c95950f97475b0cfd4e7d
 from accountant.account__assistant import redo_action
-
+import datetime
 
 def get_doctor_name(doctor_id):
     with open('doctor/Doctor.txt', 'r') as f:
@@ -279,11 +275,12 @@ def Doctor_Menu(doctor_id):
         elif choice == "3":
             view_consultation_reports(doctor_id)
         elif choice == "4":
-            print("Going back to menu....")
+            with open('login/logged_out.txt','a') as l:
+                l.write(f'[{datetime.datetime.now()}] accountant logged out\n')
+            print('Bye. See you tomorrow. Have a great day')
             break
         else:
             print("Invalid choice. Please choose the number above")   
-
 
         
             
