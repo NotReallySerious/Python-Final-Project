@@ -257,60 +257,80 @@ def daily_summary():
         return
 
 def add_new_med_stock():
-    with open('pharmacist/med_stock_low.txt','r') as f:
-        info = f.readlines()
-        for line in info:
-            element = line.strip().split(',')
-            code = element[0]
-            Name = element[1]
-            stock = int(element[2])
-            Price = float(element[3])
-            Demands = element[4]
-            print("Barcode, Name, Stock, Price, Demand")
-            print(f"{code}, {Name}, {stock}, {Price}, {Demands}\n")
+    try:
+        with open('pharmacist/med_stock_low.txt','r') as f:
+            info = f.readlines()
+            if info:  
+                print("Current medicines in stock:")
+                print("Barcode, Name, Stock, Price, Demand")
+                for line in info:
+                    element = line.strip().split(',')
+                    code = element[0]
+                    Name = element[1]
+                    stock = int(element[2])
+                    Price = float(element[3])
+                    Demands = element[4]
+                    print(f"{code}, {Name}, {stock}, {Price}, {Demands}\n")
+            else:
+                print("No medicines in database yet.")
+    except FileNotFoundError:
+        print("Medicine database file not found. Starting fresh.")
     
     barcode = int(input("Enter Medicine's QR code: "))
     med_name = input('Enter medicine name: ').replace(' ', '_')
     quantity = int(input("Enter quantity: "))
     price = float(input("Enter the price: "))
     demand = input("Enter demand [low, medium, high]: ").title()
+    
     if demand not in ['Low', 'Medium', 'High']:
         print('Wrong demand type.')
     else:
         with open('pharmacist/med_new_stock.txt','w') as p:
-            p.write(f"{barcode},{med_name},{quantity},{price},{demand}")
-        with open('pharmacist/medicine_stock.txt', 'a') as m:
-            m.write(f"{barcode},{med_name},{quantity},{price}")
+            p.write(f"{barcode},{med_name},{quantity},{price},{demand}\n")
+        with open('pharmacist/med_db.txt', 'a') as m:  
+            m.write(f"{barcode},{med_name},{quantity},{price}\n")  
 
         print('Item has been added to the list')
 
     if not redo_action("Want to enter another medicine? (yes/no): "):
         return
-        
+
 def update_quantity_med():
     existing_meds = {}
-    with open('pharmacist/med_db.txt', 'r') as p:
-        lines = p.readlines()
-        for line in lines:
-            values = line.strip().split(',')
-            Barcode = values[0]
-            med_name = values[1]
-            quantity = values[2]
-            price = values[3]
-            demand = values[4]
-            existing_meds[Barcode] = {
-                'Name' : med_name,
-                'Quantity' : int(quantity),
-                'Price' : price,  
-                'Demand' : demand
-            }
+    try:
+        with open('pharmacist/med_db.txt', 'r') as p:
+            lines = p.readlines()
+            if not lines:
+                print("No medicines in database.")
+                return
+                
+            print("Current medicines in stock:")
+            print("Barcode, Name, Quantity, Price, Demand")
+            for line in lines:
+                values = line.strip().split(',')
+                Barcode = values[0]
+                med_name = values[1]
+                quantity = values[2]
+                price = values[3]
+                demand = values[4]
+                existing_meds[Barcode] = {
+                    'Name' : med_name,
+                    'Quantity' : int(quantity),
+                    'Price' : price,  
+                    'Demand' : demand
+                }
+                print(f"{Barcode}, {med_name}, {quantity}, {price}, {demand}")
+            print()  # Empty line for spacing
+    except FileNotFoundError:
+        print("Medicine database file not found.")
+        return
     
     select_item_barcode = str(int(input('Enter the medicine barcode: ')))
     if select_item_barcode in existing_meds:
         print(f"Medicine name: {existing_meds[select_item_barcode]['Name']}")
         print(f"Quantity: {existing_meds[select_item_barcode]['Quantity']}")
 
-        add_quantity = int(input("enter the quantity to be added: "))
+        add_quantity = int(input("Enter the quantity to be added: "))
         existing_meds[select_item_barcode]['Quantity'] += add_quantity
         
         print(f"New quantity: {existing_meds[select_item_barcode]['Quantity']}")
@@ -323,8 +343,10 @@ def update_quantity_med():
             with open('pharmacist/med_update_stock.txt','w') as up:
                 up.write(f"{select_item_barcode},{existing_meds[select_item_barcode]['Name']},{existing_meds[select_item_barcode]['Quantity']},{existing_meds[select_item_barcode]['Price']},{demand}\n")                
                 print("Item quantity updated")
+    else:
+        print("Medicine barcode not found.")
                 
-    if not redo_action('Add another item quantity? (yes/no) '):
+    if not redo_action('Add another item quantity? (yes/no): '):
         return
 
 def accountant_main():
