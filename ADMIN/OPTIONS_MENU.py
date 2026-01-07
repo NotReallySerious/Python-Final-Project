@@ -1,9 +1,5 @@
 from pharmacist.pharmacist import view
-from accountant.account__assistant import daily_summary
-from login.auth import register, encrypt_password
-import base64
-import codecs
-import hashlib
+import datetime
 def menu():
     try:
         i = True
@@ -30,7 +26,7 @@ What is your choice? (enter number 1-6)"""))
 ***********************************
 what is your choice? (enter a number 1-4)"""))
                         if chooseusers== "1":
-                            register()
+                            add_users()
                         elif chooseusers == "2":
                             username = input("Enter username to update: ")
                             update_member(username)
@@ -78,7 +74,7 @@ what is your choice? (enter a number 1-4)"""))
                         elif chooseviewreports == "2":
                             totalappointments()
                         elif chooseviewreports == "3":
-                            daily_summary()
+                            view_daily_summary()
                         elif chooseviewreports == "4":
                             break
                         else:
@@ -216,7 +212,7 @@ def med_remove():
                     # Validation: must be digits and length < 6
                     if len(barcode) == 5:
                         with open("med_remove.txt", "w") as file:
-                            file.write(barcode , "\n")
+                            file.write(barcode, '\n')
                         print(f"Barcode {barcode} recorded.")
                         break
                     else:
@@ -315,6 +311,21 @@ def delete_doctor():
 
     except FileNotFoundError:
         print("Error: doctor.txt file not found.")
+def view_daily_summary():
+    Date = datetime.date.today().strftime('%Y-%m-%d')
+    summary_file_path = f"accountant/{Date}_daily_summary.txt"
+    with open(summary_file_path, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            if not line.strip():
+                continue
+            part = line.strip().split(';')
+            date = part[0].strip().replace("'", "")
+            patient_name = part[1].strip().replace("'", "")
+            item_name = part[2].strip().replace("'", "")
+            quantity = int(part[3].strip())
+            price = float(part[4].strip())
+def add_users():
 
 menu()
 
