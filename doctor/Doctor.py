@@ -10,52 +10,66 @@ def get_doctor_name(doctor_id):
             Name = values[1].replace('_',' ')
 
             if doctor_id == doctor_id_in_file:
-                print(Name)
-            else:
-                print('Doctor ID unidentifyable')
+                return Name  
+        
+        return "Unknown"  # Return a default value instead of printing error
 
 def view_appointments(doctor_id):
     patients = {}
     with open('cashier/patient.txt', 'r') as p:
         lines = p.readlines()
         for line in lines:
-            value = line.strip().split(',')
-            patient_id = value[0]
-            Name = value[1]
-            patients[patient_id] = {
-                'Name' : Name
-            }
+            line = line.strip()
+            if not line:
+                continue
+            value = line.split(',')
+            if len(value) >= 2:
+                patient_id = value[0].strip()
+                Name = value[1].strip()
+                patients[patient_id] = {
+                    'Name': Name
+                }
 
     records = {}
     with open('cashier/appointment.txt', 'r') as file:
         lines = file.readlines()
         for line in lines:
-            values = line.strip().split(',')
-            app_id = values[0]
-            date = values[1]
-            hour = values[2]
-            status = values[3]
-            patient_id = values[4]
-            doctor_id_in_file = values[5]
-        
-            if doctor_id_in_file == doctor_id:
-                records[app_id] = {
-                    'date': date,
-                    'hour': hour,
-                    'status': status,
-                    'patient_id': patient_id,
-                    'doctor_id': doctor_id_in_file
-                }
-                
-            if records:
-                print(f"Appointments for Dr. {get_doctor_name(doctor_id)}")
-                for app_id, details in records.items():
-                    print(f"Appointment ID: {app_id}")
-                    print(f"Date: {details[date]}")
-                    print(f"Patient ID: {details[patient_id]}")
-                    print(f"Patient Name: {patients.get(patient_id,{}).get('Name','unknown')}")
-            else:
-                print(f"No appointments for Doctor. {get_doctor_name(doctor_id)}")
+            line = line.strip()
+            if not line:
+                continue
+            values = line.split(',')
+            if len(values) >= 6:
+                app_id = values[0].strip()
+                date = values[1].strip()
+                hour = values[2].strip()
+                status = values[3].strip()
+                patient_id = values[4].strip()
+                doctor_id_in_file = values[5].strip()
+            
+                if doctor_id_in_file == doctor_id:
+                    records[app_id] = {
+                        'date': date,
+                        'hour': hour,
+                        'status': status,
+                        'patient_id': patient_id,
+                        'doctor_id': doctor_id_in_file
+                    }
+    
+    if records:
+        print("-" * 30)
+        print(f"Appointments for Dr. {get_doctor_name(doctor_id)}")
+        print("-" * 30)
+        for app_id, details in records.items():
+            print(f"Appointment ID: {app_id}")
+            print(f"Date: {details['date']}")
+            print(f"Hour: {details['hour']}")
+            print(f"Patient ID: {details['patient_id']}")
+            patient_name = patients.get(details['patient_id'], {}).get('Name', 'Unknown')
+            print(f"Patient Name: {patient_name}")
+            print("-" * 30)
+    else:
+        print(f"No appointments for Dr. {get_doctor_name(doctor_id)}")
+    
     return records
 
 def record_consultation(doctor_id):
@@ -112,13 +126,14 @@ def record_consultation(doctor_id):
     index = 1
     appointment_list = {}
     for app_id in appointment_details:
-        patient_id = appointment_details[app_id]['Patient ID']
+        patient_id = appointment_details[app_id]['Patient_ID']
         patient_name = patient_details.get(patient_id, {}).get('Name','unknown')
 
         appointment_list[index] = {
             'appointment_id': app_id,
             'appointment_data': appointment_details[app_id],
-            'patient_name': patient_name
+            'patient_name': patient_name,
+            'patient_id' : patient_id
         }
         print(f"{index}. {patient_id}, {patient_name}")
         index += 1
@@ -151,7 +166,7 @@ def record_consultation(doctor_id):
                 print("Please enter a valid number for age!")
         
         while True:
-                diagnosis = input('Diagnosis: ').strip
+                diagnosis = input('Diagnosis: ').strip()
                 if not diagnosis:
                     print("Diagnosis Can't be empty.")
                     continue
@@ -193,7 +208,7 @@ def record_consultation(doctor_id):
                     continue
             break
 
-        record = f"'{patient_id}','{patient_name}',{age},'{diagnosis}','{meds}','{qty}','{advice}'"
+        record = f"'{doctor_id}','{patient_id}','{patient_name}',{age},'{diagnosis}','{meds}','{qty}','{advice}'\n"
 
         try:
             with open('doctor/patient_record_db.txt', 'a') as rec:
@@ -218,36 +233,90 @@ def record_consultation(doctor_id):
             print(f"Error updating appointment status: {e}")
         
         # Sending the medicine prescription to the pharmacist in form of patient_id,token_no,barcode,qty of med
-        token = 1
-        med = {}
-        with open('pharmacist/medicine_stock.txt', 'r') as pres:
-            medicines = pres.readlines()
+        token_number = 1
+
+        # First, check if prescription file exists to determine next token number
+        try:
+            with open('pharmacist/doctor_prescription.txt', 'r') as existing:
+                existing_lines = existing.readlines()
+                if existing_lines:
+                    # Get the last token number and increment
+                    last_line = existing_lines[-1].strip()
+                    if last_line:
+                        last_token = int(last_line.split(',')[1])
+                        token_number = last_token + 1
+        except FileNotFoundError:
+            token_number = 1  # File doesn't exist, start at 1
+
+        # Get medicine stock with barcodes
+        medicine_stock = {}
+        try:
+            with open('pharmacist/medicine_stock.txt', 'r') as stock:
+                stock_lines = stock.readlines()
+                for line in stock_lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    stock_values = line.split(',')
+                    if len(stock_values) >= 2:
+                        med_name = stock_values[1].strip().lower()
+                        barcode = stock_values[0].strip()
+                        medicine_stock[med_name] = barcode
+        except FileNotFoundError:
+            print("Warning: medicine_stock.txt not found. Prescriptions will be created without barcodes.")
+
+        # Parse medicines and quantities from the current patient
+        meds_list = [m.strip() for m in meds.split(';')]
+        qty_list = [q.strip() for q in qty.split(';')]
+
+        # Write prescription to pharmacist file
+        try:
+            with open('pharmacist/doctor_prescription.txt', 'a') as pres_file:
+                for i, medicine in enumerate(meds_list):
+                    quantity = qty_list[i] if i < len(qty_list) else '1'  # Default to 1 if quantity missing
+                    
+                    # Look up barcode (case-insensitive)
+                    barcode = medicine_stock.get(medicine.lower(), 'UNKNOWN')
+                    
+                    # Format: patient_id,token_no,medicine_name,barcode,quantity
+                    prescription_line = f"{patient_id},{token_number},{medicine},{barcode},{quantity}\n"
+                    pres_file.write(prescription_line)
+                
+                print(f"Prescription sent to pharmacist with token number: {token_number}")
+        except Exception as e:
+            print(f"Error writing prescription: {e}")        
+        if not redo_action('Do you want to record another consultation? '):
+            break
 
 def view_consultation_reports(doctor_id):
     print("\n VIEW CONSULTATION REPORTS ")
     found = False
     
     try:
-        with open('patient_record_db.txt', 'r') as f:
+        with open('doctor/patient_record_db.txt', 'r') as f:
             lines = f.readlines()
             
             for line in lines:
                 values = line.strip().split(',')
-                
-                patient_id = values[0].replace("'", "")
-                patient_name = values[1].replace("'", "").replace("_", " ")
-                age = values[2]
-                diagnosis = values[3].replace("'", "")
-                meds = values[4].replace("'", "")
-                advice = values[6].replace("'", "")
+                D_id = values[0].replace("'", "").strip()  
+                patient_id = values[1].replace("'", "").strip()
+                patient_name = values[2].replace("'", "").replace("_", " ").strip()
+                age = values[3].strip()
+                diagnosis = values[4].replace("'", "").strip()
+                meds = values[5].replace("'", "").replace(';', ', ').strip()
+                qty = values[6].replace("'", "").strip() 
+                advice = values[7].replace("'", "").replace(';', ', ').strip() 
 
-                print("-" * 30)
-                print(f"Patient: {patient_name} ({patient_id})")
-                print(f"Age: {age}")
-                print(f"Diagnosis: {diagnosis}")
-                print(f"Medications: {meds}")
-                print(f"Advice: {advice}")
-                found = True
+                if D_id == doctor_id:
+                    print("-" * 30 + '\n')
+                    print(f"Patient: {patient_name} ({patient_id})")
+                    print(f"Age: {age}")
+                    print(f"Diagnosis: {diagnosis}")
+                    print(f"Medications: {meds}")
+                    print(f"Quantity: {qty}")
+                    print(f"Advice: {advice}\n")
+                    print("-" * 30 + '\n')
+                    found = True
                 
         if not found:
             print("No record found.")
@@ -255,11 +324,9 @@ def view_consultation_reports(doctor_id):
     except FileNotFoundError:
         print("No record found")
     
-    
-        
 def Doctor_Menu(doctor_id):
 
-    print(f"Hello Dr. get_doctor_name(doctor_id)")
+    print(f"Hello Dr. {get_doctor_name(doctor_id)}")
     while True:
         print("~~Doctor Menu~~")
         print("1.View appointments")
@@ -267,7 +334,7 @@ def Doctor_Menu(doctor_id):
         print("3.View Consultation Reports")
         print("4.Back to Menu")
 
-        choice = input("Which one do you want to pick")
+        choice = input("Which one do you want to pick: ")
         if choice == "1":
             view_appointments(doctor_id) 
         elif choice == "2":
@@ -276,12 +343,10 @@ def Doctor_Menu(doctor_id):
             view_consultation_reports(doctor_id)
         elif choice == "4":
             with open('login/logged_out.txt','a') as l:
-                l.write(f'[{datetime.datetime.now()}] accountant logged out\n')
+                l.write(f'[{datetime.datetime.now()}] Doctor logged out\n')
             print('Bye. See you tomorrow. Have a great day')
             break
         else:
             print("Invalid choice. Please choose the number above")   
 
-        
-            
-            
+Doctor_Menu('D01')
