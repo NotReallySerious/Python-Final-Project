@@ -4,7 +4,7 @@ import hashlib
 import datetime
 from pharmacist.pharmacist import view
 from login.auth import register,encrypt_password
-from cashier.
+from cashier.receptionist import view_appointment
 def menu():
     try:
         i = True
@@ -77,7 +77,7 @@ what is your choice? (enter number 1-4)"""))
                         if chooseviewreports == 1:
                             totalpatients()
                         elif chooseviewreports == 2:
-                            view_appointments()
+                            view_appointment()
                         elif chooseviewreports == 3:
                             view_daily_summary()
                         elif chooseviewreports == 4:
