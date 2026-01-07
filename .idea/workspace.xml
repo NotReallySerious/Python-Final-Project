@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="auditing Doctor and pharmacist. -David">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" beforeDir="false" afterPath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/accountant/account__assistant.py" beforeDir="false" afterPath="$PROJECT_DIR$/accountant/account__assistant.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doctor/Doctor.py" beforeDir="false" afterPath="$PROJECT_DIR$/doctor/Doctor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doctor/Doctor.txt" beforeDir="false" afterPath="$PROJECT_DIR$/doctor/Doctor.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ADMIN/med_remove.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/logged_out.txt" beforeDir="false" afterPath="$PROJECT_DIR$/login/logged_out.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
