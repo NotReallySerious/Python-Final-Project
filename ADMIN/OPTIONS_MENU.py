@@ -1,7 +1,6 @@
 from login.auth import encrypt_password, register
 from cashier.receptionist import view_appointment
 from accountant.account__assistant import daily_summary
-from pharmacist.pharmacist import view
 import datetime
 def menu():
     try:
@@ -93,7 +92,7 @@ what is your choice? (enter number 1-3)"""))
                         if choosinggenerate == 1:
                             read_staff()
                         elif choosinggenerate == 2:
-                            view()
+                            print('')##view function from pharmacist
                         elif choosinggenerate == 3:
                             break
                         else:
@@ -287,7 +286,8 @@ def read_staff():
             if len(parts) == 4:
                 username, email, password, role = parts
                 print(f"Username: {username}, Email: {email}, Password: {password}, Role: {role}")
-
+            else:
+                print(f"Invalid record format: {line.strip()}")
 
     except FileNotFoundError:
         print("Error: hospital_staff.txt file not found.")
