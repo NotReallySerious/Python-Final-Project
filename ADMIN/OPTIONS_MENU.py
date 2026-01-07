@@ -119,7 +119,7 @@ what is your choice? (enter number 1-3)"""))
 def update_member():
     try:
         ## Read all lines first
-        DELIM = ";"  # keep semicolon consistently since your file uses ;
+        DELIM = ";"
         with open("../login/user_db.txt", "r", encoding="utf-8") as file:
             lines = file.readlines()
     except FileNotFoundError:
@@ -224,7 +224,6 @@ def delete_member():
     except FileNotFoundError:
         print("Error: login/user_db.txt not found.")
         return
-
     deleted = False
     try:
         with open("../login/user_db.txt", "w") as file, open("../login/user_db_encrypted.txt", "w") as enc_file:
