@@ -1,5 +1,8 @@
 from pharmacist.pharmacist import view
+from login.auth import register
 import base64
+import codecs
+import hashlib
 import datetime
 def menu():
     try:
@@ -27,7 +30,7 @@ What is your choice? (enter number 1-6)"""))
 ***********************************
 what is your choice? (enter a number 1-4)"""))
                         if chooseusers== "1":
-                            add_users()
+                            register()
                         elif chooseusers == "2":
                             username = input("Enter username to update: ")
                             update_member(username)
@@ -317,7 +320,24 @@ def view_daily_summary():
     summary_file_path = f"accountant/{Date}_daily_summary.txt"
     with open(summary_file_path, 'r') as f:
         lines = f.readlines()
-def add_users():
+
+
+def encrypt_password(password):
+    # change password into bytes before encoding
+    password_bytes = password.encode('utf-8')
+
+    base64_encoded = base64.b64encode(password_bytes)
+    base64_string = base64_encoded.decode('utf-8')
+
+    # changed into rot-13
+    ROT_13_encode = codecs.encode(base64_string, 'rot_13')
+
+    # change to SHA256
+    hash_bytes = ROT_13_encode.encode('utf-8')
+    sha256_string = hashlib.sha256(hash_bytes)
+    final_hex_representation = sha256_string.hexdigest()
+    return final_hex_representation
+
 
     menu()
 
