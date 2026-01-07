@@ -1,7 +1,8 @@
-import datetime
-from pharmacist.pharmacist import view
 from login.auth import encrypt_password, register
+from cashier.receptionist import view_appointment
 from accountant.account__assistant import daily_summary
+from pharmacist.pharmacist import view
+import datetime
 def menu():
     try:
         i = True
@@ -68,13 +69,13 @@ what is your choice? (enter number 1-4)"""))
 3. View Daily Income Report
 4. Return to ADMIN MENU
 *****************************
-                        what is your choice? (enter number 1-4)"""))
+what is your choice? (enter number 1-4)"""))
                         if chooseviewreports == 1:
-                            totalpatients()
+                            from cashier.Group_Project import view_patient
                         elif chooseviewreports == 2:
-                            totalappointments()
+                            view_appointment()
                         elif chooseviewreports == 3:
-                            view_daily_summary()
+                            daily_summary()
                         elif chooseviewreports == 4:
                             break
                         else:
@@ -92,7 +93,7 @@ what is your choice? (enter number 1-3)"""))
                         if choosinggenerate == 1:
                             read_staff()
                         elif choosinggenerate == 2:
-                            view() ##view function from pharmacist
+                            view()
                         elif choosinggenerate == 3:
                             break
                         else:
@@ -104,7 +105,7 @@ what is your choice? (enter number 1-3)"""))
                 case 6:
                     print("End.")
                     i = False
-                    with open('login/logged_out.txt','a') as l:
+                    with open('../login/logged_out.txt','a') as l:
                         l.write(f'[{datetime.datetime.now()}] accountant logged out\n')
                     print('Bye. See you tomorrow. Have a great day')
                     break
@@ -114,13 +115,11 @@ what is your choice? (enter number 1-3)"""))
     except ValueError:
         print("Please enter a number.")
 
-
-
 def update_member():
     try:
         ## Read all lines first
         DELIM = ";"
-        with open("login/user_db.txt", "r", encoding="utf-8") as file:
+        with open("../login/user_db.txt", "r", encoding="utf-8") as file:
             lines = file.readlines()
     except FileNotFoundError:
         print("Error: login/user_db.txt not found.")
@@ -130,7 +129,7 @@ def update_member():
         print("User database is empty.")
         return
 
-    username = input("Enter username to update: ").strip().replace(' ','_')
+    username = input("Enter username to update: ").strip()
     updated = False
 
     new_plain_lines = []
@@ -207,41 +206,147 @@ def update_member():
         return
 
     # Write back safely
-    with open("login/user_db.txt", "w", encoding="utf-8") as file:
+    with open("../login/user_db.txt", "w", encoding="utf-8") as file:
         for line in new_plain_lines:
             file.write(line + "\n")
 
-    with open("login/user_db_encrypted.txt", "w", encoding="utf-8") as enc_file:
+    with open("../login/user_db_encrypted.txt", "w", encoding="utf-8") as enc_file:
         for line in new_enc_lines:
             enc_file.write(line + "\n")
 
     print("User database updated.")
-
 def delete_member():
+        try:
+            DELIM = ";"
+            # Read all lines first
+            with open("../login/user_db.txt", "r", encoding="utf-8") as file:
+                lines = file.readlines()
+        except FileNotFoundError:
+            print("Error: login/user_db.txt not found.")
+            return
+
+        if not lines:
+            print("User database is empty.")
+            return
+
+        username = input("Enter username to delete: ").strip()
+        deleted = False
+
+        new_plain_lines = []
+        new_enc_lines = []
+
+        for raw in lines:
+            raw = raw.strip()
+            if not raw:
+                continue
+
+            parts = raw.split(DELIM)
+            if len(parts) != 4:
+                # Preserve malformed lines
+                new_plain_lines.append(raw)
+                new_enc_lines.append(raw)
+                continue
+
+            stored_username, stored_email, stored_password, stored_role = parts
+
+            if stored_username == username:
+                print(f"User '{stored_username}' deleted successfully.")
+                deleted = True
+                # Skip writing this line → deletion
+            else:
+                # Keep other users intact
+                new_plain_lines.append(raw)
+                new_enc_lines.append(
+                    f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{stored_role}")
+
+        if not deleted:
+            print("Username not found. No deletion performed.")
+            return
+
+        # Write back safely
+        with open("../login/user_db.txt", "w", encoding="utf-8") as file:
+            for line in new_plain_lines:
+                file.write(line + "\n")
+
+        with open("../login/user_db_encrypted.txt", "w", encoding="utf-8") as enc_file:
+            for line in new_enc_lines:
+                enc_file.write(line + "\n")
+
+        print("User database updated after deletion.")
+def read_staff():
     try:
-        with open("login/user_db.txt", "r") as file:
+        with open("staff.txt", "r") as file:
             lines = file.readlines()
+
+        total_records = len(lines)
+        print(f"Total number of records: {total_records}\n")
+
+        print("--- Staff Records ---")
+        for line in lines:
+            parts = line.strip().split(",")
+            if len(parts) == 4:
+                username, email, password, role = parts
+                print(f"Username: {username}, Email: {email}, Password: {password}, Role: {role}")
+
+
     except FileNotFoundError:
-        print("Error: login/user_db.txt not found.")
-        return
-    deleted = False
+        print("Error: hospital_staff.txt file not found.")
+def add_doctor():
+    doctor_id = input("Enter doctor ID: ").strip()
+    doctor_name = input("Enter doctor name: ").strip()
+
     try:
-        with open("login/user_db.txt", "w") as file, open("login/user_db_encrypted.txt", "w") as enc_file:
+        with open("../doctor/Doctor.txt", "a") as file:
+            file.write(f"{doctor_id},{doctor_name}\n")
+        print("Doctor added successfully.")
+    except FileNotFoundError:
+        print("Error: Doctor.txt file not found.")
+def update_doctor():
+    doctor_id = input("Enter doctor ID to update: ").strip()
+    new_name = input("Enter new doctor name: ").strip()
+
+    try:
+        with open("../doctor/Doctor.txt", "r") as file:
+            lines = file.readlines()
+
+        updated = False
+        with open("../doctor/Doctor.txt", "w") as file:
             for line in lines:
-                stored_username, stored_email, stored_password, stored_role = line.strip().split(";")
-                username = input("Enter username to delete: ")
-                if stored_username == username:
-                    # Skip writing this line → deletion
-                    print(f"User '{stored_username}' deleted successfully.")
-                    deleted = True
+                stored_id, stored_name = line.strip().split(",")
+                if stored_id == doctor_id:
+                    file.write(f"{stored_id},{new_name}\n")
+                    updated = True
+                    print("Doctor updated successfully.")
                 else:
-                    # Keep other users intact
                     file.write(line)
-                    enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-    if not deleted:
-        print("Username not found. No deletion performed.")
+
+        if not updated:
+            print("Doctor ID not found. No updates made.")
+
+    except FileNotFoundError:
+        print("Error: Doctor.txt file not found.")
+def delete_doctor():
+    doctor_id = input("Enter doctor ID to delete: ").strip()
+
+    try:
+        with open("../doctor/Doctor.txt", "r") as file:
+            lines = file.readlines()
+
+        deleted = False
+        with open("../doctor/Doctor.txt", "w") as file:
+            for line in lines:
+                stored_id, stored_name = line.strip().split(",")
+                if stored_id == doctor_id:
+                    deleted = True
+                    print(f"Doctor {stored_name} (ID: {stored_id}) deleted successfully.")
+                else:
+                    file.write(line)
+
+        if not deleted:
+            print("Doctor ID not found. No deletion performed.")
+
+    except FileNotFoundError:
+        print("Error: Doctor.txt file not found.")
 def med_remove():
     try:
         count = int(input("How many medicine do you want to remove? "))
@@ -261,95 +366,8 @@ def med_remove():
         print("Error: Please enter a valid number for how many medicines to remove.")
     except Exception as e:
         print("Unexpected error:", str(e))
-def totalpatients():
-    try:
-        with open("cashier/patient.txt", "r") as r:
-            for line in r:
-                print(line.strip())
-    except FileNotFoundError:
-        print("Error: cashier/patient.txt file not found.")
-def totalappointments():
-    try:
-        with open("cashier/appointments.txt", "r") as r:
-            for line in r:
-                print(line.strip())
-    except FileNotFoundError:
-        print("Error: cashier/appointments.txt file not found.")
-def read_staff():
-    try:
-        with open("staff.txt", "r") as file:
-            lines = file.readlines()
 
-        total_records = len(lines)
-        print(f"Total number of records: {total_records}\n")
-
-        print("--- Staff Records ---")
-        for line in lines:
-            parts = line.strip().split(",")
-            if len(parts) == 4:
-                username, email, password, role = parts
-                print(f"Username: {username}, Email: {email}, Password: {password}, Role: {role}")
-            else:
-                print(f"Invalid record format: {line.strip()}")
-
-    except FileNotFoundError:
-        print("Error: hospital_staff.txt file not found.")
-def add_doctor():
-    doctor_id = input("Enter doctor ID: ").strip()
-    doctor_name = input("Enter doctor name: ").strip()
-
-    try:
-        with open("doctor/Doctor.txt", "a") as file:
-            file.write(f"{doctor_id},{doctor_name}\n")
-        print("Doctor added successfully.")
-    except FileNotFoundError:
-        print("Error: Doctor.txt file not found.")
-def update_doctor():
-    doctor_id = input("Enter doctor ID to update: ").strip()
-    new_name = input("Enter new doctor name: ").strip()
-
-    try:
-        with open("doctor/Doctor.txt", "r") as file:
-            lines = file.readlines()
-
-        updated = False
-        with open("doctor/Doctor.txt", "w") as file:
-            for line in lines:
-                stored_id, stored_name = line.strip().split(",")
-                if stored_id == doctor_id:
-                    file.write(f"{stored_id},{new_name}\n")
-                    updated = True
-                    print("Doctor updated successfully.")
-                else:
-                    file.write(line)
-
-        if not updated:
-            print("Doctor ID not found. No updates made.")
-
-    except FileNotFoundError:
-        print("Error: Doctor.txt file not found.")
-def delete_doctor():
-    doctor_id = input("Enter doctor ID to delete: ").strip()
-
-    try:
-        with open("doctor/Doctor.txt", "r") as file:
-            lines = file.readlines()
-
-        deleted = False
-        with open("doctor/Doctor.txt", "w") as file:
-            for line in lines:
-                stored_id, stored_name = line.strip().split(",")
-                if stored_id == doctor_id:
-                    deleted = True
-                    print(f"Doctor {stored_name} (ID: {stored_id}) deleted successfully.")
-                else:
-                    file.write(line)
-
-        if not deleted:
-            print("Doctor ID not found. No deletion performed.")
-
-    except FileNotFoundError:
-        print("Error: Doctor.txt file not found.")
 menu()
+
 
 
