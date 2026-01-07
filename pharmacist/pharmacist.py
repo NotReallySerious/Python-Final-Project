@@ -197,6 +197,7 @@ def view_low():
 # Function to prepare medicines for a patient based on doctor prescriptions.
 # Updates stock, sales database, and billing records while calculating total cost.
 def prepare(p_id, t_id):
+    global total, prows
     total = 0
     prows = []
 
