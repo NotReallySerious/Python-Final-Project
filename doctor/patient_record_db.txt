@@ -1,1 +1,8 @@
-'D01','P03','Michael Brown',26,'Heartbroken','amoxcilin','10','move on bro'
+'P12','Chris Croissant', 25, 'Seasonal Flu', 'Paracetamol;Vitamin C', '10;20', 'Get plenty of rest;Drink warm fluids'
+'P13','Amanda Blake', 27, 'Migraine', 'Ibuprofen;Sumatriptan', '15;6', 'Avoid bright lights;Maintain regular sleep schedule'
+'P03','Michael Brown', 21, 'Hypertension', 'Amlodipine;Losartan', '30;30', 'Reduce salt intake;Exercise regularly;Monitor blood pressure daily'
+'P07','Kevin Lee', 28, 'Type 2 Diabetes', 'Metformin', '60', 'Monitor blood sugar levels;Maintain balanced diet;Regular physical activity'
+'P08','Michelle Lee', 52, 'Osteoarthritis', 'Paracetamol;Glucosamine', '20;30', 'Apply warm compress;Avoid excessive joint strain'
+'P15','Ravi Sharma', 41, 'Bronchitis', 'Azithromycin;Cough Syrup', '5;1', 'Avoid smoking;Increase fluid intake;Complete antibiotic course'
+'P04','Sarah Brown', 20, 'Iron Deficiency Anemia', 'Iron Supplement;Folic Acid', '30;30', 'Consume iron-rich foods;Avoid tea after meals'
+

@@ -1,6 +1,6 @@
 import csv
-import datetime
 from datetime import date
+
 
 # Function to add new medicines from 'med_new_stock.txt' into the main stock file.
 # Ensures no duplicate barcodes are added and prints the newly added medicines.
@@ -129,7 +129,7 @@ def remove():
 # Function to view all medicines currently in stock.
 # Displays barcode, name, quantity, and price for each medicine.
 def view():
-    with open("../pharmacist/medicine_stock.txt", "r", newline="") as file:
+    with open("pharmacist/medicine_stock.txt", "r", newline="") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
         for row in reader:
@@ -202,7 +202,7 @@ def prepare(p_id, t_id):
     prows = []
 
     with open("pharmacist/medicine_stock.txt", "r", newline="") as f1, \
-        open("pharmacist/med_db.txt", "r", newline="") as f2:
+         open("pharmacist/med_db.txt", "r", newline="") as f2:
         reader1 = csv.reader(f1)
         reader2 = csv.reader(f2)
         rows1 = [row for row in reader1]
@@ -351,9 +351,6 @@ def pharmacist():
         elif i == "8":
             report()
         elif i == "9":
-            with open('login/logged_out.txt','a') as l:
-                l.write(f'[{datetime.datetime.now()}] Pharmacist logged out\n')
-            print('Bye. See you tomorrow. Have a great day')
             break
         else:
             print("Invalid choice! Please select a number between 1 and 9.")
