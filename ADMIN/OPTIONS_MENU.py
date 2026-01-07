@@ -1,9 +1,6 @@
-import base64
-import codecs
-import hashlib
 import datetime
 from pharmacist.pharmacist import view
-from login.auth import encrypt_password
+from login.auth import encrypt_password, register
 from accountant.account__assistant import daily_summary
 def menu():
     try:
@@ -31,7 +28,7 @@ What is your choice? (enter number 1-6)"""))
 ***********************************
 what is your choice? (enter a number 1-4)"""))
                         if chooseusers== 1:
-                            add_users()
+                            register()
                         elif chooseusers == 2:
                             username = input("Enter username to update: ")
                             update_member(username)
@@ -109,7 +106,7 @@ what is your choice? (enter number 1-3)"""))
                 case 6:
                     print("End.")
                     i = False
-                    with open('login/logged_out.txt','a') as l:
+                    with open('../login/logged_out.txt','a') as l:
                         l.write(f'[{datetime.datetime.now()}] accountant logged out\n')
                     print('Bye. See you tomorrow. Have a great day')
                     break
@@ -120,11 +117,10 @@ what is your choice? (enter number 1-3)"""))
         print("Please enter a number.")
 
 def update_member(username):
-    with open("login/user_db.txt", "r") as file:
+    with open("../login/user_db.txt", "r") as file:
         lines = file.readlines()
-
     updated = False
-    with open("login/user_db.txt", "w") as file, open("login/user_db_encrypted.txt", "w") as enc_file:
+    with open("../login/user_db.txt", "w") as file, open("../login/user_db_encrypted.txt", "w") as enc_file:
         for line in lines:
             stored_username, stored_email, stored_password, stored_role = line.strip().split(",")
 
@@ -185,7 +181,7 @@ def update_member(username):
         print("Username not found. No updates made.")
 def delete_member(username):
     try:
-        with open("login/user_db.txt", "r") as file:
+        with open("../login/user_db.txt", "r") as file:
             lines = file.readlines()
     except FileNotFoundError:
         print("Error: login/user_db.txt not found.")
@@ -193,7 +189,7 @@ def delete_member(username):
 
     deleted = False
     try:
-        with open("login/user_db.txt", "w") as file, open("login/user_db_encrypted.txt", "w") as enc_file:
+        with open("../login/user_db.txt", "w") as file, open("../login/user_db_encrypted.txt", "w") as enc_file:
             for line in lines:
                 stored_username, stored_email, stored_password, stored_role = line.strip().split(",")
 
@@ -232,14 +228,14 @@ def med_remove():
         print("Unexpected error:", str(e))
 def totalpatients():
     try:
-        with open("cashier/patient.txt", "r") as r:
+        with open("../cashier/patient.txt", "r") as r:
             for line in r:
                 print(line.strip())
     except FileNotFoundError:
         print("Error: cashier/patient.txt file not found.")
 def totalappointments():
     try:
-        with open("cashier/appointments.txt", "r") as r:
+        with open("../cashier/appointments.txt", "r") as r:
             for line in r:
                 print(line.strip())
     except FileNotFoundError:
@@ -268,7 +264,7 @@ def add_doctor():
     doctor_name = input("Enter doctor name: ").strip()
 
     try:
-        with open("doctor/Doctor.txt", "a") as file:
+        with open("../doctor/Doctor.txt", "a") as file:
             file.write(f"{doctor_id},{doctor_name}\n")
         print("Doctor added successfully.")
     except FileNotFoundError:
@@ -278,11 +274,11 @@ def update_doctor():
     new_name = input("Enter new doctor name: ").strip()
 
     try:
-        with open("doctor/Doctor.txt", "r") as file:
+        with open("../doctor/Doctor.txt", "r") as file:
             lines = file.readlines()
 
         updated = False
-        with open("doctor/Doctor.txt", "w") as file:
+        with open("../doctor/Doctor.txt", "w") as file:
             for line in lines:
                 stored_id, stored_name = line.strip().split(",")
                 if stored_id == doctor_id:
@@ -301,11 +297,11 @@ def delete_doctor():
     doctor_id = input("Enter doctor ID to delete: ").strip()
 
     try:
-        with open("doctor/Doctor.txt", "r") as file:
+        with open("../doctor/Doctor.txt", "r") as file:
             lines = file.readlines()
 
         deleted = False
-        with open("doctor/Doctor.txt", "w") as file:
+        with open("../doctor/Doctor.txt", "w") as file:
             for line in lines:
                 stored_id, stored_name = line.strip().split(",")
                 if stored_id == doctor_id:
