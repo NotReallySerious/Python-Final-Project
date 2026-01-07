@@ -42,6 +42,8 @@ def view_appointment():
         else:
             if n == 1:
                 count = 1
+                with open("../cashier/appointment.txt", "r") as f:
+                    a_lines = f.readlines()
                 for line in a_lines: #Checks all the lines
                     print(count,line.strip()) #Prints all the lines without white space
                     count += 1 #To display line number while printing

@@ -1,7 +1,8 @@
-import datetime
-from pharmacist.pharmacist import view
 from login.auth import encrypt_password, register
+from cashier.receptionist import view_appointment
 from accountant.account__assistant import daily_summary
+from pharmacist.pharmacist import view
+import datetime
 def menu():
     try:
         i = True
@@ -68,13 +69,13 @@ what is your choice? (enter number 1-4)"""))
 3. View Daily Income Report
 4. Return to ADMIN MENU
 *****************************
-                        what is your choice? (enter number 1-4)"""))
+what is your choice? (enter number 1-4)"""))
                         if chooseviewreports == 1:
-                            totalpatients()
+                            from cashier.Group_Project import view_patient
                         elif chooseviewreports == 2:
-                            totalappointments()
+                            view_appointment()
                         elif chooseviewreports == 3:
-                            view_daily_summary()
+                            daily_summary()
                         elif chooseviewreports == 4:
                             break
                         else:
@@ -92,7 +93,7 @@ what is your choice? (enter number 1-3)"""))
                         if choosinggenerate == 1:
                             read_staff()
                         elif choosinggenerate == 2:
-                            view() ##view function from pharmacist
+                            view()
                         elif choosinggenerate == 3:
                             break
                         else:
@@ -113,8 +114,6 @@ what is your choice? (enter number 1-3)"""))
                     continue
     except ValueError:
         print("Please enter a number.")
-
-
 
 def update_member():
     try:
@@ -274,20 +273,6 @@ def delete_member():
                 enc_file.write(line + "\n")
 
         print("User database updated after deletion.")
-def totalpatients():
-    try:
-        with open("../cashier/patient.txt", "r") as r:
-            for line in r:
-                print(line.strip())
-    except FileNotFoundError:
-        print("Error: cashier/patient.txt file not found.")
-def totalappointments():
-    try:
-        with open("../cashier/appointments.txt", "r") as r:
-            for line in r:
-                print(line.strip())
-    except FileNotFoundError:
-        print("Error: cashier/appointments.txt file not found.")
 def read_staff():
     try:
         with open("staff.txt", "r") as file:
@@ -302,8 +287,7 @@ def read_staff():
             if len(parts) == 4:
                 username, email, password, role = parts
                 print(f"Username: {username}, Email: {email}, Password: {password}, Role: {role}")
-            else:
-                print(f"Invalid record format: {line.strip()}")
+
 
     except FileNotFoundError:
         print("Error: hospital_staff.txt file not found.")
@@ -382,12 +366,7 @@ def med_remove():
         print("Error: Please enter a valid number for how many medicines to remove.")
     except Exception as e:
         print("Unexpected error:", str(e))
-def view_daily_summary():
-    Date = datetime.date.today().strftime('%Y-%m-%d')
-    summary_file_path = f"accountant/{Date}_daily_summary.txt"
-    with open(summary_file_path, 'r') as f:
-        lines = f.readlines()
-        print(lines)
+
 menu()
 
 

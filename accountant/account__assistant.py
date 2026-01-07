@@ -213,7 +213,7 @@ def daily_summary():
                 print("Invalid date format! Please use YYYY-MM-DD (e.g., 2025-12-30)")
 
 
-    with open('accountant/patient_billing_record.txt','r') as f:
+    with open('../accountant/patient_billing_record.txt','r') as f:
         lines = f.readlines()
         for line in lines:
 

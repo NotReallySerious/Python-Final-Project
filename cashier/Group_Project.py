@@ -41,14 +41,14 @@ def view_schedule():
             else:
                 if n == 1:
                     count = 1
-                    with open("cashier/schedule.txt", "r") as r:
+                    with open("../cashier/schedule.txt", "r") as r:
                         for line in r: #Checks all the lines
                             print(count,line.strip()) #Prints all the lines without white space
                             count += 1 #To display line number while printing
                 elif n == 2:
                     while True:
                         count = 1
-                        with open("schedule.txt", "r") as r:
+                        with open("../cashier/schedule.txt", "r") as r:
                             name = input("\nEnter Patient Name or Exit: ") #Insert Patient Name
                             found = False
                             if name.lower() == failsafe.lower(): # Exit if not capitalize properly
@@ -66,7 +66,7 @@ def view_schedule():
                 elif n == 3:
                     while True:
                         count = 1
-                        with open("schedule.txt", "r") as r:
+                        with open("../cashier/schedule.txt", "r") as r:
                             date = input("\nEnter Exact Date or Exit: ") #Insert date
                             found = False
                             if date.lower() == failsafe.lower():  # Exit if not capitalize properly
@@ -84,7 +84,7 @@ def view_schedule():
                                     print("No Schedule")
                 elif n == 4:
                     while True:
-                        with open("schedule.txt", "r") as r:
+                        with open("../cashier/schedule.txt", "r") as r:
                             count = 1
                             doctor = input("\nEnter Doctor Name or Exit: ")
                             found = False
@@ -121,7 +121,7 @@ def view_schedule():
                             print("Invalid Choice")
                             continue
 
-                        with open("schedule.txt", "r") as r:
+                        with open("../cashier/schedule.txt", "r") as r:
                             for line in r:
                                 lst = line.strip().split(",")
                                 if lst[4].lower() == status.lower():
@@ -134,7 +134,7 @@ def view_schedule():
                 elif n == 6:
                     while True:
                         count = 1
-                        with open("schedule.txt", "r") as r:
+                        with open("../cashier/schedule.txt", "r") as r:
                             name = input("\nEnter ScheduleID or Exit: ")  # Insert Patient Name
                             found = False
                             if name.lower() == failsafe.lower():  # Exit if not capitalize properly
@@ -177,7 +177,7 @@ def view_patient():
 
                 n = int(input("Enter your choice: "))
                 if n == 1:
-                    with open("cashier/patient.txt", "r") as r:
+                    with open("../cashier/patient.txt", "r") as r:
                         for line in r:
                             print(line.strip())
             except ValueError:

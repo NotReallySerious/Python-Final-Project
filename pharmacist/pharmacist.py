@@ -129,7 +129,7 @@ def remove():
 # Function to view all medicines currently in stock.
 # Displays barcode, name, quantity, and price for each medicine.
 def view():
-    with open("pharmacist/medicine_stock.txt", "r", newline="") as file:
+    with open("../pharmacist/medicine_stock.txt", "r", newline="") as file:
         reader = csv.reader(file)
         print(f"{'Barcode':<10}{'Medicine Name':<15}{'Quantity':<10}{'Price':<10}")
         for row in reader:
