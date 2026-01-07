@@ -268,21 +268,21 @@ def add_doctor():
     doctor_name = input("Enter doctor name: ").strip()
 
     try:
-        with open("doctor/doctor.txt", "a") as file:
+        with open("doctor/Doctor.txt", "a") as file:
             file.write(f"{doctor_id},{doctor_name}\n")
         print("Doctor added successfully.")
     except FileNotFoundError:
-        print("Error: doctor.txt file not found.")
+        print("Error: Doctor.txt file not found.")
 def update_doctor():
     doctor_id = input("Enter doctor ID to update: ").strip()
     new_name = input("Enter new doctor name: ").strip()
 
     try:
-        with open("doctor/doctor.txt", "r") as file:
+        with open("doctor/Doctor.txt", "r") as file:
             lines = file.readlines()
 
         updated = False
-        with open("doctor/doctor.txt", "w") as file:
+        with open("doctor/Doctor.txt", "w") as file:
             for line in lines:
                 stored_id, stored_name = line.strip().split(",")
                 if stored_id == doctor_id:
@@ -296,16 +296,16 @@ def update_doctor():
             print("Doctor ID not found. No updates made.")
 
     except FileNotFoundError:
-        print("Error: doctor.txt file not found.")
+        print("Error: Doctor.txt file not found.")
 def delete_doctor():
     doctor_id = input("Enter doctor ID to delete: ").strip()
 
     try:
-        with open("doctor/doctor.txt", "r") as file:
+        with open("doctor/Doctor.txt", "r") as file:
             lines = file.readlines()
 
         deleted = False
-        with open("doctor/doctor.txt", "w") as file:
+        with open("doctor/Doctor.txt", "w") as file:
             for line in lines:
                 stored_id, stored_name = line.strip().split(",")
                 if stored_id == doctor_id:
@@ -318,7 +318,7 @@ def delete_doctor():
             print("Doctor ID not found. No deletion performed.")
 
     except FileNotFoundError:
-        print("Error: doctor.txt file not found.")
+        print("Error: Doctor.txt file not found.")
 menu()
 
 
