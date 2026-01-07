@@ -1,6 +1,9 @@
 from pharmacist.pharmacist import view
 from accountant.account__assistant import daily_summary
 from login.auth import register, encrypt_password
+import base64
+import codecs
+import hashlib
 def menu():
     try:
         i = True
