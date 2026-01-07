@@ -2,7 +2,7 @@ from accountant.account__assistant import redo_action
 import datetime
 
 def get_doctor_name(doctor_id):
-    with open('doctor/Doctor.txt', 'r') as f:
+    with open('../doctor/Doctor.txt', 'r') as f:
         lines = f.readlines()
         for line in lines:
             values = line.strip().split(',')
