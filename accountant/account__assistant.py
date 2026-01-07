@@ -356,7 +356,8 @@ def accountant_main():
                 print('Bye. See you tomorrow. Have a great day')
                 break
 
-
+if __name__ == '__main__':
+    accountant_main()
 
 
 

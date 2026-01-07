@@ -130,7 +130,7 @@ def update_member():
         print("User database is empty.")
         return
 
-    username = input("Enter username to update: ").strip()
+    username = input("Enter username to update: ").strip().replace(' ','_')
     updated = False
 
     new_plain_lines = []
