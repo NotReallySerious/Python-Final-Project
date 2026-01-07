@@ -3,8 +3,8 @@ import codecs
 import hashlib
 import datetime
 from pharmacist.pharmacist import view
-from login.auth import register,encrypt_password
-from cashier.receptionist import view_appointment
+from login.auth import encrypt_password
+from accountant.account__assistant import daily_summary
 def menu():
     try:
         i = True
@@ -31,7 +31,7 @@ What is your choice? (enter number 1-6)"""))
 ***********************************
 what is your choice? (enter a number 1-4)"""))
                         if chooseusers== 1:
-                            register()
+                            add_users()
                         elif chooseusers == 2:
                             username = input("Enter username to update: ")
                             update_member(username)
@@ -73,11 +73,11 @@ what is your choice? (enter number 1-4)"""))
 3. View Daily Income Report
 4. Return to ADMIN MENU
 *****************************
-what is your choice? (enter number 1-4)"""))
+                        what is your choice? (enter number 1-4)"""))
                         if chooseviewreports == 1:
                             totalpatients()
                         elif chooseviewreports == 2:
-                            view_appointment()
+                            totalappointments()
                         elif chooseviewreports == 3:
                             view_daily_summary()
                         elif chooseviewreports == 4:
@@ -109,6 +109,9 @@ what is your choice? (enter number 1-3)"""))
                 case 6:
                     print("End.")
                     i = False
+                    with open('login/logged_out.txt','a') as l:
+                        l.write(f'[{datetime.datetime.now()}] accountant logged out\n')
+                    print('Bye. See you tomorrow. Have a great day')
                     break
                 case _: ## Input validation example
                     print("Invalid choice.")
@@ -236,8 +239,7 @@ def totalpatients():
         print("Error: cashier/patient.txt file not found.")
 def totalappointments():
     try:
-        appointments = r"C:\Users\imper\Python-Final-Project\cashier\appointment.txt"
-        with open(appointments, "r") as r:
+        with open("cashier/appointments.txt", "r") as r:
             for line in r:
                 print(line.strip())
     except FileNotFoundError:
@@ -257,7 +259,7 @@ def read_staff():
                 username, email, password, role = parts
                 print(f"Username: {username}, Email: {email}, Password: {password}, Role: {role}")
             else:
-                print({line.strip()})
+                print(f"Invalid record format: {line.strip()}")
 
     except FileNotFoundError:
         print("Error: hospital_staff.txt file not found.")
@@ -266,21 +268,21 @@ def add_doctor():
     doctor_name = input("Enter doctor name: ").strip()
 
     try:
-        with open("doctor/doctor.txt", "a") as file:
+        with open("doctor/Doctor.txt", "a") as file:
             file.write(f"{doctor_id},{doctor_name}\n")
         print("Doctor added successfully.")
     except FileNotFoundError:
-        print("Error: doctor.txt file not found.")
+        print("Error: Doctor.txt file not found.")
 def update_doctor():
     doctor_id = input("Enter doctor ID to update: ").strip()
     new_name = input("Enter new doctor name: ").strip()
 
     try:
-        with open("doctor/doctor.txt", "r") as file:
+        with open("doctor/Doctor.txt", "r") as file:
             lines = file.readlines()
 
         updated = False
-        with open("doctor/doctor.txt", "w") as file:
+        with open("doctor/Doctor.txt", "w") as file:
             for line in lines:
                 stored_id, stored_name = line.strip().split(",")
                 if stored_id == doctor_id:
@@ -294,16 +296,16 @@ def update_doctor():
             print("Doctor ID not found. No updates made.")
 
     except FileNotFoundError:
-        print("Error: doctor.txt file not found.")
+        print("Error: Doctor.txt file not found.")
 def delete_doctor():
     doctor_id = input("Enter doctor ID to delete: ").strip()
 
     try:
-        with open("doctor/doctor.txt", "r") as file:
+        with open("doctor/Doctor.txt", "r") as file:
             lines = file.readlines()
 
         deleted = False
-        with open("doctor/doctor.txt", "w") as file:
+        with open("doctor/Doctor.txt", "w") as file:
             for line in lines:
                 stored_id, stored_name = line.strip().split(",")
                 if stored_id == doctor_id:
@@ -316,14 +318,7 @@ def delete_doctor():
             print("Doctor ID not found. No deletion performed.")
 
     except FileNotFoundError:
-        print("Error: doctor.txt file not found.")
-def view_daily_summary():
-    Date = datetime.date.today().strftime('%Y-%m-%d')
-    summary_file_path = f"accountant/{Date}_daily_summary.txt"
-    with open(summary_file_path, 'r') as f:
-        lines = f.readlines()
-        print(lines)
-
+        print("Error: Doctor.txt file not found.")
 menu()
 
 

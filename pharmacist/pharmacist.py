@@ -299,10 +299,7 @@ def report():
 def banner():
     with open("pharmacist/medicine_stock.txt", "r", newline="") as file:
         reader = csv.reader(file)
-        out_of_stock = [
-            row for row in reader
-            if row and len(row) >= 3 and row[2].isdigit() and int(row[2]) == 0
-        ]
+        out_of_stock = [row for row in reader if row and len(row) >= 3 and row[2].isdigit() and int(row[2]) == 0 ]
 
         if out_of_stock:
             print("The Following Medicines Are Out Of Stock:")

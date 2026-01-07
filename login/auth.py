@@ -32,7 +32,7 @@ def register():
         else:
             break
     
-    email_domain = ['aphdoctor.aph.com','aphaccountant.aph.com','aphreceptionist.aph.com','aphpharmacist.aph.com','aphhadmin.aph.com']
+    email_domain = ['aphdoctor.aph.com','aphaccountant.aph.com','aphreceptionist.aph.com','aphpharmacist.aph.com','aphadmin.aph.com']
     try:
         domain = user_email.split('@')[1]
         if domain == email_domain[0]:
@@ -180,6 +180,8 @@ def login():
                 
                 elif user_role == 'administrator':
                     print(f"Hello Admin. lets go manage some stuffs today")
+                    from ADMIN.OPTIONS_MENU import menu
+                    menu()
                     return
                 
                 else:
