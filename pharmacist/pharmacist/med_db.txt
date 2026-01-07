@@ -1,20 +1,20 @@
 10001, Amoxicillin, 2, 50.00
 10002, Paracetamol, 10, 10.00
 10003, Ibuprofen,10, 18.50
-10004, Metformin, 4, 35.00
-10005, Amlodipine,5, 45.00
+10004, Metformin,10, 35.00
+10005, Amlodipine,20, 45.00
 10006, Omeprazole, 6, 25.00
 10007, Cetirizine, 9, 12.00
 10008, Azithromycin, 2, 70.00
-10009, Salbutamol, 5, 55.00
+10009, Salbutamol,13, 55.00
 10010, Atorvastatin, 3, 65.00
 10011, Ciprofloxacin, 2, 80.00
 10012, Doxycycline, 3, 60.00
 10013, Losartan, 4, 48.00
 10014, Glimepiride, 2, 40.00
-10015, Prednisolone, 1, 55.00
+10015, Prednisolone,7, 55.00
 10016, Ranitidine, 5, 20.00
 10017, Montelukast, 2, 52.00
 10018, Clopidogrel, 1, 90.00
-10019, Furosemide, 3, 30.00
+10019, Furosemide,9, 30.00
 10020, Levofloxacin, 2, 85.00
