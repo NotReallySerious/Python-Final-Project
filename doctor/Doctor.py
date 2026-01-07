@@ -342,7 +342,7 @@ def Doctor_Menu(doctor_id):
         elif choice == "3":
             view_consultation_reports(doctor_id)
         elif choice == "4":
-            with open('login/logged_out.txt','a') as l:
+            with open('../login/logged_out.txt','a') as l:
                 l.write(f'[{datetime.datetime.now()}] Doctor logged out\n')
             print('Bye. See you tomorrow. Have a great day')
             break

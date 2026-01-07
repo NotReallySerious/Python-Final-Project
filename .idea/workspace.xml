@@ -4,12 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="auditing dcotor and accountant. -David">
+    <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="auditing Doctor and pharmacist. -David">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cashier/appointment.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cashier/appointment.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/doctor/Doctor.py" beforeDir="false" afterPath="$PROJECT_DIR$/doctor/Doctor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/doctor/patient_record_db.txt" beforeDir="false" afterPath="$PROJECT_DIR$/doctor/patient_record_db.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pharmacist/pharmacist.py" beforeDir="false" afterPath="$PROJECT_DIR$/pharmacist/pharmacist.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/logged_out.txt" beforeDir="false" afterPath="$PROJECT_DIR$/login/logged_out.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pharmacist/doctor_prescription.txt" beforeDir="false" afterPath="$PROJECT_DIR$/pharmacist/doctor_prescription.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -204,10 +205,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.Doctor" />
+        <item itemvalue="Python.OPTIONS_MENU" />
         <item itemvalue="Python.pharmacist" />
         <item itemvalue="Python.account__assistant" />
         <item itemvalue="Python.receptionist" />
-        <item itemvalue="Python.OPTIONS_MENU" />
       </list>
     </recent_temporary>
   </component>
@@ -226,7 +227,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1767159549121</updated>
-      <workItem from="1767791178370" duration="2737000" />
+      <workItem from="1767791178370" duration="3468000" />
     </task>
     <task id="LOCAL-00001" summary="added options menu for ADMIN - deva">
       <option name="closed" value="true" />
@@ -316,7 +317,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767792978761</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="auditing Doctor and pharmacist. -David">
+      <option name="closed" value="true" />
+      <created>1767793994837</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1767793994838</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -326,12 +335,13 @@
     <MESSAGE value="added options menu for ADMIN - deva" />
     <MESSAGE value="import a few stuff" />
     <MESSAGE value="auditing dcotor and accountant. -David" />
-    <option name="LAST_COMMIT_MESSAGE" value="auditing dcotor and accountant. -David" />
+    <MESSAGE value="auditing Doctor and pharmacist. -David" />
+    <option name="LAST_COMMIT_MESSAGE" value="auditing Doctor and pharmacist. -David" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Python_Final_Project$account__assistant.coverage" NAME="account__assistant Coverage Results" MODIFIED="1767792707123" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/accountant" />
-    <SUITE FILE_PATH="coverage/Python_Final_Project$Doctor.coverage" NAME="Doctor Coverage Results" MODIFIED="1767793803273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/doctor" />
-    <SUITE FILE_PATH="coverage/Python_Final_Project$OPTIONS_MENU.coverage" NAME="OPTIONS_MENU Coverage Results" MODIFIED="1767791702577" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ADMIN" />
+    <SUITE FILE_PATH="coverage/Python_Final_Project$Doctor.coverage" NAME="Doctor Coverage Results" MODIFIED="1767794700142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/doctor" />
+    <SUITE FILE_PATH="coverage/Python_Final_Project$OPTIONS_MENU.coverage" NAME="OPTIONS_MENU Coverage Results" MODIFIED="1767794051203" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ADMIN" />
     <SUITE FILE_PATH="coverage/Python_Final_Project$receptionist.coverage" NAME="receptionist Coverage Results" MODIFIED="1767792441697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/cashier" />
     <SUITE FILE_PATH="coverage/Python_Final_Project$pharmacist.coverage" NAME="pharmacist Coverage Results" MODIFIED="1767793203417" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pharmacist" />
   </component>

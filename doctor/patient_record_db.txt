@@ -1,2 +1,3 @@
 'D01','P03','Michael Brown',26,'Heartbroken','amoxcilin','10','move on bro'
-'D01','P08','Michelle Lee',30,'MatchaHolic','Amlodipine','5','stop drinking that'
+'D01','P08','Michelle Lee',20,'Depression','Amplodipine;Amoxcilin','5;5','go see a psychologist'
+'D01','P01','Alex Smith',30,'Insomnia','Metformin','10','go to sleep'
