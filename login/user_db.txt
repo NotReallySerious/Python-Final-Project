@@ -4,3 +4,5 @@ Ivandeva;Deva@aphadmin.aph.com;IvanDeva123!_;administrator
 Mujtaba_Ahmed;MujtabaAhmed@aphpharmacist.aph.com;AhmedMujtaba123!_;pharmacist
 Austin_Lawrence;AustinLawrence@aphreceptionist.aph.com;IloveDnD123!_;receptionist
 David;DavidCP@aphaccountant.aph.com;DavidCPP123!_;accountant
+John_Pork;JohnPork@aphdoctor.aph.com;JohnPork123!_;Doctor
+Patrick_Star;PatrickStar@uknownemail.com;IloveIceSpice123!_;patient
