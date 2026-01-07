@@ -30,11 +30,9 @@ what is your choice? (enter a number 1-4)"""))
                         if chooseusers== 1:
                             register()
                         elif chooseusers == 2:
-                            username = input("Enter username to update: ")
-                            update_member(username)
+                            update_member()
                         elif chooseusers == 3:
-                            username = input("Enter username to delete: ")
-                            delete_member(username)
+                            delete_member()
                         elif chooseusers == 4:
                             break
                         else:
@@ -116,70 +114,110 @@ what is your choice? (enter number 1-3)"""))
     except ValueError:
         print("Please enter a number.")
 
-def update_member(username):
-    with open("../login/user_db.txt", "r") as file:
-        lines = file.readlines()
+
+
+def update_member():
+    try:
+        ## Read all lines first
+        DELIM = ";"  # keep semicolon consistently since your file uses ;
+        with open("../login/user_db.txt", "r", encoding="utf-8") as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        print("Error: login/user_db.txt not found.")
+        return
+
+    if not lines:
+        print("User database is empty.")
+        return
+
+    username = input("Enter username to update: ").strip()
     updated = False
-    with open("../login/user_db.txt", "w") as file, open("../login/user_db_encrypted.txt", "w") as enc_file:
-        for line in lines:
-            stored_username, stored_email, stored_password, stored_role = line.strip().split(";")
 
-            if stored_username == username:
-                print("\nWhat would you like to update?")
-                print("1. Email")
-                print("2. Password")
-                print("3. Role")
-                choice = input("Enter choice (1-3): ")
+    new_plain_lines = []
+    new_enc_lines = []
 
-                if choice == "1":
-                    new_email = input("Enter new email: ")
-                    # EMAIL CHECKING
-                    if "@" not in new_email or "." not in new_email.split("@")[-1]:
-                        print("Invalid email format. Update failed.")
-                        file.write(line)
-                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
-                    else:
-                        file.write(f"{stored_username},{new_email},{stored_password},{stored_role}\n")
-                        enc_file.write(f"{stored_username},{new_email},{encrypt_password(stored_password)},{stored_role}\n")
-                        print("Email updated successfully.")
+    for raw in lines:
+        raw = raw.strip()
+        if not raw:
+            continue
 
-                elif choice == "2":
-                    new_password = input("Enter new password: ")
-                    # PASSWORD CHECKING
-                    if len(new_password) < 8 or not any(char.isdigit() for char in new_password):
-                        print("Password must be at least 8 characters and contain a number. Update failed.")
-                        file.write(line)
-                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
-                    else:
-                        file.write(f"{stored_username},{stored_email},{new_password},{stored_role}\n")
-                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(new_password)},{stored_role}\n")
-                        print("Password updated successfully.")
+        parts = raw.split(DELIM)
+        if len(parts) != 4:
+            # Preserve malformed lines
+            new_plain_lines.append(raw)
+            new_enc_lines.append(raw)
+            continue
 
-                elif choice == "3":
-                    new_role = input("Enter new role: ")
-                    # DOMAIN ROLE CHECKING
-                    allowed_roles = ["admin", "user", "staff"]
-                    if new_role.lower() not in allowed_roles:
-                        print("Invalid role. Must be one of: admin, user, staff. Update failed.")
-                        file.write(line)
-                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
-                    else:
-                        file.write(f"{stored_username},{stored_email},{stored_password},{new_role}\n")
-                        enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{new_role}\n")
-                        print("Role updated successfully.")
+        stored_username, stored_email, stored_password, stored_role = parts
 
+        if stored_username == username:
+            print("\nWhat would you like to update?")
+            print("1. Email")
+            print("2. Password")
+            print("3. Role")
+            choice = input("Enter choice (1-3): ").strip()
+
+            if choice == "1":
+                new_email = input("Enter new email: ").strip()
+                if "@" not in new_email or "." not in new_email.split("@")[-1]:
+                    print("Invalid email format. Update failed.")
+                    new_plain_lines.append(raw)
+                    new_enc_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{stored_role}")
                 else:
-                    print("Invalid choice. No changes made.")
-                    file.write(line)
-                    enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
+                    new_plain_lines.append(f"{stored_username}{DELIM}{new_email}{DELIM}{stored_password}{DELIM}{stored_role}")
+                    new_enc_lines.append(f"{stored_username}{DELIM}{new_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{stored_role}")
+                    print("Email updated successfully.")
 
-                updated = True
+            elif choice == "2":
+                new_password = input("Enter new password: ").strip()
+                if len(new_password) < 8 or not any(char.isdigit() for char in new_password):
+                    print("Password must be at least 8 characters and contain a number. Update failed.")
+                    new_plain_lines.append(raw)
+                    new_enc_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{stored_role}")
+                else:
+                    new_plain_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{new_password}{DELIM}{stored_role}")
+                    new_enc_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(new_password)}{DELIM}{stored_role}")
+                    print("Password updated successfully.")
+
+            elif choice == "3":
+                new_role = input("Enter new role: (administrator, pharmacist, doctor, accountant, receptionist)").strip()
+                allowed_roles = ["administrator", "pharmacist", "doctor", "accountant", "receptionist"]
+                if new_role.lower() not in allowed_roles:
+                    print("Invalid role. Must be one of: admin, user, staff. Update failed.")
+                    new_plain_lines.append(raw)
+                    new_enc_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{stored_role}")
+                else:
+                    new_plain_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{stored_password}{DELIM}{new_role}")
+                    new_enc_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{new_role}")
+                    print("Role updated successfully.")
+
             else:
-                file.write(line)
-                enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
+                print("Invalid choice. No changes made.")
+                new_plain_lines.append(raw)
+                new_enc_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{stored_role}")
+
+            updated = True
+        else:
+            # Keep other users intact
+            new_plain_lines.append(raw)
+            new_enc_lines.append(f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{stored_role}")
+
     if not updated:
         print("Username not found. No updates made.")
-def delete_member(username):
+        return
+
+    # Write back safely
+    with open("../login/user_db.txt", "w", encoding="utf-8") as file:
+        for line in new_plain_lines:
+            file.write(line + "\n")
+
+    with open("../login/user_db_encrypted.txt", "w", encoding="utf-8") as enc_file:
+        for line in new_enc_lines:
+            enc_file.write(line + "\n")
+
+    print("User database updated.")
+
+def delete_member():
     try:
         with open("../login/user_db.txt", "r") as file:
             lines = file.readlines()
@@ -192,7 +230,7 @@ def delete_member(username):
         with open("../login/user_db.txt", "w") as file, open("../login/user_db_encrypted.txt", "w") as enc_file:
             for line in lines:
                 stored_username, stored_email, stored_password, stored_role = line.strip().split(";")
-
+                username = input("Enter username to delete: ")
                 if stored_username == username:
                     # Skip writing this line → deletion
                     print(f"User '{stored_username}' deleted successfully.")
