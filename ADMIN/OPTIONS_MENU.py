@@ -312,6 +312,5 @@ def delete_doctor():
 
     except FileNotFoundError:
         print("Error: doctor.txt file not found.")
-
 menu()
 

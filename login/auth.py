@@ -180,6 +180,8 @@ def login():
                 
                 elif user_role == 'administrator':
                     print(f"Hello Admin. lets go manage some stuffs today")
+                    from ADMIN.OPTIONS_MENU import menu
+                    menu()
                     return
                 
                 else:
