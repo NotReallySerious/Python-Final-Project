@@ -1,5 +1,4 @@
 from pharmacist.pharmacist import view
-from login.auth import register
 import base64
 import codecs
 import hashlib
@@ -30,7 +29,7 @@ What is your choice? (enter number 1-6)"""))
 ***********************************
 what is your choice? (enter a number 1-4)"""))
                         if chooseusers== "1":
-                            register()
+                            add_users()
                         elif chooseusers == "2":
                             username = input("Enter username to update: ")
                             update_member(username)
@@ -337,7 +336,97 @@ def encrypt_password(password):
     sha256_string = hashlib.sha256(hash_bytes)
     final_hex_representation = sha256_string.hexdigest()
     return final_hex_representation
+def add_users():
+    while True:
+        user_email = input("Enter your valid email: ").strip()
+        # Email checking
+        if '@' not in user_email:
+            print("Invalid email")
+        else:
+            break
 
+    email_domain = ['aphdoctor.aph.com', 'aphaccountant.aph.com', 'aphreceptionist.aph.com', 'aphpharmacist.aph.com',
+                    'aphhadmin.aph.com']
+    try:
+        domain = user_email.split('@')[1]
+        if domain == email_domain[0]:
+            role = 'Doctor'
+        elif domain == email_domain[1]:
+            role = 'accountant'
+        elif domain == email_domain[2]:
+            role = 'receptionist'
+        elif domain == email_domain[3]:
+            role = 'pharmacist'
+        elif domain == email_domain[4]:
+            role = 'administrator'
+        else:
+            role = 'patient'
+    except IndexError:
+        print('invalid email format.')
+
+    username = input("Enter your username: ").strip().replace(' ', '_')
+
+    while True:
+        password = input("Enter your password: ").strip()
+
+        # Password checking
+        password_length = len(password)
+        uppercase_count = 0
+        lowercase_count = 0
+        num_count = 0
+        special_characters = ['[', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '.', '?', '"', ':', '{', '}', '|',
+                              '<', '>', ']']
+        special_count = 0
+        all_valid = True
+        if password_length < 12:
+            print(f"your password length is {len(password)}. you password must have at least 12 characters")
+            all_valid = False
+
+        for letter in password:
+            if letter.isupper():
+                uppercase_count += 1
+            elif letter.islower():
+                lowercase_count += 1
+            if letter.isnumeric():
+                num_count += 1
+
+        if uppercase_count < 1:
+            print("Your password must have at least 1 uppercase letter.")
+            all_valid = False
+
+        if lowercase_count < 1:
+            print("Your password must have at least 1 lowercase letter")
+            all_valid = False
+
+        for letter in password:
+            if letter in special_characters:
+                special_count += 1
+        if special_count < 1:
+            print("Your password must have at least 1 special characters")
+            all_valid = False
+
+        if num_count < 1:
+            print('Your password must have at least 1 digit number')
+            all_valid = False
+
+        if all_valid:
+            print("Password all match")
+            encrypted_pass = encrypt_password(password)
+            break
+
+    print(f'username: {username}, email: {user_email}, Password: {encrypted_pass} Role: {role}')
+
+    try:
+        with open('login/user_db.txt', 'a') as f:
+            f.write(f'{username};{user_email};{password};{role}\n')
+            print('User registered successfully')
+    except FileNotFoundError as e:
+        print(f'Error: {e}')
+    try:
+        with open('login/user_db_encrypted.txt', 'a') as fe:
+            fe.write(f'{username};{user_email};{encrypt_password(password)};{role}\n')
+    except FileNotFoundError as e:
+        print(f'Error: {e}')
 
     menu()
 
