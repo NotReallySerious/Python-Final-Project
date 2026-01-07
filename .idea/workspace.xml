@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c2b695e1-43ba-4d5c-8236-dd6214eb6d6c" name="Changes" comment="added options menu for ADMIN - deva">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" beforeDir="false" afterPath="$PROJECT_DIR$/ADMIN/OPTIONS_MENU.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/login/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/clocked_in.txt" beforeDir="false" afterPath="$PROJECT_DIR$/login/clocked_in.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/user_db.txt" beforeDir="false" afterPath="$PROJECT_DIR$/login/user_db.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/user_db_encrypted.txt" beforeDir="false" afterPath="$PROJECT_DIR$/login/user_db_encrypted.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pharmacist/pharmacist.py" beforeDir="false" afterPath="$PROJECT_DIR$/pharmacist/pharmacist.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,7 +52,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Merging main",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/imper/Python-Final-Project",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
