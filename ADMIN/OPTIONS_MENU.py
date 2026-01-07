@@ -1,4 +1,5 @@
 from pharmacist.pharmacist import view
+import base64
 import datetime
 def menu():
     try:
@@ -316,16 +317,7 @@ def view_daily_summary():
     summary_file_path = f"accountant/{Date}_daily_summary.txt"
     with open(summary_file_path, 'r') as f:
         lines = f.readlines()
-        for line in lines:
-            if not line.strip():
-                continue
-            part = line.strip().split(';')
-            date = part[0].strip().replace("'", "")
-            patient_name = part[1].strip().replace("'", "")
-            item_name = part[2].strip().replace("'", "")
-            quantity = int(part[3].strip())
-            price = float(part[4].strip())
 def add_users():
 
-menu()
+    menu()
 
