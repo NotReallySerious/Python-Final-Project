@@ -268,6 +268,7 @@ def prepare(p_id, t_id):
 # Calls 'prepare' and then prints a formatted bill with total cost.
 def prepare_patient_medicine():
     global total, prows
+    
     t_id = input("Enter Token No:")
     p_id = input("Enter Patient ID:")
     prepare(p_id, t_id)
@@ -297,16 +298,9 @@ def report():
 # Function to check for medicines that are out of stock.
 # Prints them and saves the list into 'med_stock_out.txt'.
 def banner():
-<<<<<<< HEAD
     with open("pharmacist/medicine_stock.txt", "r", newline="") as file:
-=======
-    with open("medicine_stock.txt", "r") as file:
->>>>>>> cbf14970b71ec4a099e4c119daa6815806092f70
         reader = csv.reader(file)
-        out_of_stock = [
-            row for row in reader
-            if row and len(row) >= 3 and row[2].isdigit() and int(row[2]) == 0
-        ]
+        out_of_stock = [row for row in reader if row and len(row) >= 3 and row[2].isdigit() and int(row[2]) == 0]
 
         if out_of_stock:
             print("The Following Medicines Are Out Of Stock:")
