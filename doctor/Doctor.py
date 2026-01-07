@@ -349,4 +349,3 @@ def Doctor_Menu(doctor_id):
         else:
             print("Invalid choice. Please choose the number above")   
 
-Doctor_Menu('D01')
