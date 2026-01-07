@@ -2,7 +2,7 @@ from accountant.account__assistant import redo_action
 import datetime
 
 def get_doctor_name(doctor_id):
-    with open('doctor/Doctor.txt', 'r') as f:
+    with open('../doctor/Doctor.txt', 'r') as f:
         lines = f.readlines()
         for line in lines:
             values = line.strip().split(',')
@@ -16,7 +16,7 @@ def get_doctor_name(doctor_id):
 
 def view_appointments(doctor_id):
     patients = {}
-    with open('cashier/patient.txt', 'r') as p:
+    with open('../cashier/patient.txt', 'r') as p:
         lines = p.readlines()
         for line in lines:
             line = line.strip()
@@ -31,7 +31,7 @@ def view_appointments(doctor_id):
                 }
 
     records = {}
-    with open('cashier/appointment.txt', 'r') as file:
+    with open('../cashier/appointment.txt', 'r') as file:
         lines = file.readlines()
         for line in lines:
             line = line.strip()
@@ -74,7 +74,7 @@ def view_appointments(doctor_id):
 
 def record_consultation(doctor_id):
     patient_details = {}
-    with open('cashier/patient.txt','r') as patient:
+    with open('../cashier/patient.txt','r') as patient:
         patients = patient.readlines()
         for person in patients:
             values = person.strip().split(',')
@@ -95,7 +95,7 @@ def record_consultation(doctor_id):
     
     appointment_details = {}
     all_app = []
-    with open('cashier/appointment.txt', 'r') as app:
+    with open('../cashier/appointment.txt', 'r') as app:
         lines = app.readlines()
         for line in lines:
             values = line.strip().split(',')
@@ -174,7 +174,7 @@ def record_consultation(doctor_id):
         
         while True:
             print("Enter medications for your patient (separate with ; for multiple medicines)\n")
-            meds = input("Enter medicine(s): ").strip()
+            meds = input("Enter medicine(s): ").strip().title()
             if not meds:
                 print("Medications can't be empty.")
                 continue
@@ -211,7 +211,7 @@ def record_consultation(doctor_id):
         record = f"'{doctor_id}','{patient_id}','{patient_name}',{age},'{diagnosis}','{meds}','{qty}','{advice}'\n"
 
         try:
-            with open('doctor/patient_record_db.txt', 'a') as rec:
+            with open('../doctor/patient_record_db.txt', 'a') as rec:
                 rec.write(record)
                 print("File saved successfully")
         except Exception:
@@ -223,7 +223,7 @@ def record_consultation(doctor_id):
                     appointment['status'] = 'Completed'
             
             # Write all appointments back to file
-            with open('cashier/appointment.txt', 'w') as app_file:
+            with open('../cashier/appointment.txt', 'w') as app_file:
                 for appointment in all_app:
                     line = f"{appointment['app_id']},{appointment['date']},{appointment['hour']},{appointment['status']},{appointment['patient_id']},{appointment['doctor_id']}\n"
                     app_file.write(line)
@@ -232,12 +232,12 @@ def record_consultation(doctor_id):
         except Exception as e:
             print(f"Error updating appointment status: {e}")
         
-        # Sending the medicine prescription to the pharmacist in form of patient_id,token_no,barcode,qty of med
+        # Sending the medicine prescription to the ../pharmacist/ in form of patient_id,token_no,barcode,qty of med
         token_number = 1
 
         # First, check if prescription file exists to determine next token number
         try:
-            with open('pharmacist/doctor_prescription.txt', 'r') as existing:
+            with open('../pharmacist//doctor_prescription.txt', 'r') as existing:
                 existing_lines = existing.readlines()
                 if existing_lines:
                     # Get the last token number and increment
@@ -251,7 +251,7 @@ def record_consultation(doctor_id):
         # Get medicine stock with barcodes
         medicine_stock = {}
         try:
-            with open('pharmacist/medicine_stock.txt', 'r') as stock:
+            with open('../pharmacist//medicine_stock.txt', 'r') as stock:
                 stock_lines = stock.readlines()
                 for line in stock_lines:
                     line = line.strip()
@@ -269,20 +269,20 @@ def record_consultation(doctor_id):
         meds_list = [m.strip() for m in meds.split(';')]
         qty_list = [q.strip() for q in qty.split(';')]
 
-        # Write prescription to pharmacist file
+        # Write prescription to ../pharmacist/ file
         try:
-            with open('pharmacist/doctor_prescription.txt', 'a') as pres_file:
+            with open('../pharmacist/doctor_prescription.txt', 'a') as pres_file:
                 for i, medicine in enumerate(meds_list):
                     quantity = qty_list[i] if i < len(qty_list) else '1'  # Default to 1 if quantity missing
                     
-                    # Look up barcode (case-insensitive)
+                    # Look up barcode
                     barcode = medicine_stock.get(medicine.lower(), 'UNKNOWN')
                     
                     # Format: patient_id,token_no,medicine_name,barcode,quantity
-                    prescription_line = f"{patient_id},{token_number},{medicine},{barcode},{quantity}\n"
+                    prescription_line = f"{patient_id},{token_number},{barcode},{quantity}\n"
                     pres_file.write(prescription_line)
                 
-                print(f"Prescription sent to pharmacist with token number: {token_number}")
+                print(f"Prescription sent to ../pharmacist/ with token number: {token_number}")
         except Exception as e:
             print(f"Error writing prescription: {e}")        
         if not redo_action('Do you want to record another consultation? '):
@@ -293,7 +293,7 @@ def view_consultation_reports(doctor_id):
     found = False
     
     try:
-        with open('doctor/patient_record_db.txt', 'r') as f:
+        with open('../doctor/patient_record_db.txt', 'r') as f:
             lines = f.readlines()
             
             for line in lines:
