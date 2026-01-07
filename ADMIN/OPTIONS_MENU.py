@@ -1,6 +1,8 @@
+import base64
+import codecs
+import hashlib
+import datetime
 from pharmacist.pharmacist import view
-from accountant.account__assistant import daily_summary
-from login.auth import register, encrypt_password
 def menu():
     try:
         i = True
@@ -26,15 +28,15 @@ What is your choice? (enter number 1-6)"""))
 4. Return to ADMIN MENU
 ***********************************
 what is your choice? (enter a number 1-4)"""))
-                        if chooseusers== "1":
-                            register()
-                        elif chooseusers == "2":
+                        if chooseusers== 1:
+                            add_users()
+                        elif chooseusers == 2:
                             username = input("Enter username to update: ")
                             update_member(username)
-                        elif chooseusers == "3":
+                        elif chooseusers == 3:
                             username = input("Enter username to delete: ")
                             delete_member(username)
-                        elif chooseusers == "4":
+                        elif chooseusers == 4:
                             break
                         else:
                             print("Invalid Choice")
@@ -42,20 +44,20 @@ what is your choice? (enter a number 1-4)"""))
                 case 2:
                     while True:
                         choosedocrecs= int(input(f"""
-    *******MANAGING DOCTOR RECORDS*******
-    1. Add Doctor Records 
-    2. Update Doctor Records 
-    3. Delete Doctor Records
-    4. Return to ADMIN MENU
-    *************************************
-                        what is your choice? (enter number 1-3)"""))
-                        if choosedocrecs == "1":
+*******MANAGING DOCTOR RECORDS*******
+1. Add Doctor Records 
+2. Update Doctor Records 
+3. Delete Doctor Records
+4. Return to ADMIN MENU
+*************************************
+what is your choice? (enter number 1-4)"""))
+                        if choosedocrecs == 1:
                             add_doctor()
-                        elif choosedocrecs== "2":
+                        elif choosedocrecs== 2:
                             update_doctor()
-                        elif choosedocrecs== "3":
+                        elif choosedocrecs== 3:
                             delete_doctor()
-                        elif choosedocrecs== "4":
+                        elif choosedocrecs== 4:
                             break
                         else:
                             print("Invalid Choice")
@@ -69,14 +71,14 @@ what is your choice? (enter a number 1-4)"""))
 3. View Daily Income Report
 4. Return to ADMIN MENU
 *****************************
-                        what is your choice? (enter number 1-3)"""))
-                        if chooseviewreports == "1":
+                        what is your choice? (enter number 1-4)"""))
+                        if chooseviewreports == 1:
                             totalpatients()
-                        elif chooseviewreports == "2":
+                        elif chooseviewreports == 2:
                             totalappointments()
-                        elif chooseviewreports == "3":
-                            daily_summary()
-                        elif chooseviewreports == "4":
+                        elif chooseviewreports == 3:
+                            view_daily_summary()
+                        elif chooseviewreports == 4:
                             break
                         else:
                             print("Invalid Choice")
@@ -89,12 +91,12 @@ what is your choice? (enter a number 1-4)"""))
 2. Generate Medicine Summary Report
 3. Return to ADMIN MENU
 ********************************************
-what is your choice? (enter number 1-2)"""))
-                        if choosinggenerate == "1":
+what is your choice? (enter number 1-3)"""))
+                        if choosinggenerate == 1:
                             read_staff()
-                        elif choosinggenerate == "2":
+                        elif choosinggenerate == 2:
                             view() ##view function from pharmacist
-                        elif choosinggenerate == "3":
+                        elif choosinggenerate == 3:
                             break
                         else:
                             print("Invalid Choice")
@@ -213,7 +215,7 @@ def med_remove():
                     # Validation: must be digits and length < 6
                     if len(barcode) == 5:
                         with open("med_remove.txt", "w") as file:
-                            file.write(barcode , "\n")
+                            file.write(str(barcode) +'\n')
                         print(f"Barcode {barcode} recorded.")
                         break
                     else:
@@ -313,4 +315,5 @@ def delete_doctor():
     except FileNotFoundError:
         print("Error: doctor.txt file not found.")
 menu()
+
 
