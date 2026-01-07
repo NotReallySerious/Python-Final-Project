@@ -685,7 +685,7 @@ def receptionist_main():
                 print("\nInvalid Choice, Enter a Mode")
             elif mode == 5:
                 print("\nExiting")
-                with open('login/logged_out.txt','a') as l:
+                with open('../login/logged_out.txt','a') as l:
                     l.write(f'[{datetime.datetime.now()}] Receptionist logged out\n')
                 print('Bye. See you tomorrow. Have a great day')
                 break
@@ -702,4 +702,3 @@ def receptionist_main():
         except KeyboardInterrupt:
             print("\nExiting")
 
-receptionist_main()
