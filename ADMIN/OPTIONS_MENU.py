@@ -122,7 +122,7 @@ def update_member(username):
     updated = False
     with open("../login/user_db.txt", "w") as file, open("../login/user_db_encrypted.txt", "w") as enc_file:
         for line in lines:
-            stored_username, stored_email, stored_password, stored_role = line.strip().split(",")
+            stored_username, stored_email, stored_password, stored_role = line.strip().split(";")
 
             if stored_username == username:
                 print("\nWhat would you like to update?")
@@ -191,7 +191,7 @@ def delete_member(username):
     try:
         with open("../login/user_db.txt", "w") as file, open("../login/user_db_encrypted.txt", "w") as enc_file:
             for line in lines:
-                stored_username, stored_email, stored_password, stored_role = line.strip().split(",")
+                stored_username, stored_email, stored_password, stored_role = line.strip().split(";")
 
                 if stored_username == username:
                     # Skip writing this line → deletion
@@ -201,10 +201,8 @@ def delete_member(username):
                     # Keep other users intact
                     file.write(line)
                     enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
-
     except FileNotFoundError as e:
         print(f"Error: {e}")
-
     if not deleted:
         print("Username not found. No deletion performed.")
 def med_remove():
