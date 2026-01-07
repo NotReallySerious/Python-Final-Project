@@ -1,4 +1,4 @@
-Charlie_Kirk;Charlie@aphdoctor.aph.com;WeAreCharlieKirk123!_;Doctor
+Charlie_Kirk;Charlie@aphdoctor.aph.com;WeAreCharlieKirk123!_;doctor
 Spongebob_Squarepants;Spongebob@aphaccountant.aph.com;BikiniBottom24!_;accountant
 Ivandeva;Deva@aphadmin.aph.com;IvanDeva123!_;administrator
 Mujtaba_Ahmed;MujtabaAhmed@aphpharmacist.aph.com;AhmedMujtaba123!_;pharmacist
