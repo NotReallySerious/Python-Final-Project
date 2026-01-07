@@ -13,7 +13,7 @@ def redo_action(prompt):
         
 def get_user_total_details():
     try:
-        with open('accountant/receipt_id.txt','r') as re:
+        with open('../accountant/receipt_id.txt','r') as re:
             last_id = int(re.read())
     except FileNotFoundError:
         last_id = 0
@@ -26,7 +26,7 @@ def get_user_total_details():
     found = False
     total = 0.00
     Date_Entry = ""
-    with open('accountant/patient_billing_record.txt','r') as user_sum:
+    with open('../accountant/patient_billing_record.txt','r') as user_sum:
         for user in user_sum:
             if not user.strip():
                 continue
@@ -36,7 +36,7 @@ def get_user_total_details():
             if len(line) < 5:
                 continue
             try:
-                Date_Entry = line[0].strip().split(',')
+                barcode = line[0].strip().split
                 username = line[1].strip()
                 item_name = line[2].strip()
                 Quantity = int(line[3].strip())
@@ -59,7 +59,7 @@ def get_user_total_details():
                 return
     
     # Display and store them into a different username billing receipts
-    receipt_path = f"accountant/{patient_name.replace(' ','_')}_receipt.txt"
+    receipt_path = f"../accountant/{patient_name.replace(' ','_')}_receipt.txt"
     try:
         with open(receipt_path, 'a') as receipt:
             receipt.write("Asia Pacific Hospital receipt\n")
@@ -78,7 +78,7 @@ def get_user_total_details():
         print(f"Error creating receipt: {e}")
     
     try:
-        with open('accountant/receipt_db.txt','a') as rl:
+        with open('../accountant/receipt_db.txt','a') as rl:
             rl.write(f"{receipt_id_str}: {patient_name}\n")
         
         with open('receipt_id.txt', 'w') as re:
@@ -95,7 +95,7 @@ def get_user_total_details():
 def get_receipt_list():
     receipts = {}
     current_id = 1
-    with open('accountant/receipt_db.txt','r') as rl:
+    with open('../accountant/receipt_db.txt','r') as rl:
         lines = rl.readlines()
         for line in lines:
 
@@ -121,7 +121,7 @@ def get_receipt_list():
             
         if choice in receipts:
             patient_name = receipts[choice]
-            receipt_file = f"accountant/{patient_name.lower().replace(' ','_')}_receipt.txt"
+            receipt_file = f"../accountant/{patient_name.lower().replace(' ','_')}_receipt.txt"
         else:
             print('invalid ID')
             continue
@@ -139,7 +139,7 @@ def get_receipt_list():
 def delete_receipt():
     receipts = {}
     current_id = 1
-    with open('accountant/receipt_db.txt','r') as rl:
+    with open('../accountant/receipt_db.txt','r') as rl:
         lines = rl.readlines()
         for line in lines:
 
@@ -169,7 +169,7 @@ def delete_receipt():
             
         if choice in receipts:
             patient_name = receipts[choice]
-            receipt_file = f"accountant/{patient_name.lower().replace(' ','_')}_receipt.txt"
+            receipt_file = f"../accountant/{patient_name.lower().replace(' ','_')}_receipt.txt"
         else:
             print('invalid ID')
             continue
@@ -182,7 +182,7 @@ def delete_receipt():
 
         del lines[choice - 1]
 
-        with open('accountant/receipt_db.txt', 'w') as rl:
+        with open('../accountant/receipt_db.txt', 'w') as rl:
             rl.writelines(lines)    
         
         print('Receipt deleted successfully')
@@ -237,7 +237,7 @@ def daily_summary():
         print(f'no transaction found for {Date}')
         return
     
-    summary_file_path = f"accountant/{Date}_daily_summary.txt"
+    summary_file_path = f"../accountant/{Date}_daily_summary.txt"
 
     with open(summary_file_path, 'w') as sum: 
         sum.write(f"Asia Pacific Hospital Healthplus Sales Summary\n")
@@ -257,7 +257,7 @@ def daily_summary():
         return
 
 def add_new_med_stock():
-    with open('pharmacist/med_stock_low.txt','r') as f:
+    with open('../pharmacist/med_stock_low.txt','r') as f:
         info = f.readlines()
         for line in info:
             element = line.strip().split(',')
@@ -289,7 +289,7 @@ def add_new_med_stock():
         
 def update_quantity_med():
     existing_meds = {}
-    with open('pharmacist/med_db.txt', 'r') as p:
+    with open('../pharmacist/med_db.txt', 'r') as p:
         lines = p.readlines()
         for line in lines:
             values = line.strip().split(',')
