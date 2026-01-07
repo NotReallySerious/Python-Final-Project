@@ -216,51 +216,64 @@ def update_member():
             enc_file.write(line + "\n")
 
     print("User database updated.")
-
 def delete_member():
-    try:
-        with open("../login/user_db.txt", "r") as file:
-            lines = file.readlines()
-    except FileNotFoundError:
-        print("Error: login/user_db.txt not found.")
-        return
-    deleted = False
-    try:
-        with open("../login/user_db.txt", "w") as file, open("../login/user_db_encrypted.txt", "w") as enc_file:
-            for line in lines:
-                stored_username, stored_email, stored_password, stored_role = line.strip().split(";")
-                username = input("Enter username to delete: ")
-                if stored_username == username:
-                    # Skip writing this line → deletion
-                    print(f"User '{stored_username}' deleted successfully.")
-                    deleted = True
-                else:
-                    # Keep other users intact
-                    file.write(line)
-                    enc_file.write(f"{stored_username},{stored_email},{encrypt_password(stored_password)},{stored_role}\n")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-    if not deleted:
-        print("Username not found. No deletion performed.")
-def med_remove():
-    try:
-        count = int(input("How many medicine do you want to remove? "))
-        for i in range(0,count):
-                while True:
-                    barcode = int(input(f"Enter medicine barcode (5 digits): "))
-                    # Validation: must be digits and length < 6
-                    if len(barcode) == 5:
-                        with open("med_remove.txt", "w") as file:
-                            file.write(str(barcode) +'\n')
-                        print(f"Barcode {barcode} recorded.")
-                        break
-                    else:
-                        print("Invalid barcode. Must be numeric and 5 digits. Try again.")
-        print("Final barcode saved to med_remove.txt.")
-    except ValueError:
-        print("Error: Please enter a valid number for how many medicines to remove.")
-    except Exception as e:
-        print("Unexpected error:", str(e))
+        try:
+            DELIM = ";"
+            # Read all lines first
+            with open("../login/user_db.txt", "r", encoding="utf-8") as file:
+                lines = file.readlines()
+        except FileNotFoundError:
+            print("Error: login/user_db.txt not found.")
+            return
+
+        if not lines:
+            print("User database is empty.")
+            return
+
+        username = input("Enter username to delete: ").strip()
+        deleted = False
+
+        new_plain_lines = []
+        new_enc_lines = []
+
+        for raw in lines:
+            raw = raw.strip()
+            if not raw:
+                continue
+
+            parts = raw.split(DELIM)
+            if len(parts) != 4:
+                # Preserve malformed lines
+                new_plain_lines.append(raw)
+                new_enc_lines.append(raw)
+                continue
+
+            stored_username, stored_email, stored_password, stored_role = parts
+
+            if stored_username == username:
+                print(f"User '{stored_username}' deleted successfully.")
+                deleted = True
+                # Skip writing this line → deletion
+            else:
+                # Keep other users intact
+                new_plain_lines.append(raw)
+                new_enc_lines.append(
+                    f"{stored_username}{DELIM}{stored_email}{DELIM}{encrypt_password(stored_password)}{DELIM}{stored_role}")
+
+        if not deleted:
+            print("Username not found. No deletion performed.")
+            return
+
+        # Write back safely
+        with open("../login/user_db.txt", "w", encoding="utf-8") as file:
+            for line in new_plain_lines:
+                file.write(line + "\n")
+
+        with open("../login/user_db_encrypted.txt", "w", encoding="utf-8") as enc_file:
+            for line in new_enc_lines:
+                enc_file.write(line + "\n")
+
+        print("User database updated after deletion.")
 def totalpatients():
     try:
         with open("../cashier/patient.txt", "r") as r:
@@ -350,6 +363,32 @@ def delete_doctor():
 
     except FileNotFoundError:
         print("Error: Doctor.txt file not found.")
+def med_remove():
+    try:
+        count = int(input("How many medicine do you want to remove? "))
+        for i in range(0,count):
+                while True:
+                    barcode = int(input(f"Enter medicine barcode (5 digits): "))
+                    # Validation: must be digits and length < 6
+                    if len(barcode) == 5:
+                        with open("med_remove.txt", "w") as file:
+                            file.write(str(barcode) +'\n')
+                        print(f"Barcode {barcode} recorded.")
+                        break
+                    else:
+                        print("Invalid barcode. Must be numeric and 5 digits. Try again.")
+        print("Final barcode saved to med_remove.txt.")
+    except ValueError:
+        print("Error: Please enter a valid number for how many medicines to remove.")
+    except Exception as e:
+        print("Unexpected error:", str(e))
+def view_daily_summary():
+    Date = datetime.date.today().strftime('%Y-%m-%d')
+    summary_file_path = f"accountant/{Date}_daily_summary.txt"
+    with open(summary_file_path, 'r') as f:
+        lines = f.readlines()
+        print(lines)
 menu()
+
 
 
