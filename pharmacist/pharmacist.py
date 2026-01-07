@@ -1,4 +1,5 @@
 import csv
+import datetime
 from datetime import date
 
 
@@ -352,6 +353,9 @@ def pharmacist():
         elif i == "8":
             report()
         elif i == "9":
+            with open('../login/logged_out.txt','a') as l:
+                l.write(f'[{datetime.datetime.now()}] Doctor logged out\n')
+            print('Bye. See you tomorrow. Have a great day')
             break
         else:
             print("Invalid choice! Please select a number between 1 and 9.")

@@ -1,0 +1,15 @@
+=========================================
+   Asia Pacific Hospital Receipt
+=========================================
+Receipt ID: 2
+Patient ID: P09
+Patient Name: Robert King
+Time Created: 2026-01-08 00:14:00
+=========================================
+Items Purchased:
+  Salbutamol x 8 = RM 440.00
+  Metformin x 6 = RM 210.00
+=========================================
+Total Amount: RM 650.00
+=========================================
+

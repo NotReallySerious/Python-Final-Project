@@ -103,16 +103,16 @@ def register():
     print(f'username: {username}, email: {user_email}, Password: {encrypted_pass} Role: {role}')
 
     try:
-        with open('login/user_db.txt', 'a') as f:
+        with open('../login/user_db.txt', 'a') as f:
             f.write(f'{username};{user_email};{password};{role}\n')
             print('User registered successfully')
     except FileNotFoundError as e:
-        print(f'Error: {e}')   
+        print(f'Error: {e}')
     try:
-        with open('login/user_db_encrypted.txt','a') as fe:
-            fe.write(f'{username};{user_email};{encrypt_password(password)};{role}\n')   
+        with open('../login/user_db_encrypted.txt','a') as fe:
+            fe.write(f'{username};{user_email};{encrypt_password(password)};{role}\n')
     except FileNotFoundError as e:
-        print(f'Error: {e}')  
+        print(f'Error: {e}')
 
 def login():
     wrong_attempt_count = 3
@@ -123,9 +123,9 @@ def login():
         enc_password = encrypt_password(password)
         valid_user  = False
 
-        with open('login/user_db_encrypted.txt','r') as f:
+        with open('../login/user_db_encrypted.txt','r') as f:
             lines = f.readlines()
-            
+
             for line in lines:
                 fields = line.strip().split(';')
                 username = fields[0].strip('"')
@@ -137,7 +137,7 @@ def login():
                     break
 
             if valid_user == True:
-                with open('login/clocked_in.txt','a') as cl:
+                with open('../login/clocked_in.txt','a') as cl:
                     cl.write(f"{dt.datetime.now()}: {user_role}, {username}\n")
                 print(f'Hello {user_role}, {username}\n')
 

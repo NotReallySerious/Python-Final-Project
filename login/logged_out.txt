@@ -7,3 +7,7 @@
 [2026-01-07 20:33:20.271364] accountant logged out
 [2026-01-07 21:27:26.381208] Receptionist logged out
 [2026-01-07 22:05:05.465809] Doctor logged out
+[2026-01-07 22:41:55.687725] accountant logged out
+[2026-01-07 23:23:55.129975] accountant logged out
+[2026-01-07 23:44:12.108230] Accountant logged out
+[2026-01-08 00:16:40.996616] accountant logged out
