@@ -352,11 +352,11 @@ def med_remove():
         count = int(input("How many medicine do you want to remove? "))
         for i in range(0,count):
                 while True:
-                    barcode = int(input(f"Enter medicine barcode (5 digits): "))
+                    barcode = input(f"Enter medicine barcode (5 digits): ")
                     # Validation: must be digits and length < 6
-                    if len(barcode) == 5:
-                        with open("med_remove.txt", "w") as file:
-                            file.write(str(barcode) +'\n')
+                    if len(barcode)== 5:
+                        with open("../pharmacist/pharmacist/med_remove.txt", "w") as file:
+                            file.write((barcode) +'\n')
                         print(f"Barcode {barcode} recorded.")
                         break
                     else:
