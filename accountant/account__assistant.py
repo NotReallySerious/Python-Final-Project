@@ -59,7 +59,7 @@ def get_user_total_details():
                 return
     
     # Display and store them into a different username billing receipts
-    receipt_path = f"accountant/{patient_name.replace(" ","_")}_receipt.txt"
+    receipt_path = f"accountant/{patient_name.replace(' ','_')}_receipt.txt"
     try:
         with open(receipt_path, 'a') as receipt:
             receipt.write("Asia Pacific Hospital receipt\n")
