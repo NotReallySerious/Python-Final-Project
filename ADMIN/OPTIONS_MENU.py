@@ -44,13 +44,13 @@ what is your choice? (enter a number 1-4)"""))
                 case 2:
                     while True:
                         choosedocrecs= int(input(f"""
-    *******MANAGING DOCTOR RECORDS*******
-    1. Add Doctor Records 
-    2. Update Doctor Records 
-    3. Delete Doctor Records
-    4. Return to ADMIN MENU
-    *************************************
-                        what is your choice? (enter number 1-3)"""))
+*******MANAGING DOCTOR RECORDS*******
+1. Add Doctor Records 
+2. Update Doctor Records 
+3. Delete Doctor Records
+4. Return to ADMIN MENU
+*************************************
+what is your choice? (enter number 1-4)"""))
                         if choosedocrecs == 1:
                             add_doctor()
                         elif choosedocrecs== 2:
@@ -71,7 +71,7 @@ what is your choice? (enter a number 1-4)"""))
 3. View Daily Income Report
 4. Return to ADMIN MENU
 *****************************
-                        what is your choice? (enter number 1-3)"""))
+                        what is your choice? (enter number 1-4)"""))
                         if chooseviewreports == 1:
                             totalpatients()
                         elif chooseviewreports == 2:
@@ -91,7 +91,7 @@ what is your choice? (enter a number 1-4)"""))
 2. Generate Medicine Summary Report
 3. Return to ADMIN MENU
 ********************************************
-what is your choice? (enter number 1-2)"""))
+what is your choice? (enter number 1-3)"""))
                         if choosinggenerate == 1:
                             read_staff()
                         elif choosinggenerate == 2:
