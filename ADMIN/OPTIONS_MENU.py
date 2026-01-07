@@ -3,6 +3,8 @@ import codecs
 import hashlib
 import datetime
 from pharmacist.pharmacist import view
+from login.auth import encrypt_password
+from accountant.account__assistant import daily_summary
 def menu():
     try:
         i = True
@@ -107,6 +109,9 @@ what is your choice? (enter number 1-3)"""))
                 case 6:
                     print("End.")
                     i = False
+                    with open('login/logged_out.txt','a') as l:
+                        l.write(f'[{datetime.datetime.now()}] accountant logged out\n')
+                    print('Bye. See you tomorrow. Have a great day')
                     break
                 case _: ## Input validation example
                     print("Invalid choice.")
