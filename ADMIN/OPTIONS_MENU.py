@@ -14,7 +14,7 @@ def menu():
 5. Request Removal of Medicine(s) From Medicine Stock 
 6. Exit
 *****************************************
-What is your choice? (enter number 1-5)"""))
+What is your choice? (enter number 1-6)"""))
             match choosingmain:
                 case 1:
                     while True:
@@ -25,7 +25,7 @@ What is your choice? (enter number 1-5)"""))
 3. Delete Clinic Users
 4. Return to ADMIN MENU
 ***********************************
-what is your choice? (enter a number 1-3)"""))
+what is your choice? (enter a number 1-4)"""))
                         if chooseusers== "1":
                             register()
                         elif chooseusers == "2":
